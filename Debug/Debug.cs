@@ -4,8 +4,7 @@
     {
         public static void Log(string text, int type = 0)
         {
-            switch (type)
-            {
+            switch (type) {
                 case (1):
                     Console.WriteLine("[Game] " + text);
                     break;
