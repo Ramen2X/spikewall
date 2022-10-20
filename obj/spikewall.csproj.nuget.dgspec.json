@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall\\spikewall.csproj": {}
+    "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall.csproj": {}
   },
   "projects": {
-    "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall\\spikewall.csproj": {
+    "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall\\spikewall.csproj",
+        "projectUniqueName": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall.csproj",
         "projectName": "spikewall",
-        "projectPath": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall\\spikewall.csproj",
+        "projectPath": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\spikewall\\obj\\",
+        "outputPath": "D:\\Sonic Runners\\Revival Workspace\\Server\\spikewall\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
