@@ -1,6 +1,6 @@
 ﻿namespace spikewall.Debug
 {
-    public static class Debug
+    public static class DebugHelper
     {
         public static void Log(string text, int type = 0)
         {
