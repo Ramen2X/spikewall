@@ -41,7 +41,7 @@ namespace spikewall.Encryption
         }
 
         /// <summary>
-        /// AES encrypts a given string using the encryption key and IV.
+        /// AES encrypts and Base64-encodes a given string using the encryption key and IV.
         /// </summary>
         /// <param name="input">String to be encrypted.</param>
         /// <returns>A Base64-encoded and AES encrypted string.</returns>
