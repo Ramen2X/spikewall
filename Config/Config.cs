@@ -12,43 +12,36 @@ namespace spikewall.Config
             bool isMaintenance;
             bool supportLegacyVersions;
 
-            public int Port
-            {
+            public int Port {
                 get { return port; }
                 set { port = value; }
             }
 
-            public string DbName
-            {
+            public string DbName {
                 get { return dbName; }
                 set { dbName = value; }
             }
 
-            public string DbPassword
-            {
+            public string DbPassword {
                 get { return dbPassword; }
                 set { dbPassword = value; }
             }
 
-            public string DbUser
-            {
+            public string DbUser {
                 get { return dbUser; }
                 set { dbUser = value; }
             }
 
-            public int DbPort
-            {
+            public int DbPort {
                 get { return port; }
                 set { port = value; }
             }
 
-            public bool IsMaintenance
-            {
+            public bool IsMaintenance {
                 get { return isMaintenance; }
                 set { isMaintenance = value; }
             }
-            public bool SupportLegacyVersions
-            {
+            public bool SupportLegacyVersions {
                 get { return supportLegacyVersions; }
                 set { supportLegacyVersions = value; }
             }
