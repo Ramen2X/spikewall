@@ -22,8 +22,16 @@ namespace spikewall
             dbHost = builder.Configuration["Db:Host"];
             dbUser = builder.Configuration["Db:Username"];
             dbPass = builder.Configuration["Db:Password"];
-            dbPort = Int16.Parse(builder.Configuration["Db:Port"]);
             dbName = builder.Configuration["Db:Database"];
+
+            try
+            {
+                dbPort = Int16.Parse(builder.Configuration["Db:Port"]);
+            }
+            catch (ArgumentNullException)
+            {
+                dbPort = 0;
+            }
         }
 
         /// <summary>
