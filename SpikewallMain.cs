@@ -1,3 +1,5 @@
+using spikewall.Debug;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,13 +18,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine($"spikewall - process started at " + DateTime.Now.ToString());
-Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine("This is experimental software. Normal operation is not guaranteed. Do not use with real databases until the software is stable.\n");
-Console.ResetColor();
+DebugHelper.ColorfulWrite(new ColorfulString(ConsoleColor.Green, Console.BackgroundColor, $"spikewall - process started at " + DateTime.Now.ToString() + "\n"));
+DebugHelper.ColorfulWrite(new ColorfulString(ConsoleColor.Red, Console.BackgroundColor, "This is experimental software. Normal operation is not guaranteed. Do not use with real databases until the software is stable.\n\n"));
 
 spikewall.Db.Initialize(ref builder);
+
+app.UseHttpLogging();
 
 app.UseHttpsRedirection();
 
