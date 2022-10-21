@@ -2,23 +2,33 @@
 {
     public static class DebugHelper
     {
+        public static void ColorfulWrite(params ColorfulString[] strings)
+        {
+            var originalFGColor = Console.ForegroundColor;
+            var originalBGColor = Console.BackgroundColor;
+            foreach (var str in strings) {
+                Console.ForegroundColor = str.FGColor;
+                Console.BackgroundColor = str.BGColor;
+                Console.Write(str.Text);
+            }
+            Console.ForegroundColor = originalFGColor;
+            Console.BackgroundColor = originalBGColor;
+        }
+
         public static void Log(string text, int type = 0)
         {
             switch (type) {
                 case (1):
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine("[Game] " + text);
-                    Console.ResetColor();
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Blue, ConsoleColor.Black, "game"));
+                    Console.Write(": " + text + "\n");
                     break;
                 case (2):
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("![Warn]! " + text);
-                    Console.ResetColor();
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Yellow, ConsoleColor.Black, "warn"));
+                    Console.Write(": " + text + "\n");
                     break;
                 default:
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("[Server] " + text);
-                    Console.ResetColor();
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Green, ConsoleColor.Black, "server"));
+                    Console.Write(": " + text + "\n");
                     break;
             }
         }
