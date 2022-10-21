@@ -2,11 +2,11 @@
 {
     public class BaseInfo
     {
-        string m_errorMessage;
-        string m_closeTime;
-        string m_seq;
-        string m_serverTime;
-        string m_statusCode;
+        public string m_errorMessage;
+        public string m_closeTime;
+        public string m_seq;
+        public string m_serverTime;
+        public string m_statusCode;
 
         /// <summary>
         /// The constructors for BaseInfo. If no parameters are specified, the default will be used.

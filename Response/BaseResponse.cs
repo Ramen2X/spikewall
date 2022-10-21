@@ -7,13 +7,13 @@ namespace spikewall.Response
     /// </summary>
     public class BaseResponse
     {
-        BaseInfo m_bi;
-        string m_assetsVersion;
-        string m_clientDataVersion;
-        string m_dataVersion;
-        string m_infoVersion;
-        string m_version;
-        string m_spikewallVersion;
+        public BaseInfo m_bi;
+        public string m_assetsVersion;
+        public string m_clientDataVersion;
+        public string m_dataVersion;
+        public string m_infoVersion;
+        public string m_version;
+        public string m_spikewallVersion;
 
         /// <summary>
         /// The constructors for a BaseResponse. If no parameters are specified, the default will be used.
@@ -36,6 +36,7 @@ namespace spikewall.Response
             m_spikewallVersion = swv;
         }
 
+        // TODO: Get these defaults from the config
         public BaseResponse()
         {
             m_bi = new BaseInfo();
