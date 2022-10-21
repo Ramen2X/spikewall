@@ -6,29 +6,30 @@ namespace spikewall.Encryption
     /// <summary>
     /// AES decryption and encryption helper class.
     /// </summary>
-    public static class Encryption
+    public static class EncryptionHelper
     {
         static readonly string m_encryptionKey = "Ec7bLaTdSuXuf5pW";
-        static readonly byte[] m_encryptionKeyByte = System.Text.Encoding.UTF8.GetBytes(m_encryptionKey);
-        static readonly string m_encryptionIV = "burgersMetKortin"; // Temporary, the client is the one who gives us the decryption IV
-        static readonly byte[] m_encryptionIVByte = System.Text.Encoding.UTF8.GetBytes(m_encryptionIV);
+        static readonly byte[] m_encryptionKeyByte = Encoding.UTF8.GetBytes(m_encryptionKey);
+        static readonly string m_encryptionIV = "burgersMetKortin"; // This is the IV sent by the server, not to be confused with the one the client sends. TODO: Make this configurable!
+        static readonly byte[] m_encryptionIVByte = Encoding.UTF8.GetBytes(m_encryptionIV);
 
         /// <summary>
         /// AES decrypts a given string using the encryption key and IV.
         /// </summary>
         /// <param name="input">Base64-encoded string to be decrypted.</param>
         /// <returns>A decrypted string.</returns>
-        public static string Decrypt(string input)
+        public static string Decrypt(string input, string iv)
         {
             string decryptedOutput;
             byte[] cleanedInput = Convert.FromBase64String(input);
+            byte[] ivByte = Encoding.UTF8.GetBytes(iv);
 
             Aes aes = Aes.Create();
             aes.BlockSize = 128;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
             aes.Key = m_encryptionKeyByte;
-            aes.IV = m_encryptionIVByte;
+            aes.IV = ivByte;
 
             var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
@@ -45,17 +46,18 @@ namespace spikewall.Encryption
         /// </summary>
         /// <param name="input">String to be encrypted.</param>
         /// <returns>A Base64-encoded and AES encrypted string.</returns>
-        public static string Encrypt(string input)
+        public static string Encrypt(string input, string iv)
         {
             string encryptedOutput;
             byte[] encryptedByte;
+            byte[] ivByte = Encoding.UTF8.GetBytes(iv);
 
             Aes aes = Aes.Create();
             aes.BlockSize = 128;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
             aes.Key = m_encryptionKeyByte;
-            aes.IV = m_encryptionIVByte;
+            aes.IV = ivByte;
 
             var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
