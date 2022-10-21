@@ -22,6 +22,8 @@ Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("This is experimental software. Normal operation is not guaranteed. Do not use with real databases until the software is stable.\n");
 Console.ResetColor();
 
+spikewall.Db.Initialize(ref builder);
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
