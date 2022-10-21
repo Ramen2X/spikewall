@@ -5,7 +5,6 @@
     /// </summary>
     public class LoginRequest : BaseRequest
     {
-        public string Version { get; set; }
         public string Device { get; set; }
         public string Platform { get; set; }
         public string Language { get; set; }
