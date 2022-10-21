@@ -11,5 +11,6 @@
         public string SalesLocate { get; set; }
         public string StoreId { get; set; }
         public string Platform_sns { get; set; }
+        public LineAuth LineAuth { get; set; }
     }
 }
