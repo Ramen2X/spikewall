@@ -5,8 +5,8 @@
     /// </summary>
     public class LineAuth
     {
-        public string UserId { get; set; }
-        public string Password { get; set; }
-        public string MigrationPassword { get; set; }
+        public string userId;
+        public string password;
+        public string migrationPassword;
     }
 }
