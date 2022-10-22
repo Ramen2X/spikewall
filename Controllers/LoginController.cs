@@ -12,11 +12,16 @@ namespace spikewall.Controllers
     public class LoginController : ControllerBase
     {
         [HttpPost]
-        public void Login([FromForm] string param, [FromForm] string secure, [FromForm] string key)
+        public void Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            string decryptedJSON = EncryptionHelper.Decrypt(param, key);
+            string paramJSON = param;
 
-            LoginRequest? loginRequest = JsonSerializer.Deserialize<LoginRequest>(decryptedJSON);
+            // The secure parameter is sent by the client to indicate if its param is encrypted.
+            if (secure.Equals("1")) {
+                paramJSON = EncryptionHelper.Decrypt(paramJSON, key);
+            }
+
+            LoginRequest? loginRequest = JsonSerializer.Deserialize<LoginRequest>(paramJSON);
         }
     }
 }

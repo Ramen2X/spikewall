@@ -5,9 +5,9 @@
     /// </summary>
     public class BaseRequest
     {
-        public string sessionId;
-        public string version;
-        public string revivalVerId;
-        public string seq;
+        public string? sessionId { get; set; }
+        public string? version { get; set; }
+        public string? revivalVerId { get; set; }
+        public string? seq { get; set; }
     }
 }

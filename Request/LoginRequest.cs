@@ -8,12 +8,12 @@ namespace spikewall.Request
     [JsonPolymorphic]
     public class LoginRequest : BaseRequest
     {
-        public string device;
-        public string platform;
-        public string language;
-        public string salesLocate;
-        public string storeId;
-        public string platform_sns;
-        public LineAuth lineAuth;
+        public string? device { get; set; }
+        public string? platform { get; set; }
+        public string? language { get; set; }
+        public string? salesLocate { get; set; }
+        public string? storeId { get; set; }
+        public string? platform_sns { get; set; }
+        public LineAuth? lineAuth { get; set; }
     }
 }
