@@ -1,6 +1,6 @@
 ﻿namespace spikewall.Request
 {
-    public class PlayerRequest : BaseRequest
+    public class SetUsernameRequest : BaseRequest
     {
         public string? userName { get; set; }
     }
