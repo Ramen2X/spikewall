@@ -35,6 +35,52 @@ namespace spikewall
         }
 
         /// <summary>
+        /// Set up necessary database tables
+        /// </summary>
+        public static void SetupTables()
+        {
+            try
+            {
+                using (var conn = Get())
+                {
+                    conn.Open();
+
+                    var cmd = new MySqlCommand(
+                        @"CREATE TABLE IF NOT EXISTS `sw_players` (
+                            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                            username VARCHAR(12) NOT NULL,
+                            password VARCHAR(10) NOT NULL,
+                            migrate_password VARCHAR(12) NOT NULL,
+                            user_password TEXT NOT NULL,
+                            player_key VARCHAR(32) NOT NULL,
+                            last_login BIGINT NOT NULL,
+                            language INTEGER NOT NULL,
+                            characters JSON,
+                            chao JSON,
+                            suspended_until BIGINT NOT NULL,
+                            suspend_reason INTEGER NOT NULL,
+                            last_login_device TEXT NOT NULL,
+                            last_login_platform INTEGER NOT NULL,
+                            last_login_versionid INTEGER NOT NULL,
+                            PRIMARY KEY (id)
+                        );
+                        CREATE TABLE IF NOT EXISTS `sw_config` (
+                            is_maintenance TINYINT NOT NULL,
+                            support_legacy_versions TINYINT NOT NULL
+                        );", conn);
+
+                    cmd.ExecuteNonQuery();
+
+                    conn.Close();
+                }
+            }
+            catch (MySqlException)
+            {
+                Console.WriteLine("Failed to set up tables");
+            }
+        }
+
+        /// <summary>
         /// Retrieve valid MySQL connection to make queries with.
         /// </summary>
         ///
