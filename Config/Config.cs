@@ -33,17 +33,24 @@ namespace spikewall.Config
             }
 
             public int DbPort {
-                get { return port; }
-                set { port = value; }
+                get { return dbPort; }
+                set { dbPort = value; }
             }
 
             public bool IsMaintenance {
                 get { return isMaintenance; }
                 set { isMaintenance = value; }
             }
+
             public bool SupportLegacyVersions {
                 get { return supportLegacyVersions; }
                 set { supportLegacyVersions = value; }
+            }
+
+            public bool DebugLog
+            {
+                get { return debugLog; }
+                set { debugLog = value; }
             }
     }
     
