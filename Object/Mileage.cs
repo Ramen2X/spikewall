@@ -26,6 +26,7 @@
             stageMaxScore = p_stageMaxScore;
         }
     }
+
     public class MileageMapState : MapInfo
     {
         public Int64? episode { get; set; }

@@ -3,9 +3,9 @@
     public class BaseInfo
     {
         public string errorMessage { get; set; }
-        public long closeTime { get; set; }
+        public Int64 closeTime { get; set; }
         public string seq { get; set; }
-        public long server_time { get; set; }
+        public Int64 server_time { get; set; }
         public int statusCode { get; set; }
 
         /// <summary>
