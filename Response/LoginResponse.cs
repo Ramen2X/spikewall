@@ -5,7 +5,7 @@ namespace spikewall.Response
     /// <summary>
     /// Response for when a new user is created for the client
     /// </summary>
-    public class LoginResponse_NewUser : BaseResponse
+    public class NewUserResponse : BaseResponse
     {
         public string userId { get; set; }
         public string password { get; set; }
@@ -13,7 +13,7 @@ namespace spikewall.Response
         public string countryId { get; set; }
         public string countryCode { get; set; }
 
-        public LoginResponse_NewUser(string userId, string password, string key, string countryId, string countryCode)
+        public NewUserResponse(string userId, string password, string key, string countryId, string countryCode)
         {
             this.userId = userId;
             this.password = password;
@@ -28,11 +28,11 @@ namespace spikewall.Response
     /// <summary>
     /// Response for client checking the key
     /// </summary>
-    public class LoginResponse_KeyCheck : BaseResponse
+    public class ServerKeyCheckResponse : BaseResponse
     {
         public string? key { get; set; }
 
-        public LoginResponse_KeyCheck(string key)
+        public ServerKeyCheckResponse(string key)
         {
             this.key = key;
 
@@ -43,7 +43,7 @@ namespace spikewall.Response
     /// <summary>
     /// Response for when an existing user returns
     /// </summary>
-    public class LoginResponse_ExistingUser : BaseResponse
+    public class LoginResponse : BaseResponse
     {
         public string? userName { get; set; }
         public string? sessionId { get; set; }
@@ -59,14 +59,14 @@ namespace spikewall.Response
 
         public InviteBasicIncentive? inviteBasicIncentiv { get; set; }
 
-        public LoginResponse_ExistingUser()
+        public LoginResponse()
         {
             this.inviteBasicIncentiv = new InviteBasicIncentive();
 
             this.statusCode = 0;
         }
 
-        public LoginResponse_ExistingUser(string userName, string sessionId, Int64 sessionTimeLimit, Int64 energyRecveryTime, Int64 energyRecoveryMax, Int64 itemId, Int64 numItem)
+        public LoginResponse(string userName, string sessionId, Int64 sessionTimeLimit, Int64 energyRecveryTime, Int64 energyRecoveryMax, Int64 itemId, Int64 numItem)
         {
             this.userName = userName;
             this.sessionId = sessionId;
@@ -77,8 +77,6 @@ namespace spikewall.Response
             this.inviteBasicIncentiv = new InviteBasicIncentive();
             this.inviteBasicIncentiv.itemId = itemId;
             this.inviteBasicIncentiv.numItem = numItem;
-
-            this.statusCode = SRStatusCode.Ok;
         }
     }
 }

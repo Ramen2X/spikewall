@@ -70,7 +70,7 @@ namespace spikewall.Controllers
                 // NOTE: US country code hardcoded - in the future we may want to set this
                 //       correctly, but at this time I'm not sure what use we would have for it
                 //       outside of geoblocking (which is cringe).
-                var response = new LoginResponse_NewUser(id, pass, keypass, "1", "US");
+                var response = new NewUserResponse(id, pass, keypass, "1", "US");
 
                 return new JsonResult(EncryptedResponse.Generate(key, response));
             } else {
@@ -101,7 +101,7 @@ namespace spikewall.Controllers
                     if (string.IsNullOrEmpty(loginRequest.lineAuth.password)) {
                         // Client is checking our integrity by asking for the key before it sends
                         // us the password. Return the key.
-                        var keyResponse = new LoginResponse_KeyCheck(serverKey);
+                        var keyResponse = new ServerKeyCheckResponse(serverKey);
                         return new JsonResult(EncryptedResponse.Generate(key, keyResponse));
                     } else {
                         // Hash our password to match the one sent by the client
@@ -158,7 +158,7 @@ namespace spikewall.Controllers
                             command.ExecuteNonQuery();
 
                             // Set up response
-                            var response = new LoginResponse_ExistingUser();
+                            var response = new LoginResponse();
                             response.userName = username;
                             response.sessionId = sid;
                             response.sessionTimeLimit = loginTime + 3600; // FIXME: Hardcoded, an hour after login time
