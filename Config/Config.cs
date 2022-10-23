@@ -7,6 +7,7 @@ namespace spikewall.Config
             string dbName = "spikewall";
             string dbPassword = "default";
             string dbUser = "root";
+            string iv = "burgersMetKortin";
             int dbPort = 3306;
             bool debugLog;
             bool isMaintenance;
@@ -52,15 +53,22 @@ namespace spikewall.Config
                 get { return debugLog; }
                 set { debugLog = value; }
             }
+
+            public string IV
+            {
+                get { return iv; }
+                set { iv = value; }
+            }
     }
     
-    public static class Set
+    public static class ConfigGetter
     {
+        public static Current currentConfig = new Current();
+
         // Create a new config object and return it, TODO: take values from a config file
-        public static Current Config()
+        public static Current GetConfig()
         {
-            var config = new Config.Current();
-            return config;
+            return currentConfig;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using spikewall.Config;
 using System.Text;
 
 namespace spikewall.Encryption
@@ -10,7 +11,7 @@ namespace spikewall.Encryption
     {
         static readonly string m_encryptionKey = "Ec7bLaTdSuXuf5pW";
         static readonly byte[] m_encryptionKeyByte = Encoding.UTF8.GetBytes(m_encryptionKey);
-        static readonly string m_encryptionIV = "burgersMetKortin"; // This is the IV sent by the server, not to be confused with the one the client sends. TODO: Make this configurable!
+        static readonly string m_encryptionIV = ConfigGetter.GetConfig().IV; // This is the IV sent by the server, not to be confused with the one the client sends. TODO: Make this configurable!
         static readonly byte[] m_encryptionIVByte = Encoding.UTF8.GetBytes(m_encryptionIV);
 
         /// <summary>
