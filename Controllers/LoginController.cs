@@ -36,6 +36,8 @@ namespace spikewall.Controllers
             var loginTime = DateTimeOffset.Now.ToUnixTimeSeconds();
 
             var uid = loginRequest.lineAuth.userId;
+            string sql;
+            MySqlCommand command;
 
             // Determine whether this is a new user or returning user (userId is always '0' for new user)
             if (uid == "0")
@@ -43,7 +45,7 @@ namespace spikewall.Controllers
                 string pass = GenerateRandomPassword(20);
                 string keypass = GenerateRandomPassword(20);
 
-                string sql = Db.GetCommand(
+                sql = Db.GetCommand(
                     @"INSERT INTO `sw_players` (
                         password,
                         server_key,
@@ -64,7 +66,7 @@ namespace spikewall.Controllers
                     loginRequest.language
                 );
 
-                var command = new MySqlCommand(sql, conn);
+                command = new MySqlCommand(sql, conn);
 
                 // Command will return last inserted ID
                 uid = command.ExecuteScalar().ToString();
@@ -72,19 +74,19 @@ namespace spikewall.Controllers
                 // NOTE: US country code hardcoded - in the future we may want to set this
                 //       correctly, but at this time I'm not sure what use we would have for it
                 //       outside of geoblocking (which is cringe).
-                var response = new NewUserResponse(uid, pass, keypass, "1", "US");
+                var newUserResponse = new NewUserResponse(uid, pass, keypass, "1", "US");
 
-                return new JsonResult(EncryptedResponse.Generate(key, response));
+                return new JsonResult(EncryptedResponse.Generate(key, newUserResponse));
             }
 
             // Retrieve user info matching the provided ID
-            string sql = Db.GetCommand(
+            sql = Db.GetCommand(
                 @"SELECT username, password, server_key FROM `sw_players` WHERE `id` = '{0}';",
                 uid
             );
 
             // Execute query
-            var command = new MySqlCommand(sql, conn);
+            command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
             // Determine if there's a row to read (there should be 1 if the user exists, or 0 if not)
@@ -104,7 +106,7 @@ namespace spikewall.Controllers
 
             // Client may check server authenticity before sending the user password by asking for
             // the "key" we sent during initial registration. In this scenario it sends a normal
-            // login request but with an empty password field, which we respond to with the key.
+            // login request but with an empty password field, so we handle that here.
             if (string.IsNullOrEmpty(loginRequest.lineAuth.password)) {
                 var keyResponse = new ServerKeyCheckResponse(serverKey);
                 return new JsonResult(EncryptedResponse.Generate(key, keyResponse));
@@ -165,17 +167,17 @@ namespace spikewall.Controllers
             command.ExecuteNonQuery();
 
             // Set up response
-            var response = new LoginResponse();
-            response.userName = username;
-            response.sessionId = sid;
-            response.sessionTimeLimit = loginTime + 3600; // FIXME: Hardcoded, an hour after login time
-            response.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
-            response.energyRecoveryMax = 17171;           // FIXME: Hardcoded
-            response.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
-            response.inviteBasicIncentiv.numItem = 5;     // FIXME: Hardcoded
+            var loginResponse = new LoginResponse();
+            loginResponse.userName = username;
+            loginResponse.sessionId = sid;
+            loginResponse.sessionTimeLimit = loginTime + 3600; // FIXME: Hardcoded, an hour after login time
+            loginResponse.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
+            loginResponse.energyRecoveryMax = 17171;           // FIXME: Hardcoded
+            loginResponse.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
+            loginResponse.inviteBasicIncentiv.numItem = 5;     // FIXME: Hardcoded
 
             // Encrypt and containerize
-            return new JsonResult(EncryptedResponse.Generate(key, response));
+            return new JsonResult(EncryptedResponse.Generate(key, loginResponse));
         }
 
         private string GenerateRandomPassword(int length)
