@@ -47,22 +47,28 @@ namespace spikewall
 
                     var cmd = new MySqlCommand(
                         @"CREATE TABLE IF NOT EXISTS `sw_players` (
-                            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                            username VARCHAR(12) NOT NULL,
-                            password VARCHAR(10) NOT NULL,
-                            migrate_password VARCHAR(12) NOT NULL,
-                            user_password TEXT NOT NULL,
-                            player_key VARCHAR(32) NOT NULL,
-                            last_login BIGINT NOT NULL,
-                            language INTEGER NOT NULL,
+                            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            password VARCHAR(20) NOT NULL,
+                            server_key VARCHAR(20) NOT NULL,
+
+                            username VARCHAR(12) NOT NULL DEFAULT '',
+                            migrate_password VARCHAR(12),
+                            language INTEGER,
                             characters JSON,
                             chao JSON,
-                            suspended_until BIGINT NOT NULL,
-                            suspend_reason INTEGER NOT NULL,
-                            last_login_device TEXT NOT NULL,
-                            last_login_platform INTEGER NOT NULL,
-                            last_login_versionid INTEGER NOT NULL,
-                            PRIMARY KEY (id)
+                            suspended_until BIGINT,
+                            suspend_reason INTEGER,
+
+                            last_login BIGINT,
+                            last_login_device TEXT,
+                            last_login_platform INTEGER,
+                            last_login_version TEXT
+                        );
+                        ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
+                        CREATE TABLE IF NOT EXISTS `sw_sessions` (
+                            sid VARCHAR(48) NOT NULL PRIMARY KEY,
+                            uid BIGINT UNSIGNED NOT NULL,
+                            time BIGINT NOT NULL
                         );
                         CREATE TABLE IF NOT EXISTS `sw_config` (
                             is_maintenance TINYINT NOT NULL,
@@ -74,9 +80,9 @@ namespace spikewall
                     conn.Close();
                 }
             }
-            catch (MySqlException)
+            catch (MySqlException e)
             {
-                Console.WriteLine("Failed to set up tables");
+                Console.WriteLine("Failed to set up tables: " + e.ToString());
             }
         }
 
@@ -101,6 +107,24 @@ namespace spikewall
 
             // Return connection
             return new MySqlConnection(connectionString);
+        }
+
+        public static string EscapeString(string s)
+        {
+            return s.Replace("'", "\\'");
+        }
+
+        /// <summary>
+        /// Generate an SQL string where all paramters are escaped (assumes single quotes are used for values)
+        /// </summary>
+        public static string GetCommand(string format, params object[] arg)
+        {
+            for (int i = 0; i < arg.Length; i++) {
+                if (arg[i] is string) {
+                    arg[i] = EscapeString((string) arg[i]);
+                }
+            }
+            return string.Format(format, arg);
         }
 
         private static string dbHost = "";
