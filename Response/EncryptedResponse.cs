@@ -1,4 +1,7 @@
-﻿namespace spikewall.Response
+﻿using spikewall.Encryption;
+using System.Text.Json;
+
+namespace spikewall.Response
 {
     /// <summary>
     /// Class which takes the final serialized and encrypted param and wraps it
@@ -16,6 +19,11 @@
             key = k;
             param = p;
             secure = s;
+        }
+
+        public static EncryptedResponse Generate(string key, object input)
+        {
+            return new EncryptedResponse(key, EncryptionHelper.Encrypt(JsonSerializer.Serialize(input), key), "1");
         }
     }
 }
