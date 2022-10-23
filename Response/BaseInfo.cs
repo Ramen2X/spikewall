@@ -161,7 +161,7 @@
             closeTime = DateTimeOffset.Now.AddTicks(-1).AddDays(1).ToUnixTimeSeconds();
             seq = "0";
             server_time = DateTimeOffset.Now.ToUnixTimeSeconds();
-            statusCode = SRStatusCode.ServerMaintenance;
+            statusCode = SRStatusCode.Ok;
         }
     }
 }
