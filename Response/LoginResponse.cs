@@ -1,4 +1,5 @@
-﻿using System;
+﻿using spikewall.Object;
+using System;
 
 namespace spikewall.Response
 {
@@ -51,19 +52,11 @@ namespace spikewall.Response
         public Int64? energyRecveryTime { get; set; }
         public Int64? energyRecoveryMax { get; set; }
 
-        public class InviteBasicIncentive
-        {
-            public Int64? itemId { get; set; }
-            public Int64? numItem { get; set; }
-        }
-
-        public InviteBasicIncentive? inviteBasicIncentiv { get; set; }
+        public spikewall.Object.Item? inviteBasicIncentiv { get; set; }
 
         public LoginResponse()
         {
-            this.inviteBasicIncentiv = new InviteBasicIncentive();
-
-            this.statusCode = 0;
+            this.inviteBasicIncentiv = new Item();
         }
 
         public LoginResponse(string userName, string sessionId, Int64 sessionTimeLimit, Int64 energyRecveryTime, Int64 energyRecoveryMax, Int64 itemId, Int64 numItem)
@@ -74,7 +67,7 @@ namespace spikewall.Response
             this.energyRecveryTime = energyRecveryTime;
             this.energyRecoveryMax = energyRecoveryMax;
 
-            this.inviteBasicIncentiv = new InviteBasicIncentive();
+            this.inviteBasicIncentiv = new Item();
             this.inviteBasicIncentiv.itemId = itemId;
             this.inviteBasicIncentiv.numItem = numItem;
         }
