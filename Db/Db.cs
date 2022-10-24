@@ -74,7 +74,11 @@ namespace spikewall
                             support_legacy_versions TINYINT NOT NULL DEFAULT 1,
                             debug_log TINYINT NOT NULL DEFAULT 0,
                             encryption_iv VARCHAR(16) NOT NULL DEFAULT 'burgersMetKortin',
-                            session_time INT NOT NULL DEFAULT 3600
+                            session_time INT NOT NULL DEFAULT 3600,
+                            assets_version VARCHAR(3) NOT NULL DEFAULT '049',
+                            client_version VARCHAR(8) NOT NULL DEFAULT '2.0.3',
+                            data_version VARCHAR(2) NOT NULL DEFAULT '15',
+                            info_version VARCHAR(3) NOT NULL DEFAULT '017'
                         );
                         INSERT INTO `sw_config` () VALUES ();", conn);
 
