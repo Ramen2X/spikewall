@@ -9,7 +9,7 @@ namespace spikewall.Response
     {
         public string assets_version { get; set; }
         public string client_data_version { get; set; }
-        public string data_version { get; set; }
+        public Int64 data_version { get; set; }
         public string info_version { get; set; }
         public string version { get; set; }
         public string spikewall_version { get; set; }
@@ -23,7 +23,7 @@ namespace spikewall.Response
         /// <param name="iv">The info version.</param>
         /// <param name="v">The version.</param>
         /// <param name="swv">The spikewall version.</param>
-        public BaseResponse(string av, string cdv, string dv, string iv, string v, string swv)
+        public BaseResponse(string av, string cdv, Int64 dv, string iv, string v, string swv)
         {
             assets_version = av;
             client_data_version = cdv;
@@ -33,14 +33,20 @@ namespace spikewall.Response
             spikewall_version = swv;
         }
 
-        // TODO: Get these defaults from the config
         public BaseResponse()
         {
-            assets_version = "054";
-            client_data_version = "2.2.2";
-            data_version = "15";
-            info_version = "017";
-            version = "2.2.2";
+            assets_version = (string) Config.Get("assets_version");
+            client_data_version = (string) Config.Get("client_version");
+            data_version = (Int64) Config.Get("data_version");
+            info_version = (string) Config.Get("info_version");
+
+            // This and client_data_version are pretty much
+            // never different, so this makes sense for now
+            version = (string) Config.Get("client_version");
+
+            // This doesn't make much sense to get from the config
+            // considering that spikewall's version would
+            // only change with a recompilation anyway.
             spikewall_version = "0.0.1";
         }
     }
