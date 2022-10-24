@@ -19,15 +19,12 @@ namespace spikewall.Controllers
         [HttpPost]
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            string paramJSON = param;
             var iv = (string)Config.Get("encryption_iv");
-
-            // The secure parameter is sent by the client to indicate if its param is encrypted.
-            if (secure.Equals("1")) {
-                paramJSON = EncryptionHelper.Decrypt(paramJSON, key);
+            BaseResponse error = null;
+            LoginRequest loginRequest = BaseRequest.Retrieve<LoginRequest>(param, secure, key, out error, true);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
             }
-
-            LoginRequest? loginRequest = JsonSerializer.Deserialize<LoginRequest>(paramJSON);
 
             using var conn = Db.Get();
 
@@ -133,15 +130,22 @@ namespace spikewall.Controllers
             // Generate random session ID
             var sid = GenerateRandomPassword(48);
 
+            var expiryTime = loginTime + Convert.ToInt64(Config.Get("session_time"));
+
             // Generate SQL to store session
             string insertSessionSql = Db.GetCommand(
                 @"INSERT INTO `sw_sessions` (
                     sid,
                     uid,
-                    time
+                    expiry
                 ) VALUES ('{0}', '{1}', '{2}')",
                 sid,
                 uid,
+                expiryTime
+            );
+
+            string removeStaleSessionsSql = Db.GetCommand(
+                @"DELETE FROM `sw_sessions` WHERE expiry < '{0}';",
                 loginTime
             );
 
@@ -171,7 +175,7 @@ namespace spikewall.Controllers
             var loginResponse = new LoginResponse();
             loginResponse.userName = username;
             loginResponse.sessionId = sid;
-            loginResponse.sessionTimeLimit = loginTime + Convert.ToInt64(Config.Get("session_time"));
+            loginResponse.sessionTimeLimit = expiryTime;
             loginResponse.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
             loginResponse.energyRecoveryMax = 17171;           // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
@@ -201,17 +205,15 @@ namespace spikewall.Controllers
         [HttpPost]
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            string paramJSON = param;
             var iv = (string)Config.Get("encryption_iv");
-
-            // The secure parameter is sent by the client to indicate if its param is encrypted.
-            if (secure.Equals("1")) {
-                paramJSON = EncryptionHelper.Decrypt(paramJSON, key);
-            }
+            BaseResponse error = null;
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest? baseRequest = JsonSerializer.Deserialize<LoginRequest>(paramJSON);
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
 
             var variousParameterResponse = new VariousParameterResponse();
             return new JsonResult(EncryptedResponse.Generate(iv, variousParameterResponse));

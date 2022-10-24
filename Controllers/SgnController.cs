@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using spikewall.Debug;
 using spikewall.Encryption;
+using spikewall.Request;
 using spikewall.Response;
 
 namespace spikewall.Controllers
@@ -13,12 +14,11 @@ namespace spikewall.Controllers
         [HttpPost]
         public JsonResult sendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            string paramJSON = param;
             var iv = (string)Config.Get("encryption_iv");
-
-            // The secure parameter is sent by the client to indicate if its param is encrypted.
-            if (secure.Equals("1")) {
-                paramJSON = EncryptionHelper.Decrypt(paramJSON, key);
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
             }
 
             // Client appears to send the following information:

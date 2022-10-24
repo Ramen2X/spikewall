@@ -66,7 +66,7 @@ namespace spikewall
                         CREATE TABLE IF NOT EXISTS `sw_sessions` (
                             sid VARCHAR(48) NOT NULL PRIMARY KEY,
                             uid BIGINT UNSIGNED NOT NULL,
-                            time BIGINT NOT NULL
+                            expiry BIGINT NOT NULL
                         );
                         CREATE TABLE IF NOT EXISTS `sw_config` (
                             id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
