@@ -80,7 +80,11 @@ namespace spikewall
                             data_version VARCHAR(2) NOT NULL DEFAULT '15',
                             info_version VARCHAR(3) NOT NULL DEFAULT '017'
                         );
-                        INSERT INTO `sw_config` () VALUES ();", conn);
+                        INSERT INTO `sw_config` () VALUES ();
+                        CREATE TABLE IF NOT EXISTS `sw_itemownership` (
+                            user_id BIGINT UNSIGNED NOT NULL,
+                            item_id BIGINT UNSIGNED NOT NULL
+                        );", conn);
 
                     cmd.ExecuteNonQuery();
 
