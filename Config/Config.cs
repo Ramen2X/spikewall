@@ -1,74 +1,60 @@
-namespace spikewall.Config
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using spikewall;
+
+namespace spikewall
 {
-    // Config Object
-    public class Current
+    public class Config
     {
-            int port = 9001;
-            string dbName = "spikewall";
-            string dbPassword = "default";
-            string dbUser = "root";
-            string iv = "burgersMetKortin";
-            int dbPort = 3306;
-            bool debugLog;
-            bool isMaintenance;
-            bool supportLegacyVersions;
-
-            public int Port {
-                get { return port; }
-                set { port = value; }
-            }
-
-            public string DbName {
-                get { return dbName; }
-                set { dbName = value; }
-            }
-
-            public string DbPassword {
-                get { return dbPassword; }
-                set { dbPassword = value; }
-            }
-
-            public string DbUser {
-                get { return dbUser; }
-                set { dbUser = value; }
-            }
-
-            public int DbPort {
-                get { return dbPort; }
-                set { dbPort = value; }
-            }
-
-            public bool IsMaintenance {
-                get { return isMaintenance; }
-                set { isMaintenance = value; }
-            }
-
-            public bool SupportLegacyVersions {
-                get { return supportLegacyVersions; }
-                set { supportLegacyVersions = value; }
-            }
-
-            public bool DebugLog
-            {
-                get { return debugLog; }
-                set { debugLog = value; }
-            }
-
-            public string IV
-            {
-                get { return iv; }
-                set { iv = value; }
-            }
-    }
-    
-    public static class ConfigGetter
-    {
-        public static Current currentConfig = new Current();
-
-        // Create a new config object and return it, TODO: take values from a config file
-        public static Current GetConfig()
+        public static string GetString(string key)
         {
-            return currentConfig;
+            using var conn = Db.Get();
+
+            conn.Open();
+
+            var sql = Db.GetCommand("SELECT {0} FROM `sw_config` WHERE id = '{1}';",
+                                    key, m_currentConfig);
+
+            var command = new MySqlCommand(sql, conn);
+
+            string r = command.ExecuteScalar().ToString();
+
+            conn.Close();
+
+            return r;
         }
+
+        public static Int64 GetInt(string key)
+        {
+            return Int64.Parse(GetString(key));
+        }
+
+        public static bool GetBool(string key)
+        {
+            return GetInt(key) != 0;
+        }
+
+        public static void Set(string key, object newValue)
+        {
+            using var conn = Db.Get();
+
+            conn.Open();
+
+            var sql = Db.GetCommand("UPDATE `sw_config` SET {0} = '{1}' WHERE id = '{2}';",
+                                    key, newValue.ToString(), m_currentConfig);
+
+            var command = new MySqlCommand(sql, conn);
+
+            command.ExecuteNonQuery();
+
+            conn.Close();
+        }
+
+        public static void SwitchConfig(int newConf)
+        {
+            m_currentConfig = newConf;
+        }
+
+        private static int m_currentConfig = 1;
     }
 }

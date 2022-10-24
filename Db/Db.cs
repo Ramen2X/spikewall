@@ -19,18 +19,18 @@ namespace spikewall
         ///
         public static void Initialize(ref WebApplicationBuilder builder)
         {
-            dbHost = builder.Configuration["Db:Host"];
-            dbUser = builder.Configuration["Db:Username"];
-            dbPass = builder.Configuration["Db:Password"];
-            dbName = builder.Configuration["Db:Database"];
+            m_dbHost = builder.Configuration["Db:Host"];
+            m_dbUser = builder.Configuration["Db:Username"];
+            m_dbPass = builder.Configuration["Db:Password"];
+            m_dbName = builder.Configuration["Db:Database"];
 
             try
             {
-                dbPort = Int16.Parse(builder.Configuration["Db:Port"]);
+                m_dbPort = Int16.Parse(builder.Configuration["Db:Port"]);
             }
             catch (ArgumentNullException)
             {
-                dbPort = 0;
+                m_dbPort = 0;
             }
         }
 
@@ -54,8 +54,6 @@ namespace spikewall
                             username VARCHAR(12) NOT NULL DEFAULT '',
                             migrate_password VARCHAR(12),
                             language INTEGER,
-                            characters JSON,
-                            chao JSON,
                             suspended_until BIGINT,
                             suspend_reason INTEGER,
 
@@ -71,9 +69,14 @@ namespace spikewall
                             time BIGINT NOT NULL
                         );
                         CREATE TABLE IF NOT EXISTS `sw_config` (
-                            is_maintenance TINYINT NOT NULL,
-                            support_legacy_versions TINYINT NOT NULL
-                        );", conn);
+                            id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            is_maintenance TINYINT NOT NULL DEFAULT 0,
+                            support_legacy_versions TINYINT NOT NULL DEFAULT 1,
+                            debug_log TINYINT NOT NULL DEFAULT 0,
+                            encryption_iv VARCHAR(16) NOT NULL DEFAULT 'burgersMetKortin',
+                            session_time INT NOT NULL DEFAULT 3600
+                        );
+                        INSERT INTO `sw_config` () VALUES ();", conn);
 
                     cmd.ExecuteNonQuery();
 
@@ -103,7 +106,7 @@ namespace spikewall
         {
             // Build MySQL connection string out of loaded parameters
             string connectionString = String.Format("server={0};user={1};database={2};port={3};password={4}",
-                                                    dbHost, dbUser, dbName, dbPort, dbPass);
+                                                    m_dbHost, m_dbUser, m_dbName, m_dbPort, m_dbPass);
 
             // Return connection
             return new MySqlConnection(connectionString);
@@ -127,10 +130,10 @@ namespace spikewall
             return string.Format(format, arg);
         }
 
-        private static string dbHost = "";
-        private static string dbUser = "";
-        private static string dbPass = "";
-        private static Int16 dbPort = 0;
-        private static string dbName = "";
+        private static string m_dbHost = "";
+        private static string m_dbUser = "";
+        private static string m_dbPass = "";
+        private static Int16 m_dbPort = 0;
+        private static string m_dbName = "";
     }
 }
