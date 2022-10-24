@@ -6,7 +6,7 @@ namespace spikewall
 {
     public class Config
     {
-        public static string GetString(string key)
+        public static object Get(string key)
         {
             using var conn = Db.Get();
 
@@ -17,21 +17,11 @@ namespace spikewall
 
             var command = new MySqlCommand(sql, conn);
 
-            string r = command.ExecuteScalar().ToString();
+            object r = command.ExecuteScalar().ToString();
 
             conn.Close();
 
             return r;
-        }
-
-        public static Int64 GetInt(string key)
-        {
-            return Int64.Parse(GetString(key));
-        }
-
-        public static bool GetBool(string key)
-        {
-            return GetInt(key) != 0;
         }
 
         public static void Set(string key, object newValue)

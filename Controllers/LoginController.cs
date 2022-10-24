@@ -170,7 +170,7 @@ namespace spikewall.Controllers
             var loginResponse = new LoginResponse();
             loginResponse.userName = username;
             loginResponse.sessionId = sid;
-            loginResponse.sessionTimeLimit = loginTime + Config.GetInt("session_time");
+            loginResponse.sessionTimeLimit = loginTime + (Int64) Config.Get("session_time");
             loginResponse.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
             loginResponse.energyRecoveryMax = 17171;           // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
