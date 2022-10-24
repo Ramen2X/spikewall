@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Base response class from which all other responses are derived from.
@@ -9,7 +7,7 @@ namespace spikewall.Response
     {
         public string assets_version { get; set; }
         public string client_data_version { get; set; }
-        public Int64 data_version { get; set; }
+        public string data_version { get; set; }
         public string info_version { get; set; }
         public string version { get; set; }
         public string spikewall_version { get; set; }
@@ -23,7 +21,7 @@ namespace spikewall.Response
         /// <param name="iv">The info version.</param>
         /// <param name="v">The version.</param>
         /// <param name="swv">The spikewall version.</param>
-        public BaseResponse(string av, string cdv, Int64 dv, string iv, string v, string swv)
+        public BaseResponse(string av, string cdv, string dv, string iv, string v, string swv)
         {
             assets_version = av;
             client_data_version = cdv;
@@ -37,7 +35,7 @@ namespace spikewall.Response
         {
             assets_version = (string) Config.Get("assets_version");
             client_data_version = (string) Config.Get("client_version");
-            data_version = (Int64) Config.Get("data_version");
+            data_version = (string) Config.Get("data_version");
             info_version = (string) Config.Get("info_version");
 
             // This and client_data_version are pretty much
