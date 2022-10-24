@@ -2,6 +2,7 @@
 {
     public class PlayerState
     {
+        public Item[]? items { get; set; }
         public string[]? equipItemList { get; set; }
         public string? mainCharaID { get; set; }
         public string? subCharaID { get; set; }
