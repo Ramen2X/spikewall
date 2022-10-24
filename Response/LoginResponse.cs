@@ -79,4 +79,25 @@ namespace spikewall.Response
             this.inviteBasicIncentiv.numItem = numItem;
         }
     }
+
+    public class VariousParameterResponse : BaseResponse
+    {
+        public Int64? cmSkipCount { get; set; }
+        public Int64? energyRecoveryMax { get; set; }
+        public Int64? energyRecveryTime { get; set; }
+        public Int64? onePlayCmCount { get; set; }
+        public Int64? onePlayContinueCount { get; set; }
+        public Int64? isPurchased { get; set; }
+
+        // TODO: Get these defaults from the config
+        public VariousParameterResponse()
+        {
+            cmSkipCount = 5;
+            energyRecoveryMax = 5;
+            energyRecveryTime = 660; // 11 minutes
+            onePlayCmCount = 0;
+            onePlayContinueCount = 5;
+            isPurchased = 0;
+        }
+    }
 }

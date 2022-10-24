@@ -191,4 +191,28 @@ namespace spikewall.Controllers
             return builder.ToString();
         }
     }
+
+    [ApiController]
+    [Route("/login/getVariousParameter/")]
+    [Produces("text/json")]
+    public class GetVariousParameterController : ControllerBase
+    {
+        [HttpPost]
+        public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            string paramJSON = param;
+
+            // The secure parameter is sent by the client to indicate if its param is encrypted.
+            if (secure.Equals("1")) {
+                paramJSON = EncryptionHelper.Decrypt(paramJSON, key);
+            }
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest? baseRequest = JsonSerializer.Deserialize<LoginRequest>(paramJSON);
+
+            var variousParameterResponse = new VariousParameterResponse();
+            return new JsonResult(EncryptedResponse.Generate(key, variousParameterResponse));
+        }
+    }
 }
