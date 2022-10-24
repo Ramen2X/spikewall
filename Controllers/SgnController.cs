@@ -14,6 +14,7 @@ namespace spikewall.Controllers
         public JsonResult sendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             string paramJSON = param;
+            var iv = (string)Config.Get("encryption_iv");
 
             // The secure parameter is sent by the client to indicate if its param is encrypted.
             if (secure.Equals("1")) {
@@ -28,7 +29,7 @@ namespace spikewall.Controllers
             // (e.g. should we be checking if the session ID has expired?) but the game only
             // needs a simple base response, so that's all we do for now.
 
-            return new JsonResult(EncryptedResponse.Generate(key, new BaseResponse()));
+            return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
         }
     }
 }

@@ -20,6 +20,7 @@ namespace spikewall.Controllers
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             string paramJSON = param;
+            var iv = (string)Config.Get("encryption_iv");
 
             // The secure parameter is sent by the client to indicate if its param is encrypted.
             if (secure.Equals("1")) {
@@ -76,7 +77,7 @@ namespace spikewall.Controllers
                 //       outside of geoblocking (which is cringe).
                 var newUserResponse = new NewUserResponse(uid, pass, keypass, "1", "US");
 
-                return new JsonResult(EncryptedResponse.Generate(key, newUserResponse));
+                return new JsonResult(EncryptedResponse.Generate(iv, newUserResponse));
             }
 
             // Retrieve user info matching the provided ID
@@ -94,7 +95,7 @@ namespace spikewall.Controllers
                 // No user with this ID exists in the database
                 var errResponse = new BaseResponse();
                 errResponse.statusCode = BaseResponse.SRStatusCode.MissingPlayer;
-                return new JsonResult(EncryptedResponse.Generate(key, errResponse));
+                return new JsonResult(EncryptedResponse.Generate(iv, errResponse));
             }
 
             // Read user data from the database
@@ -109,7 +110,7 @@ namespace spikewall.Controllers
             // login request but with an empty password field, so we handle that here.
             if (string.IsNullOrEmpty(loginRequest.lineAuth.password)) {
                 var keyResponse = new ServerKeyCheckResponse(serverKey);
-                return new JsonResult(EncryptedResponse.Generate(key, keyResponse));
+                return new JsonResult(EncryptedResponse.Generate(iv, keyResponse));
             }
 
             // Hash our password to match the one sent by the client
@@ -125,7 +126,7 @@ namespace spikewall.Controllers
                 // Password is incorrect
                 var errResponse = new BaseResponse();
                 errResponse.statusCode = BaseResponse.SRStatusCode.PassWordError;
-                return new JsonResult(EncryptedResponse.Generate(key, errResponse));
+                return new JsonResult(EncryptedResponse.Generate(iv, errResponse));
             }
 
             // Successful login
@@ -170,14 +171,14 @@ namespace spikewall.Controllers
             var loginResponse = new LoginResponse();
             loginResponse.userName = username;
             loginResponse.sessionId = sid;
-            loginResponse.sessionTimeLimit = loginTime + (Int64) Config.Get("session_time");
+            loginResponse.sessionTimeLimit = loginTime + Convert.ToInt64(Config.Get("session_time"));
             loginResponse.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
             loginResponse.energyRecoveryMax = 17171;           // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.numItem = 5;     // FIXME: Hardcoded
 
             // Encrypt and containerize
-            return new JsonResult(EncryptedResponse.Generate(key, loginResponse));
+            return new JsonResult(EncryptedResponse.Generate(iv, loginResponse));
         }
 
         private string GenerateRandomPassword(int length)
@@ -201,6 +202,7 @@ namespace spikewall.Controllers
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             string paramJSON = param;
+            var iv = (string)Config.Get("encryption_iv");
 
             // The secure parameter is sent by the client to indicate if its param is encrypted.
             if (secure.Equals("1")) {
@@ -212,7 +214,7 @@ namespace spikewall.Controllers
             BaseRequest? baseRequest = JsonSerializer.Deserialize<LoginRequest>(paramJSON);
 
             var variousParameterResponse = new VariousParameterResponse();
-            return new JsonResult(EncryptedResponse.Generate(key, variousParameterResponse));
+            return new JsonResult(EncryptedResponse.Generate(iv, variousParameterResponse));
         }
     }
 }
