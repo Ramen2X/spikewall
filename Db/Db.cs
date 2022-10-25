@@ -62,10 +62,10 @@ namespace spikewall
                             last_login_platform INTEGER,
                             last_login_version TEXT,
 
-                            main_chara_id TINYTEXT,
-                            sub_chara_id TINYTEXT,
-                            main_chao_id TINYTEXT,
-                            sub_chao_id TINYTEXT,
+                            main_chara_id TINYTEXT NOT NULL DEFAULT '',
+                            sub_chara_id TINYTEXT NOT NULL DEFAULT '',
+                            main_chao_id TINYTEXT NOT NULL DEFAULT '',
+                            sub_chao_id TINYTEXT NOT NULL DEFAULT '',
 
                             num_rings BIGINT NOT NULL DEFAULT 0,
                             num_buy_rings BIGINT NOT NULL DEFAULT 0,
@@ -91,7 +91,7 @@ namespace spikewall
                             num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
                             num_playing BIGINT NOT NULL DEFAULT 0,
                             num_animals BIGINT NOT NULL DEFAULT 0,
-                            num_rank BIGINT NOT NULL DEFAULT 0,
+                            num_rank BIGINT NOT NULL DEFAULT 0
 
                         );
                         ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;

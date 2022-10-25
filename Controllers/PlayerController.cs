@@ -28,7 +28,7 @@ namespace spikewall.Controllers
             conn.Open();
 
             // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';");
+            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
             var command = new MySqlCommand(sql, conn);
             var uid = command.ExecuteScalar().ToString();
 
@@ -65,7 +65,7 @@ namespace spikewall.Controllers
                     num_playing,
                     num_animals,
                     num_rank
-                FROM `sw_players` WHERE id = '{0}';");
+                FROM `sw_players` WHERE id = '{0}';", uid);
             command = new MySqlCommand(sql, conn);
 
             var reader = command.ExecuteReader();
@@ -78,6 +78,9 @@ namespace spikewall.Controllers
             // FIXME: I strongly suspect some of these can be calculated rather than manual cells
             //        in this table so expect these to change.
             reader.Read();
+            // FIXME: Missing items and equipItemList
+            playerState.items = new Item[0];
+            playerState.equipItemList = new string[0];
             playerState.mainCharaID = reader.GetString("main_chara_id");
             playerState.subCharaID = reader.GetString("sub_chara_id");
             playerState.mainChaoID = reader.GetString("main_chao_id");
@@ -109,11 +112,9 @@ namespace spikewall.Controllers
             playerState.numRank = reader.GetInt64("num_rank");
             reader.Close();
 
-            // FIXME: Missing items and equipItemList
-
             conn.Close();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
+            return new JsonResult(EncryptedResponse.Generate(iv, new PlayerStateResponse(playerState)));
         }
     }
 }
