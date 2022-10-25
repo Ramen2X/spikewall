@@ -60,7 +60,39 @@ namespace spikewall
                             last_login BIGINT,
                             last_login_device TEXT,
                             last_login_platform INTEGER,
-                            last_login_version TEXT
+                            last_login_version TEXT,
+
+                            main_chara_id TINYTEXT,
+                            sub_chara_id TINYTEXT,
+                            main_chao_id TINYTEXT,
+                            sub_chao_id TINYTEXT,
+
+                            num_rings BIGINT NOT NULL DEFAULT 0,
+                            num_buy_rings BIGINT NOT NULL DEFAULT 0,
+                            num_red_rings BIGINT NOT NULL DEFAULT 0,
+                            num_buy_red_rings BIGINT NOT NULL DEFAULT 0,
+                            energy BIGINT NOT NULL DEFAULT 0,
+                            energy_buy BIGINT NOT NULL DEFAULT 0,
+                            energy_renews_at BIGINT NOT NULL DEFAULT 0,
+                            num_messages BIGINT NOT NULL DEFAULT 0,
+                            ranking_league BIGINT NOT NULL DEFAULT 0,
+                            quick_ranking_league BIGINT NOT NULL DEFAULT 0,
+                            num_roulette_ticket BIGINT NOT NULL DEFAULT 0,
+                            num_chao_roulette_ticket BIGINT NOT NULL DEFAULT 0,
+                            chao_eggs BIGINT NOT NULL DEFAULT 0,
+                            total_high_score BIGINT NOT NULL DEFAULT 0,
+                            quick_total_high_score BIGINT NOT NULL DEFAULT 0,
+                            total_distance BIGINT NOT NULL DEFAULT 0,
+                            maximum_distance BIGINT NOT NULL DEFAULT 0,
+                            daily_mission_id INTEGER NOT NULL DEFAULT 0,
+                            daily_mission_end_time BIGINT NOT NULL DEFAULT 0,
+                            daily_challenge_value INTEGER NOT NULL DEFAULT 0,
+                            daily_challenge_complete BIGINT NOT NULL DEFAULT 0,
+                            num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
+                            num_playing BIGINT NOT NULL DEFAULT 0,
+                            num_animals BIGINT NOT NULL DEFAULT 0,
+                            num_rank BIGINT NOT NULL DEFAULT 0,
+
                         );
                         ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
                         CREATE TABLE IF NOT EXISTS `sw_sessions` (
