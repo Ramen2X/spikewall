@@ -91,7 +91,7 @@ namespace spikewall
                             num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
                             num_playing BIGINT NOT NULL DEFAULT 0,
                             num_animals BIGINT NOT NULL DEFAULT 0,
-                            num_rank BIGINT NOT NULL DEFAULT 0
+                            num_rank INT NOT NULL DEFAULT 1
 
                         );
                         ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
