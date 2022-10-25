@@ -47,5 +47,10 @@
             // only change with a recompilation anyway.
             spikewall_version = "0.0.1";
         }
+
+        public BaseResponse(SRStatusCode statusCode) : this()
+        {
+            this.statusCode = statusCode;
+        }
     }
 }

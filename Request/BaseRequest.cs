@@ -44,8 +44,7 @@ namespace spikewall.Request
                         // Session has expired, remove it from the table
                         sql = Db.GetCommand("DELETE FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
 
-                        error = new BaseResponse();
-                        error.statusCode = BaseResponse.SRStatusCode.ExpirationSession;
+                        error = new BaseResponse(BaseResponse.SRStatusCode.ExpirationSession);
                     }
 
                     conn.Close();
