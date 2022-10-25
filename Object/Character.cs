@@ -23,6 +23,9 @@ namespace spikewall.Object
         public Int64? priceNumRedRings { get; set; }
     }
 
+    // TODO: Do these actually need to be separate
+    // classes? This is how they're set up in Outrun,
+    // but fact checking would not hurt.
     public class Character : CharacterBase
     {
         // Not sure what this is right now.
