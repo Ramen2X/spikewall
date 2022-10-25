@@ -1,4 +1,6 @@
-﻿namespace spikewall.Debug
+﻿using System.Diagnostics;
+
+namespace spikewall.Debug
 {
     public static class DebugHelper
     {
@@ -17,17 +19,18 @@
 
         public static void Log(string text, int type = 0)
         {
+            var stackTrace = new StackTrace();
             switch (type) {
                 case (1):
-                    ColorfulWrite(new ColorfulString(ConsoleColor.Blue, ConsoleColor.Black, "game"));
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Blue, ConsoleColor.Black, "game [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");
                     break;
                 case (2):
-                    ColorfulWrite(new ColorfulString(ConsoleColor.Yellow, ConsoleColor.Black, "warn"));
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Yellow, ConsoleColor.Black, "warn [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");
                     break;
                 default:
-                    ColorfulWrite(new ColorfulString(ConsoleColor.Green, ConsoleColor.Black, "server"));
+                    ColorfulWrite(new ColorfulString(ConsoleColor.Green, ConsoleColor.Black, "server [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");
                     break;
             }
