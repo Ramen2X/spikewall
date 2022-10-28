@@ -62,10 +62,10 @@ namespace spikewall
                             last_login_platform INTEGER,
                             last_login_version TEXT,
 
-                            main_chara_id TINYTEXT NOT NULL DEFAULT '',
-                            sub_chara_id TINYTEXT NOT NULL DEFAULT '',
-                            main_chao_id TINYTEXT NOT NULL DEFAULT '',
-                            sub_chao_id TINYTEXT NOT NULL DEFAULT '',
+                            main_chara_id MEDIUMINT NOT NULL DEFAULT 300000,
+                            sub_chara_id MEDIUMINT NOT NULL DEFAULT 300001,
+                            main_chao_id MEDIUMINT NOT NULL DEFAULT 400000,
+                            sub_chao_id MEDIUMINT NOT NULL DEFAULT 400001,
 
                             num_rings BIGINT NOT NULL DEFAULT 0,
                             num_buy_rings BIGINT NOT NULL DEFAULT 0,
