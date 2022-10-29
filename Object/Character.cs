@@ -7,19 +7,20 @@ namespace spikewall.Object
         // The internal ID for this character.
         public string? characterId { get; set; }
 
-        // The amount of rings this
-        // character costs to buy/level up?
+        // The amount of rings this character
+        // currently costs to level up.
         public Int64? numRings { get; set; }
 
-        // The amount of Red Star Rings
-        // this character costs to buy?
+        // UNUSED: The amount of Red Star Rings
+        // this character costs to level up.
         public Int64? numRedRings { get; set; }
 
         // The amount of rings this
-        // character costs to limit break.
+        // character costs to buy/limit smash.
         public Int64? priceNumRings { get; set; }
 
-        // Possibly unused? Unsure right now.
+        // The amount of Red Star Rings this
+        // character costs to buy/limit smash.
         public Int64? priceNumRedRings { get; set; }
     }
 
@@ -28,8 +29,8 @@ namespace spikewall.Object
     // but fact checking would not hurt.
     public class Character : CharacterBase
     {
-        // Not sure what this is right now.
-        public Int64? status { get; set; }
+        // Whether or not the character is unlocked.
+        public bool status { get; set; }
 
         // The level of the character.
         public Int64? level { get; set; }
@@ -39,11 +40,11 @@ namespace spikewall.Object
         public Int64? exp { get; set; }
 
         // Amount of times the character
-        // has been limit broken.
+        // has been limit smashed.
         public Int64? star { get; set; }
 
         // Maximum amount of times the
-        // character can be limit broken.
+        // character can be limit smashed.
         public Int64? starMax { get; set; }
 
         // How the character can be unlocked
@@ -61,7 +62,7 @@ namespace spikewall.Object
         // Otherwise, not sure what this is.
         public Int64[]? abilityNumRings { get; set; }
 
-        // Not sure what this is either.
+        // The current ability to be leveled up?
         public Int64[]? abilityLevelup { get; set; }
 
         // This is not always sent, so it needs to be
