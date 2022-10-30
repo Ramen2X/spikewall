@@ -116,6 +116,49 @@ namespace spikewall
                         CREATE TABLE IF NOT EXISTS `sw_itemownership` (
                             user_id BIGINT UNSIGNED NOT NULL,
                             item_id BIGINT UNSIGNED NOT NULL
+                        );
+                        CREATE TABLE IF NOT EXISTS `sw_characters` (
+                            id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+                            num_rings BIGINT NOT NULL,
+                            red_rings BIGINT NOT NULL,
+                            price_num_rings BIGINT NOT NULL,
+                            price_red_rings BIGINT NOT NULL,
+                            lock_condition TINYINT NOT NULL,
+                            star_max INTEGER NOT NULL DEFAULT 10,
+                            visible TINYINT NOT NULL
+                        );
+                        CREATE TABLE IF NOT EXISTS `sw_characterstates` (
+                            user_id BIGINT UNSIGNED NOT NULL,
+                            character_id BIGINT UNSIGNED NOT NULL,
+                            status TINYINT NOT NULL,
+                            level TINYINT NOT NULL,
+                            exp BIGINT NOT NULL,
+                            star TINYINT NOT NULL,
+                            campaign_list TINYTEXT NOT NULL,
+                            ability_level TINYTEXT NOT NULL,
+                            ability_num_rings TINYTEXT NOT NULL,
+                            ability_levelup TINYTEXT NOT NULL,
+                            ability_levelup_exp TINYTEXT NOT NULL,
+                            visible_override TINYINT DEFAULT NULL
+                        );
+                        INSERT IGNORE INTO `sw_characters` (
+                            id,
+                            num_rings,
+                            red_rings,
+                            price_num_rings,
+                            price_red_rings,
+                            lock_condition,
+                            star_max,
+                            visible
+                        ) VALUES (
+                            '300000',
+                            '18750',
+                            '1337',
+                            '100000',
+                            '50',
+                            '0',
+                            '10',
+                            '1'
                         );", conn);
 
                     cmd.ExecuteNonQuery();

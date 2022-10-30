@@ -10,11 +10,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
-    [Route("/Player/getPlayerState/")]
-    [Produces("text/json")]
     public class PlayerController : ControllerBase
     {
         [HttpPost]
+        [Route("/Player/getPlayerState/")]
+        [Produces("text/json")]
         public JsonResult GetPlayerState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
@@ -115,6 +115,95 @@ namespace spikewall.Controllers
             conn.Close();
 
             return new JsonResult(EncryptedResponse.Generate(iv, new PlayerStateResponse(playerState)));
+        }
+
+        [HttpPost]
+        [Route("/Player/getCharacterState/")]
+        [Produces("text/json")]
+        public JsonResult GetCharacterState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            // Client will have only sent the session ID. We'll need to find the user ID ourselves
+            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';");
+            var command = new MySqlCommand(sql, conn);
+            var uid = command.ExecuteScalar().ToString();
+
+            // Get all character states
+            sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}';", uid);
+            command = new MySqlCommand(sql, conn);
+
+            var rdr = command.ExecuteReader();
+
+            List<Character> characters = new List<Character>();
+            while (rdr.Read()) {
+                sql = Db.GetCommand("SELECT * FROM `sw_characters` WHERE character_id = '{0}';", rdr.GetString("character_id"));
+                var charCommand = new MySqlCommand(sql, conn);
+                var charRdr = charCommand.ExecuteReader();
+                if (!charRdr.HasRows) {
+                    // Handle invalid character
+                    continue;
+                }
+
+                bool charVisible;
+                if (!rdr.IsDBNull(rdr.GetOrdinal("visible_override"))) {
+                    charVisible = (rdr.GetString("visible_override") == "1");
+                } else {
+                    charVisible = (charRdr.GetString("visible") == "1");
+                }
+
+                if (!charVisible) {
+                    // Skip character that's invisible to this player
+                    continue;
+                }
+
+                Character c = new Character();
+
+                c.characterId = rdr.GetString("character_id");
+                c.status = Convert.ToInt64(rdr["status"]);
+                c.level = Convert.ToInt64(rdr["level"]);
+                c.exp = Convert.ToInt64(rdr["exp"]);
+                c.star = Convert.ToInt64(rdr["star"]);
+
+                // FIXME: Hardcoded empty
+                c.campaignList = new Campaign[0];
+
+                c.numRings = Convert.ToInt64(charRdr["num_rings"]);
+                c.numRedRings = Convert.ToInt64(charRdr["num_red_rings"]);
+                c.priceNumRings = Convert.ToInt64(charRdr["price_num_rings"]);
+                c.priceNumRedRings = Convert.ToInt64(charRdr["price_num_red_rings"]);
+                c.starMax = Convert.ToInt64(charRdr["star_max"]);
+                c.lockCondition = Convert.ToInt64(charRdr["lock_condition"]);
+
+                c.abilityLevel = ConvertDBListToIntArray(rdr.GetString("ability_level"));
+                c.abilityNumRings = ConvertDBListToIntArray(rdr.GetString("ability_num_rings"));
+                c.abilityLevelup = ConvertDBListToIntArray(rdr.GetString("ability_levelup"));
+                c.abilityLevelupExp = ConvertDBListToIntArray(rdr.GetString("ability_levelup_exp"));
+
+                characters.Add(c);
+            }
+
+            conn.Close();
+
+            return new JsonResult(new CharacterStateResponse(characters.ToArray()));
+        }
+
+        static private long[] ConvertDBListToIntArray(string s)
+        {
+            string[] tokens = s.Split(' ');
+            long[] values = new long[tokens.Length];
+            for (int i = 0; i < values.Length; i++) {
+                values[i] = long.Parse(tokens[i]);
+            }
+            return values;
         }
     }
 }
