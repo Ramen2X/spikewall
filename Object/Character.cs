@@ -2,7 +2,7 @@
 
 namespace spikewall.Object
 {
-    public class CharacterBase
+    public class Character
     {
         // The internal ID for this character.
         public string? characterId { get; set; }
@@ -22,15 +22,9 @@ namespace spikewall.Object
         // The amount of Red Star Rings this
         // character costs to buy/limit smash.
         public Int64? priceNumRedRings { get; set; }
-    }
 
-    // TODO: Do these actually need to be separate
-    // classes? This is how they're set up in Outrun,
-    // but fact checking would not hurt.
-    public class Character : CharacterBase
-    {
         // Whether or not the character is unlocked.
-        public bool? status { get; set; }
+        public int? status { get; set; }
 
         // The level of the character.
         public Int64? level { get; set; }

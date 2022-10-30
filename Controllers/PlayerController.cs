@@ -133,45 +133,20 @@ namespace spikewall.Controllers
             conn.Open();
 
             // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';");
+            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
             var command = new MySqlCommand(sql, conn);
             var uid = command.ExecuteScalar().ToString();
 
-            // Get all character states
-            sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}';", uid);
-            command = new MySqlCommand(sql, conn);
-
-            var rdr = command.ExecuteReader();
+            // Get list of all visible characters
+            command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
 
             List<Character> characters = new List<Character>();
-            while (rdr.Read()) {
-                sql = Db.GetCommand("SELECT * FROM `sw_characters` WHERE character_id = '{0}';", rdr.GetString("character_id"));
-                var charCommand = new MySqlCommand(sql, conn);
-                var charRdr = charCommand.ExecuteReader();
-                if (!charRdr.HasRows) {
-                    // Handle invalid character
-                    continue;
-                }
 
-                bool charVisible;
-                if (!rdr.IsDBNull(rdr.GetOrdinal("visible_override"))) {
-                    charVisible = (rdr.GetString("visible_override") == "1");
-                } else {
-                    charVisible = (charRdr.GetString("visible") == "1");
-                }
-
-                if (!charVisible) {
-                    // Skip character that's invisible to this player
-                    continue;
-                }
-
+            var charRdr = command.ExecuteReader();
+            while (charRdr.Read()) {
                 Character c = new Character();
 
-                c.characterId = rdr.GetString("character_id");
-                c.status = Convert.ToInt64(rdr["status"]);
-                c.level = Convert.ToInt64(rdr["level"]);
-                c.exp = Convert.ToInt64(rdr["exp"]);
-                c.star = Convert.ToInt64(rdr["star"]);
+                c.characterId = charRdr.GetString("id");
 
                 // FIXME: Hardcoded empty
                 c.campaignList = new Campaign[0];
@@ -183,17 +158,63 @@ namespace spikewall.Controllers
                 c.starMax = Convert.ToInt64(charRdr["star_max"]);
                 c.lockCondition = Convert.ToInt64(charRdr["lock_condition"]);
 
-                c.abilityLevel = ConvertDBListToIntArray(rdr.GetString("ability_level"));
-                c.abilityNumRings = ConvertDBListToIntArray(rdr.GetString("ability_num_rings"));
-                c.abilityLevelup = ConvertDBListToIntArray(rdr.GetString("ability_levelup"));
-                c.abilityLevelupExp = ConvertDBListToIntArray(rdr.GetString("ability_levelup_exp"));
-
                 characters.Add(c);
+            }
+
+            charRdr.Close();
+
+            for (int i = 0; i < characters.Count; i++) {
+                Character c = characters[i];
+
+                sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}' AND character_id = '{1}';", uid, c.characterId);
+                var stateCmd = new MySqlCommand(sql, conn);
+                var stateRdr = stateCmd.ExecuteReader();
+
+                if (stateRdr.HasRows) {
+                    // Read row
+                    stateRdr.Read();
+
+                    c.status = Convert.ToInt32(stateRdr["status"]);
+                    c.level = Convert.ToInt64(stateRdr["level"]);
+                    c.exp = Convert.ToInt64(stateRdr["exp"]);
+                    c.star = Convert.ToInt64(stateRdr["star"]);
+
+                    c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
+                    c.abilityNumRings = ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
+                    c.abilityLevelup = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
+                    c.abilityLevelupExp = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
+
+                    stateRdr.Close();
+                } else {
+                    stateRdr.Close();
+
+                    // Insert rows
+                    c.status = 1;
+                    c.level = 0;
+                    c.exp = 0;
+                    c.star = 0;
+
+                    var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
+                    var abilityLevelupStr = "120000";
+
+                    c.abilityLevel = ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityNumRings = ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityLevelup = ConvertDBListToIntArray(abilityLevelupStr);
+                    c.abilityLevelupExp = ConvertDBListToIntArray(abilityLevelStr);
+
+                    sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
+                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
+                                          ) VALUES (
+                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
+                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
+                    var insertCmd = new MySqlCommand(sql, conn);
+                    insertCmd.ExecuteNonQuery();
+                }
             }
 
             conn.Close();
 
-            return new JsonResult(new CharacterStateResponse(characters.ToArray()));
+            return new JsonResult(EncryptedResponse.Generate(iv, new CharacterStateResponse(characters.ToArray())));
         }
 
         static private long[] ConvertDBListToIntArray(string s)
