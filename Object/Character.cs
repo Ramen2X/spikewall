@@ -30,7 +30,7 @@ namespace spikewall.Object
     public class Character : CharacterBase
     {
         // Whether or not the character is unlocked.
-        public bool status { get; set; }
+        public bool? status { get; set; }
 
         // The level of the character.
         public Int64? level { get; set; }
