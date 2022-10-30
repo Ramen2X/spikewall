@@ -5,7 +5,7 @@
         public long? mapDistance { get; set; }
         public long? numBossAttack { get; set; }
         public long? stageDistance { get; set; }
-        public long? stageMaxScore { get; set; }
+        public ulong? stageMaxScore { get; set; }
 
         public MapInfo()
         {
@@ -18,7 +18,7 @@
             stageMaxScore = 15110182021018;
         }
 
-        public MapInfo(long p_mapDistance, long p_numBossAttack, long p_stageDistance, long p_stageMaxScore)
+        public MapInfo(long p_mapDistance, long p_numBossAttack, long p_stageDistance, ulong p_stageMaxScore)
         {
             mapDistance = p_mapDistance;
             numBossAttack = p_numBossAttack;
@@ -29,10 +29,10 @@
 
     public class MileageMapState : MapInfo
     {
-        public long? episode { get; set; }
-        public long? chapter { get; set; }
+        public sbyte? episode { get; set; }
+        public sbyte? chapter { get; set; }
         public long? point { get; set; }
-        public long? stageTotalScore { get; set; }
+        public ulong? stageTotalScore { get; set; }
         public long? chapterStartTime { get; set; }
 
         // TODO: Although a new account should always start at Chapter 1
@@ -47,7 +47,7 @@
         }
 
         public MileageMapState(long p_mapDistance, long p_numBossAttack, long p_stageDistance,
-            long p_stageMaxScore, long p_episode, long p_chapter, long p_point, long p_stageTotalScore)
+            ulong p_stageMaxScore, sbyte p_episode, sbyte p_chapter, long p_point, ulong p_stageTotalScore)
         {
             mapDistance = p_mapDistance;
             numBossAttack = p_numBossAttack;
@@ -73,7 +73,7 @@
             chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
-        public void AddScore(long p_score)
+        public void AddScore(ulong p_score)
         {
             stageTotalScore += p_score;
         }
