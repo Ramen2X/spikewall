@@ -2,6 +2,6 @@
 {
     public class CommitWheelSpinRequest : BaseRequest
     {
-        public Int64? count { get; set; }
+        public long? count { get; set; }
     }
 }

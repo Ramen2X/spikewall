@@ -134,9 +134,9 @@
         }
 
         public string errorMessage { get; set; }
-        public Int64 closeTime { get; set; }
+        public long closeTime { get; set; }
         public string seq { get; set; }
-        public Int64 server_time { get; set; }
+        public long server_time { get; set; }
         public SRStatusCode statusCode { get; set; }
 
         /// <summary>

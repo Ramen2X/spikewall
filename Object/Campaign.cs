@@ -2,10 +2,10 @@
 {
     public class Campaign
     {
-        public Int64? campaignType { get; set; }
-        public Int64? campaignContent { get; set; }
-        public Int64? campaignSubContent { get; set; }
-        public Int64? campaignStartTime { get; set; }
-        public Int64? campaignEndTime { get; set; }
+        public long? campaignType { get; set; }
+        public long? campaignContent { get; set; }
+        public long? campaignSubContent { get; set; }
+        public long? campaignStartTime { get; set; }
+        public long? campaignEndTime { get; set; }
     }
 }

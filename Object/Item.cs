@@ -2,7 +2,7 @@
 {
     public class Item
     {
-        public Int64? itemId { get; set; }
-        public Int64? numItem { get; set; }
+        public long? itemId { get; set; }
+        public long? numItem { get; set; }
     }
 }

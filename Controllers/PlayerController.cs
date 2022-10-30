@@ -85,11 +85,11 @@ namespace spikewall.Controllers
             playerState.subCharaID = reader.GetString("sub_chara_id");
             playerState.mainChaoID = reader.GetString("main_chao_id");
             playerState.subChaoID = reader.GetString("sub_chao_id");
-            playerState.numRings = reader.GetInt64("num_rings");
+            playerState.numRings = reader.GetUInt64("num_rings");
             playerState.numBuyRings = reader.GetInt64("num_buy_rings");
-            playerState.numRedRings = reader.GetInt64("num_red_rings");
+            playerState.numRedRings = reader.GetUInt64("num_red_rings");
             playerState.numBuyRedRings = reader.GetInt64("num_buy_red_rings");
-            playerState.energy = reader.GetInt64("energy");
+            playerState.energy = reader.GetInt16("energy");
             playerState.energyBuy = reader.GetInt64("energy_buy");
             playerState.energyRenewsAt = reader.GetInt64("energy_renews_at");
             playerState.mumMessages = reader.GetInt64("num_messages");
@@ -98,18 +98,18 @@ namespace spikewall.Controllers
             playerState.numRouletteTicket = reader.GetInt64("num_roulette_ticket");
             playerState.numChaoRouletteTicket = reader.GetInt64("num_chao_roulette_ticket");
             playerState.chaoEggs = reader.GetInt64("chao_eggs");
-            playerState.totalHighScore = reader.GetInt64("total_high_score");
-            playerState.quickTotalHighScore = reader.GetInt64("quick_total_high_score");
-            playerState.totalDistance = reader.GetInt64("total_distance");
-            playerState.maximumDistance = reader.GetInt64("maximum_distance");
+            playerState.totalHighScore = reader.GetUInt64("total_high_score");
+            playerState.quickTotalHighScore = reader.GetUInt64("quick_total_high_score");
+            playerState.totalDistance = reader.GetUInt64("total_distance");
+            playerState.maximumDistance = reader.GetUInt64("maximum_distance");
             playerState.dailyMissionId = reader.GetInt64("daily_mission_id");
             playerState.dailyMissionEndTime = reader.GetInt64("daily_mission_end_time");
             playerState.dailyChallengeValue = reader.GetInt64("daily_challenge_value");
             playerState.dailyChallengeComplete = reader.GetInt64("daily_challenge_complete");
             playerState.numDailyChalCont = reader.GetInt64("num_daily_challenge_cont");
-            playerState.numPlaying = reader.GetInt64("num_playing");
-            playerState.numAnimals = reader.GetInt64("num_animals");
-            playerState.numRank = reader.GetInt64("num_rank");
+            playerState.numPlaying = reader.GetUInt64("num_playing");
+            playerState.numAnimals = reader.GetUInt64("num_animals");
+            playerState.numRank = reader.GetInt16("num_rank");
             reader.Close();
 
             conn.Close();
@@ -155,8 +155,8 @@ namespace spikewall.Controllers
                 c.numRedRings = Convert.ToInt64(charRdr["num_red_rings"]);
                 c.priceNumRings = Convert.ToInt64(charRdr["price_num_rings"]);
                 c.priceNumRedRings = Convert.ToInt64(charRdr["price_num_red_rings"]);
-                c.starMax = Convert.ToInt64(charRdr["star_max"]);
-                c.lockCondition = Convert.ToInt64(charRdr["lock_condition"]);
+                c.starMax = Convert.ToSByte(charRdr["star_max"]);
+                c.lockCondition = Convert.ToSByte(charRdr["lock_condition"]);
 
                 characters.Add(c);
             }
@@ -174,10 +174,10 @@ namespace spikewall.Controllers
                     // Read row
                     stateRdr.Read();
 
-                    c.status = Convert.ToInt32(stateRdr["status"]);
-                    c.level = Convert.ToInt64(stateRdr["level"]);
+                    c.status = Convert.ToSByte(stateRdr["status"]);
+                    c.level = Convert.ToSByte(stateRdr["level"]);
                     c.exp = Convert.ToInt64(stateRdr["exp"]);
-                    c.star = Convert.ToInt64(stateRdr["star"]);
+                    c.star = Convert.ToSByte(stateRdr["star"]);
 
                     c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
                     c.abilityNumRings = ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
@@ -268,10 +268,10 @@ namespace spikewall.Controllers
                     // Read row
                     stateRdr.Read();
 
-                    c.status = Convert.ToInt32(stateRdr["status"]);
-                    c.level = Convert.ToInt64(stateRdr["level"]);
-                    c.setStatus = Convert.ToInt64(stateRdr["exp"]);
-                    c.acquired = Convert.ToInt64(stateRdr["star"]);
+                    c.status = Convert.ToSByte(stateRdr["status"]);
+                    c.level = Convert.ToSByte(stateRdr["level"]);
+                    c.setStatus = Convert.ToInt64(stateRdr["set_status"]);
+                    c.acquired = Convert.ToInt64(stateRdr["acquired"]);
 
                     stateRdr.Close();
                 } else {

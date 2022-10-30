@@ -2,10 +2,10 @@
 {
     public class MapInfo
     {
-        public Int64? mapDistance { get; set; }
-        public Int64? numBossAttack { get; set; }
-        public Int64? stageDistance { get; set; }
-        public Int64? stageMaxScore { get; set; }
+        public long? mapDistance { get; set; }
+        public long? numBossAttack { get; set; }
+        public long? stageDistance { get; set; }
+        public long? stageMaxScore { get; set; }
 
         public MapInfo()
         {
@@ -18,7 +18,7 @@
             stageMaxScore = 15110182021018;
         }
 
-        public MapInfo(Int64 p_mapDistance, Int64 p_numBossAttack, Int64 p_stageDistance, Int64 p_stageMaxScore)
+        public MapInfo(long p_mapDistance, long p_numBossAttack, long p_stageDistance, long p_stageMaxScore)
         {
             mapDistance = p_mapDistance;
             numBossAttack = p_numBossAttack;
@@ -29,11 +29,11 @@
 
     public class MileageMapState : MapInfo
     {
-        public Int64? episode { get; set; }
-        public Int64? chapter { get; set; }
-        public Int64? point { get; set; }
-        public Int64? stageTotalScore { get; set; }
-        public Int64? chapterStartTime { get; set; }
+        public long? episode { get; set; }
+        public long? chapter { get; set; }
+        public long? point { get; set; }
+        public long? stageTotalScore { get; set; }
+        public long? chapterStartTime { get; set; }
 
         // TODO: Although a new account should always start at Chapter 1
         // Episode 1, it probably wouldn't hurt to make this configurable.
@@ -46,8 +46,8 @@
             chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
-        public MileageMapState(Int64 p_mapDistance, Int64 p_numBossAttack, Int64 p_stageDistance,
-            Int64 p_stageMaxScore, Int64 p_episode, Int64 p_chapter, Int64 p_point, Int64 p_stageTotalScore)
+        public MileageMapState(long p_mapDistance, long p_numBossAttack, long p_stageDistance,
+            long p_stageMaxScore, long p_episode, long p_chapter, long p_point, long p_stageTotalScore)
         {
             mapDistance = p_mapDistance;
             numBossAttack = p_numBossAttack;
@@ -73,7 +73,7 @@
             chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
-        public void AddScore(Int64 p_score)
+        public void AddScore(long p_score)
         {
             stageTotalScore += p_score;
         }

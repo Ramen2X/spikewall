@@ -48,9 +48,9 @@ namespace spikewall.Response
     {
         public string? userName { get; set; }
         public string? sessionId { get; set; }
-        public Int64? sessionTimeLimit { get; set; }
-        public Int64? energyRecveryTime { get; set; }
-        public Int64? energyRecoveryMax { get; set; }
+        public long? sessionTimeLimit { get; set; }
+        public long? energyRecveryTime { get; set; }
+        public long? energyRecoveryMax { get; set; }
 
         public spikewall.Object.Item? inviteBasicIncentiv { get; set; }
 
@@ -59,7 +59,7 @@ namespace spikewall.Response
             this.inviteBasicIncentiv = new Item();
         }
 
-        public LoginResponse(string userName, string sessionId, Int64 sessionTimeLimit, Int64 energyRecveryTime, Int64 energyRecoveryMax, Int64 itemId, Int64 numItem)
+        public LoginResponse(string userName, string sessionId, long sessionTimeLimit, long energyRecveryTime, long energyRecoveryMax, long itemId, long numItem)
         {
             this.userName = userName;
             this.sessionId = sessionId;
@@ -75,12 +75,12 @@ namespace spikewall.Response
 
     public class VariousParameterResponse : BaseResponse
     {
-        public Int64? cmSkipCount { get; set; }
-        public Int64? energyRecoveryMax { get; set; }
-        public Int64? energyRecveryTime { get; set; }
-        public Int64? onePlayCmCount { get; set; }
-        public Int64? onePlayContinueCount { get; set; }
-        public Int64? isPurchased { get; set; }
+        public long? cmSkipCount { get; set; }
+        public long? energyRecoveryMax { get; set; }
+        public long? energyRecveryTime { get; set; }
+        public long? onePlayCmCount { get; set; }
+        public long? onePlayContinueCount { get; set; }
+        public long? isPurchased { get; set; }
 
         // TODO: Get these defaults from the config
         public VariousParameterResponse()
