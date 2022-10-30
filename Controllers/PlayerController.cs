@@ -189,7 +189,7 @@ namespace spikewall.Controllers
                     stateRdr.Close();
 
                     // Insert rows
-                    c.status = 1;
+                    c.status = 1; // FIXME: Hardcoded to "enabled" for now, should calculate this (probably based on lockCondition) later
                     c.level = 0;
                     c.exp = 0;
                     c.star = 0;
@@ -215,6 +215,83 @@ namespace spikewall.Controllers
             conn.Close();
 
             return new JsonResult(EncryptedResponse.Generate(iv, new CharacterStateResponse(characters.ToArray())));
+        }
+
+        [HttpPost]
+        [Route("/Player/getChaoState/")]
+        [Produces("text/json")]
+        public JsonResult GetChaoState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            // Client will have only sent the session ID. We'll need to find the user ID ourselves
+            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
+            var command = new MySqlCommand(sql, conn);
+            var uid = command.ExecuteScalar().ToString();
+
+            // Get list of all visible chaos
+            command = new MySqlCommand("SELECT * FROM `sw_chaos`;", conn);
+
+            List<Chao> chaos = new List<Chao>();
+
+            using (var chaoRdr = command.ExecuteReader())
+            {
+                while (chaoRdr.Read()) {
+                    Chao c = new Chao();
+
+                    c.chaoID = chaoRdr.GetString("id");
+                    c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
+                    c.hidden = Convert.ToInt64(chaoRdr["hidden"]);
+
+                    chaos.Add(c);
+                }
+
+                chaoRdr.Close();
+            }
+
+            for (int i = 0; i < chaos.Count; i++) {
+                Chao c = chaos[i];
+
+                sql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", uid, c.chaoID);
+                var stateCmd = new MySqlCommand(sql, conn);
+                var stateRdr = stateCmd.ExecuteReader();
+
+                if (stateRdr.HasRows) {
+                    // Read row
+                    stateRdr.Read();
+
+                    c.status = Convert.ToInt32(stateRdr["status"]);
+                    c.level = Convert.ToInt64(stateRdr["level"]);
+                    c.setStatus = Convert.ToInt64(stateRdr["exp"]);
+                    c.acquired = Convert.ToInt64(stateRdr["star"]);
+
+                    stateRdr.Close();
+                } else {
+                    stateRdr.Close();
+
+                    // Insert rows
+                    c.status = 0;
+                    c.level = 0;
+                    c.setStatus = 0;
+                    c.acquired = 0;
+
+                    sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", c.chaoID, uid);
+                    var insertCmd = new MySqlCommand(sql, conn);
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+
+            conn.Close();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new ChaoStateResponse(chaos.ToArray())));
         }
 
         static private long[] ConvertDBListToIntArray(string s)

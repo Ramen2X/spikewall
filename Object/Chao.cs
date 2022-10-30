@@ -16,7 +16,7 @@
     public class Chao : ChaoBase
     {
         // Whether or not the chao is unlocked.
-        public bool? status { get; set; }
+        public int? status { get; set; }
 
         // The level of this chao.
         public Int64? level { get; set; }

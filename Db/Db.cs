@@ -157,6 +157,20 @@ namespace spikewall
                             '0',
                             '10',
                             '1'
+                        );
+                        CREATE TABLE IF NOT EXISTS `sw_chaos` (
+                            id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+                            rarity INTEGER NOT NULL DEFAULT 0,
+                            hidden TINYINT NOT NULL DEFAULT 0
+                        );
+                        INSERT IGNORE INTO `sw_chaos` (id) VALUES ('400000');
+                        CREATE TABLE IF NOT EXISTS `sw_chaostates` (
+                            chao_id MEDIUMINT UNSIGNED NOT NULL,
+                            user_id BIGINT UNSIGNED NOT NULL,
+                            status TINYINT NOT NULL DEFAULT 0,
+                            level INTEGER UNSIGNED NOT NULL DEFAULT 0,
+                            set_status TINYINT NOT NULL DEFAULT 0,
+                            acquired TINYINT NOT NULL DEFAULT 0
                         );", conn);
 
                     cmd.ExecuteNonQuery();
