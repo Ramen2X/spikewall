@@ -158,12 +158,12 @@ namespace spikewall
                             '10',
                             '1'
                         );
-                        CREATE TABLE IF NOT EXISTS `sw_chaos` (
+                        CREATE TABLE IF NOT EXISTS `sw_chao` (
                             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
                             rarity INTEGER NOT NULL DEFAULT 0,
                             hidden TINYINT NOT NULL DEFAULT 0
                         );
-                        INSERT IGNORE INTO `sw_chaos` (id) VALUES ('400000');
+                        INSERT IGNORE INTO `sw_chao` (id) VALUES ('400000');
                         CREATE TABLE IF NOT EXISTS `sw_chaostates` (
                             chao_id MEDIUMINT UNSIGNED NOT NULL,
                             user_id BIGINT UNSIGNED NOT NULL,

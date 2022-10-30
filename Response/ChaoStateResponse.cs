@@ -4,7 +4,7 @@ using System;
 namespace spikewall.Response
 {
     /// <summary>
-    /// Response containing player-specific information about the game chaos
+    /// Response containing player-specific information about the game chao
     /// </summary>
     public class ChaoStateResponse : BaseResponse
     {

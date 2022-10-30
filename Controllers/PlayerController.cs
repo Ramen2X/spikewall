@@ -237,10 +237,10 @@ namespace spikewall.Controllers
             var command = new MySqlCommand(sql, conn);
             var uid = command.ExecuteScalar().ToString();
 
-            // Get list of all visible chaos
-            command = new MySqlCommand("SELECT * FROM `sw_chaos`;", conn);
+            // Get list of all visible chao
+            command = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
 
-            List<Chao> chaos = new List<Chao>();
+            List<Chao> chao = new List<Chao>();
 
             using (var chaoRdr = command.ExecuteReader())
             {
@@ -251,14 +251,14 @@ namespace spikewall.Controllers
                     c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
                     c.hidden = Convert.ToInt64(chaoRdr["hidden"]);
 
-                    chaos.Add(c);
+                    chao.Add(c);
                 }
 
                 chaoRdr.Close();
             }
 
-            for (int i = 0; i < chaos.Count; i++) {
-                Chao c = chaos[i];
+            for (int i = 0; i < chao.Count; i++) {
+                Chao c = chao[i];
 
                 sql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", uid, c.chaoID);
                 var stateCmd = new MySqlCommand(sql, conn);
@@ -291,7 +291,7 @@ namespace spikewall.Controllers
 
             conn.Close();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new ChaoStateResponse(chaos.ToArray())));
+            return new JsonResult(EncryptedResponse.Generate(iv, new ChaoStateResponse(chao.ToArray())));
         }
 
         static private long[] ConvertDBListToIntArray(string s)
