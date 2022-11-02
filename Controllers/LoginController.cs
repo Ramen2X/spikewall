@@ -12,11 +12,11 @@ using spikewall.Request;
 namespace spikewall.Controllers
 {
     [ApiController]
-    [Route("/login/Login/")]
-    [Produces("text/json")]
     public class LoginController : ControllerBase
     {
         [HttpPost]
+        [Route("/login/Login/")]
+        [Produces("text/json")]
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
@@ -193,14 +193,10 @@ namespace spikewall.Controllers
             }
             return builder.ToString();
         }
-    }
 
-    [ApiController]
-    [Route("/login/getVariousParameter/")]
-    [Produces("text/json")]
-    public class GetVariousParameterController : ControllerBase
-    {
         [HttpPost]
+        [Route("/login/getVariousParameter/")]
+        [Produces("text/json")]
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
@@ -215,6 +211,46 @@ namespace spikewall.Controllers
 
             var variousParameterResponse = new VariousParameterResponse();
             return new JsonResult(EncryptedResponse.Generate(iv, variousParameterResponse));
+        }
+
+        [HttpPost]
+        [Route("/login/getInformation/")]
+        [Produces("text/json")]
+        public JsonResult GetInformation([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new LoginInformationResponse()));
+        }
+
+        [HttpPost]
+        [Route("/login/getTicker/")]
+        [Produces("text/json")]
+        public JsonResult GetTicker([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new LoginGetTickerResponse()));
         }
     }
 }

@@ -1,0 +1,80 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using spikewall.Debug;
+using spikewall.Encryption;
+using spikewall.Request;
+using spikewall.Response;
+
+namespace spikewall.Controllers
+{
+    [ApiController]
+    public class GameController : ControllerBase
+    {
+        [HttpPost]
+        [Route("/Game/getDailyChalData/")]
+        [Produces("text/json")]
+        public JsonResult GetDailyChalData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new DailyChalDataResponse()));
+        }
+
+        [HttpPost]
+        [Route("/Game/getCostList/")]
+        [Produces("text/json")]
+        public JsonResult GetCostList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new CostListResponse()));
+        }
+
+        [HttpPost]
+        [Route("/Game/getMileageData/")]
+        [Produces("text/json")]
+        public JsonResult GetMileageData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new MileageDataResponse()));
+        }
+
+        [HttpPost]
+        [Route("/Game/getCampaignList/")]
+        [Produces("text/json")]
+        public JsonResult GetCampaignList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new CampaignListResponse()));
+        }
+    }
+}

@@ -93,4 +93,30 @@ namespace spikewall.Response
             isPurchased = 0;
         }
     }
+
+    public class LoginInformationResponse : BaseResponse
+    {
+        // FIXME: This is an array but shouldn't actually be strings, set up "LoginInformation" object
+        public string[]? informations { get; set; }
+        public string[]? operatorEachInfos { get; set; }
+        public long numOperatorInfo { get; set; }
+
+        public LoginInformationResponse()
+        {
+            informations = new string[0];
+            operatorEachInfos = new string[0];
+            numOperatorInfo = 0;
+        }
+    }
+
+    public class LoginGetTickerResponse : BaseResponse
+    {
+        // FIXME: This is an array but shouldn't actually be strings, set up "LoginTicker" object
+        public string[]? tickerList { get; set; }
+
+        public LoginGetTickerResponse()
+        {
+            tickerList = new string[0];
+        }
+    }
 }
