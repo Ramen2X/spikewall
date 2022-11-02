@@ -1,5 +1,4 @@
 ﻿using spikewall.Object;
-using System;
 
 namespace spikewall.Response
 {
@@ -111,12 +110,6 @@ namespace spikewall.Response
 
     public class LoginGetTickerResponse : BaseResponse
     {
-        // FIXME: This is an array but shouldn't actually be strings, set up "LoginTicker" object
-        public string[]? tickerList { get; set; }
-
-        public LoginGetTickerResponse()
-        {
-            tickerList = new string[0];
-        }
+        public Ticker[]? tickerList { get; set; }
     }
 }

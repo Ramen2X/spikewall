@@ -8,6 +8,8 @@ using spikewall.Debug;
 using spikewall.Encryption;
 using spikewall.Response;
 using spikewall.Request;
+using spikewall.Object;
+using System.Reflection.PortableExecutable;
 
 namespace spikewall.Controllers
 {
@@ -248,9 +250,33 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, error));
             }
 
-            // FIXME: Stub
+            using var conn = Db.Get();
+            conn.Open();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new LoginGetTickerResponse()));
+            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers`");
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            reader.Read();
+
+            var count = reader.GetInt32("row_count");
+
+            LoginGetTickerResponse tickerResponse = new LoginGetTickerResponse();
+
+            Ticker[] tickers = new Ticker[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                tickers[i] = new Ticker();
+                tickers[i].id = reader.GetByte("id");
+                tickers[i].start = reader.GetInt64("start_time");
+                tickers[i].end = reader.GetInt64("end_time");
+                tickers[i].param = reader.GetString("message");
+                reader.Read();
+            }
+            tickerResponse.tickerList = tickers;
+
+            return new JsonResult(EncryptedResponse.Generate(iv, tickerResponse));
         }
     }
 }
