@@ -257,24 +257,29 @@ namespace spikewall.Controllers
             var command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
-            reader.Read();
+            LoginGetTickerResponse tickerResponse = new();
 
-            var count = reader.GetInt32("row_count");
-
-            LoginGetTickerResponse tickerResponse = new LoginGetTickerResponse();
-
-            Ticker[] tickers = new Ticker[count];
-
-            for (int i = 0; i < count; i++)
+            if (reader.Read())
             {
-                tickers[i] = new Ticker();
-                tickers[i].id = reader.GetByte("id");
-                tickers[i].start = reader.GetInt64("start_time");
-                tickers[i].end = reader.GetInt64("end_time");
-                tickers[i].param = reader.GetString("message");
-                reader.Read();
+                var count = reader.GetInt32("row_count");
+
+                Ticker[] tickers = new Ticker[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    tickers[i] = new Ticker();
+                    tickers[i].id = reader.GetByte("id");
+                    tickers[i].start = reader.GetInt64("start_time");
+                    tickers[i].end = reader.GetInt64("end_time");
+                    tickers[i].param = reader.GetString("message");
+
+                    // TODO: Language stuff here
+
+                    reader.Read();
+                }
+                tickerResponse.tickerList = tickers;
             }
-            tickerResponse.tickerList = tickers;
+            else tickerResponse.tickerList = Array.Empty<Ticker>();
 
             return new JsonResult(EncryptedResponse.Generate(iv, tickerResponse));
         }

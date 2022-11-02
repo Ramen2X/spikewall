@@ -117,7 +117,8 @@ namespace spikewall
                             id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                             start_time BIGINT UNSIGNED NOT NULL,
                             end_time BIGINT UNSIGNED NOT NULL,
-                            message VARCHAR(600) NOT NULL 
+                            message VARCHAR(600) NOT NULL,
+                            language TINYINT NOT NULL
                         );
                         CREATE TABLE IF NOT EXISTS `sw_itemownership` (
                             user_id BIGINT UNSIGNED NOT NULL,
