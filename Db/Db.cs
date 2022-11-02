@@ -91,7 +91,7 @@ namespace spikewall
                             num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
                             num_playing BIGINT NOT NULL DEFAULT 0,
                             num_animals BIGINT NOT NULL DEFAULT 0,
-                            num_rank INTEGER NOT NULL DEFAULT 1
+                            num_rank INTEGER NOT NULL DEFAULT 0
 
                         );
                         ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
@@ -113,6 +113,13 @@ namespace spikewall
                             info_version VARCHAR(3) NOT NULL DEFAULT '017'
                         );
                         INSERT IGNORE INTO `sw_config` (id) VALUES ('1');
+                        CREATE TABLE IF NOT EXISTS `sw_tickers` (
+                            id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            start_time BIGINT UNSIGNED NOT NULL,
+                            end_time BIGINT UNSIGNED NOT NULL,
+                            message VARCHAR(600) NOT NULL,
+                            language TINYINT NOT NULL
+                        );
                         CREATE TABLE IF NOT EXISTS `sw_itemownership` (
                             user_id BIGINT UNSIGNED NOT NULL,
                             item_id BIGINT UNSIGNED NOT NULL

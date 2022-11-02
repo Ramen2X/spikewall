@@ -294,6 +294,36 @@ namespace spikewall.Controllers
             return new JsonResult(EncryptedResponse.Generate(iv, new ChaoStateResponse(chao.ToArray())));
         }
 
+        [HttpPost]
+        [Route("/Player/setUserName/")]
+        [Produces("text/json")]
+        public JsonResult SetUserName([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+            SetUserNameRequest request = BaseRequest.Retrieve<SetUserNameRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            // Retrieve user ID (FIXME: Should probably roll this into "Retrieve")
+            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
+            var command = new MySqlCommand(sql, conn);
+            var uid = command.ExecuteScalar().ToString();
+
+            // Set player username as requested
+            sql = Db.GetCommand("UPDATE `sw_players` SET username = '{0}' WHERE id = '{1}';", request.userName, uid);
+            command = new MySqlCommand(sql, conn);
+            command.ExecuteScalar();
+
+            conn.Close();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
+        }
+
         static private long[] ConvertDBListToIntArray(string s)
         {
             string[] tokens = s.Split(' ');

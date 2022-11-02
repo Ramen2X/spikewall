@@ -8,15 +8,17 @@ using spikewall.Debug;
 using spikewall.Encryption;
 using spikewall.Response;
 using spikewall.Request;
+using spikewall.Object;
+using System.Reflection.PortableExecutable;
 
 namespace spikewall.Controllers
 {
     [ApiController]
-    [Route("/login/Login/")]
-    [Produces("text/json")]
     public class LoginController : ControllerBase
     {
         [HttpPost]
+        [Route("/login/Login/")]
+        [Produces("text/json")]
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
@@ -193,14 +195,10 @@ namespace spikewall.Controllers
             }
             return builder.ToString();
         }
-    }
 
-    [ApiController]
-    [Route("/login/getVariousParameter/")]
-    [Produces("text/json")]
-    public class GetVariousParameterController : ControllerBase
-    {
         [HttpPost]
+        [Route("/login/getVariousParameter/")]
+        [Produces("text/json")]
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
@@ -215,6 +213,75 @@ namespace spikewall.Controllers
 
             var variousParameterResponse = new VariousParameterResponse();
             return new JsonResult(EncryptedResponse.Generate(iv, variousParameterResponse));
+        }
+
+        [HttpPost]
+        [Route("/login/getInformation/")]
+        [Produces("text/json")]
+        public JsonResult GetInformation([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new LoginInformationResponse()));
+        }
+
+        [HttpPost]
+        [Route("/login/getTicker/")]
+        [Produces("text/json")]
+        public JsonResult GetTicker([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null) {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers`");
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            LoginGetTickerResponse tickerResponse = new();
+
+            if (reader.Read())
+            {
+                var count = reader.GetInt32("row_count");
+
+                Ticker[] tickers = new Ticker[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    tickers[i] = new Ticker();
+                    tickers[i].id = reader.GetByte("id");
+                    tickers[i].start = reader.GetInt64("start_time");
+                    tickers[i].end = reader.GetInt64("end_time");
+                    tickers[i].param = reader.GetString("message");
+
+                    // TODO: Language stuff here
+
+                    reader.Read();
+                }
+                tickerResponse.tickerList = tickers;
+            }
+            else tickerResponse.tickerList = Array.Empty<Ticker>();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, tickerResponse));
         }
     }
 }

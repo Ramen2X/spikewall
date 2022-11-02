@@ -13,5 +13,14 @@
         public long? numJackpotRing { get; set; }
         public long? numRemainingRoulette { get; set; }
         public Item[]? itemList { get; set; }
+
+        public WheelOptions()
+        {
+            // FIXME: Set up remaining defaults
+            items = new string[0];
+            item = new long[0];
+            itemWeight = new long[0];
+            itemList = new Item[0];
+        }
     }
 }
