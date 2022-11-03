@@ -92,7 +92,7 @@ namespace spikewall.Controllers
             // Determine if there's a row to read (there should be 1 if the user exists, or 0 if not)
             if (!reader.HasRows) {
                 // No user with this ID exists in the database
-                var errResponse = new BaseResponse(BaseResponse.SRStatusCode.MissingPlayer);
+                var errResponse = new BaseResponse(SRStatusCode.MissingPlayer);
                 return new JsonResult(EncryptedResponse.Generate(iv, errResponse));
             }
 
@@ -122,7 +122,7 @@ namespace spikewall.Controllers
 
             if (!theirHashPass.SequenceEqual(ourHashedPass)) {
                 // Password is incorrect
-                var errResponse = new BaseResponse(BaseResponse.SRStatusCode.PassWordError);
+                var errResponse = new BaseResponse(SRStatusCode.PassWordError);
                 return new JsonResult(EncryptedResponse.Generate(iv, errResponse));
             }
 
