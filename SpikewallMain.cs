@@ -25,6 +25,9 @@ DebugHelper.ColorfulWrite(new ColorfulString(ConsoleColor.Red, Console.Backgroun
 spikewall.Db.Initialize(ref builder);
 spikewall.Db.SetupTables();
 
+// TODO: Make this configurable
+spikewall.Config.SwitchConfig(1);
+
 app.UseHttpLogging();
 
 app.UseHttpsRedirection();
