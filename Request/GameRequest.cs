@@ -33,16 +33,16 @@ namespace spikewall.Request
     /// </summary>
     public class QuickPostGameResultsRequest : BaseRequest
     {
-        public ulong? score { get; set; }
-        public ulong? numRings { get; set; }
-        public ulong? numFailureRings { get; set; }
-        public ulong? numRedStarRings { get; set; }
-        public ulong? distance { get; set; }
-        public long? dailyChallengeValue { get; set; }
-        public long? dailyChallengeComplete { get; set; }
-        public ulong? numAnimals { get; set; }
-        public ulong? maxCombo { get; set; }
-        public long? closed { get; set; }
+        public string? score { get; set; }
+        public string? numRings { get; set; }
+        public string? numFailureRings { get; set; }
+        public string? numRedStarRings { get; set; }
+        public string? distance { get; set; }
+        public string? dailyChallengeValue { get; set; }
+        public sbyte? dailyChallengeComplete { get; set; }
+        public string? numAnimals { get; set; }
+        public string? maxCombo { get; set; }
+        public sbyte? closed { get; set; }
         public string? cheatResult { get; set; }
     }
 
