@@ -1,4 +1,5 @@
 ﻿using spikewall.Object;
+using System.Text.Json.Serialization;
 
 namespace spikewall.Response
 {
@@ -111,5 +112,39 @@ namespace spikewall.Response
     public class LoginGetTickerResponse : BaseResponse
     {
         public Ticker[]? tickerList { get; set; }
+    }
+
+    public class LoginBonusResponse : BaseResponse
+    {
+        public LoginBonusStatus? loginBonusStatus { get; set; }
+        public LoginBonusReward[]? loginBonusRewardList { get; set; }
+        public LoginBonusReward[]? firstLoginBonusRewardList { get; set; }
+        public long? startTime { get; set; }
+        public long? endTime { get; set; }
+        public long? rewardId { get; set; }
+        public long? rewardDays { get; set; }
+        public long? firstRewardDays { get; set; }
+
+        public LoginBonusResponse()
+        {
+            // TODO: Stub
+            loginBonusStatus = new LoginBonusStatus();
+            loginBonusRewardList = Array.Empty<LoginBonusReward>();
+            firstLoginBonusRewardList = Array.Empty<LoginBonusReward>();
+            startTime = 0;
+            endTime = -4;
+            rewardId = -1;
+            rewardDays = -1;
+            firstRewardDays = -1;
+        }
+    }
+
+    public class LoginBonusSelectResponse : BaseResponse
+    {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Item[]? rewardList { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Item[]? firstRewardList { get; set; }
     }
 }

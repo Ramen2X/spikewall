@@ -15,4 +15,13 @@ namespace spikewall.Request
         public string? platform_sns { get; set; }
         public LineAuth? lineAuth { get; set; }
     }
+
+    public class LoginBonusSelectRequest : BaseRequest
+    {
+        public long? rewardId { get; set; }
+        public long? rewardDays { get; set; }
+        public long? rewardSelect { get; set; }
+        public long? firstRewardDays { get; set; }
+        public long? firstRewardSelect { get; set; }
+    }
 }

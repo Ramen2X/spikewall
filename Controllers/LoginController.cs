@@ -283,5 +283,47 @@ namespace spikewall.Controllers
 
             return new JsonResult(EncryptedResponse.Generate(iv, tickerResponse));
         }
+
+        [HttpPost]
+        [Route("/login/loginBonus/")]
+        [Produces("text/json")]
+        public JsonResult LoginBonus([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new LoginBonusResponse()));
+        }
+
+        [HttpPost]
+        [Route("/login/loginBonusSelect/")]
+        [Produces("text/json")]
+        public JsonResult LoginBonusSelect([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // I don't think we need any information from this request, but
+            // we will deserialize anyway just in case we do in the future.
+            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
+            if (error != null)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            }
+
+            // FIXME: Stub
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new LoginBonusSelectResponse()));
+        }
     }
 }
