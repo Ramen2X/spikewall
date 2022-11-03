@@ -2,7 +2,7 @@
 
 namespace spikewall.Response
 {
-    public class PlayerStateResponse : BaseInfo
+    public class PlayerStateResponse : BaseResponse
     {
         public PlayerState playerState { get; set; }
 
