@@ -18,33 +18,31 @@ namespace spikewall.Controllers
         public JsonResult GetPlayerState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
 
             using var conn = Db.Get();
             conn.Open();
 
-            // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
 
             // Now that we have the user ID, we can retrieve the player state
             PlayerState playerState = new PlayerState();
 
-            var populateStatus = playerState.Populate(conn, uid);
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
 
             conn.Close();
 
-            if (populateStatus == SRStatusCode.Ok) {
+            if (populateStatus == SRStatusCode.Ok)
+            {
                 // Return successful PlayerState response
                 return new JsonResult(EncryptedResponse.Generate(iv, new PlayerStateResponse(playerState)));
-            } else {
+            }
+            else
+            {
                 // Return error code from Populate() to client
-                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
             }
         }
 
@@ -54,22 +52,17 @@ namespace spikewall.Controllers
         public JsonResult GetCharacterState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
 
             using var conn = Db.Get();
             conn.Open();
 
-            // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
 
             // Get list of all visible characters
-            command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
+            var command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
 
             List<Character> characters = new List<Character>();
 
@@ -97,7 +90,7 @@ namespace spikewall.Controllers
             for (int i = 0; i < characters.Count; i++) {
                 Character c = characters[i];
 
-                sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}' AND character_id = '{1}';", uid, c.characterId);
+                var sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}' AND character_id = '{1}';", clientReq.userId, c.characterId);
                 var stateCmd = new MySqlCommand(sql, conn);
                 var stateRdr = stateCmd.ExecuteReader();
 
@@ -137,7 +130,7 @@ namespace spikewall.Controllers
                                               user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
                                           ) VALUES (
                                               '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
-                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
+                                          );", clientReq.userId, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
                     var insertCmd = new MySqlCommand(sql, conn);
                     insertCmd.ExecuteNonQuery();
                 }
@@ -154,22 +147,17 @@ namespace spikewall.Controllers
         public JsonResult GetChaoState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
 
             using var conn = Db.Get();
             conn.Open();
 
-            // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
 
             // Get list of all visible chao
-            command = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
+            var command = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
 
             List<Chao> chao = new List<Chao>();
 
@@ -191,7 +179,7 @@ namespace spikewall.Controllers
             for (int i = 0; i < chao.Count; i++) {
                 Chao c = chao[i];
 
-                sql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", uid, c.chaoID);
+                var sql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", clientReq.userId, c.chaoID);
                 var stateCmd = new MySqlCommand(sql, conn);
                 var stateRdr = stateCmd.ExecuteReader();
 
@@ -214,7 +202,7 @@ namespace spikewall.Controllers
                     c.setStatus = 0;
                     c.acquired = 0;
 
-                    sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", c.chaoID, uid);
+                    sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", c.chaoID, clientReq.userId);
                     var insertCmd = new MySqlCommand(sql, conn);
                     insertCmd.ExecuteNonQuery();
                 }
@@ -231,23 +219,18 @@ namespace spikewall.Controllers
         public JsonResult SetUserName([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            SetUserNameRequest request = BaseRequest.Retrieve<SetUserNameRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
 
             using var conn = Db.Get();
             conn.Open();
 
-            // Retrieve user ID (FIXME: Should probably roll this into "Retrieve")
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
+            var clientReq = new ClientRequest<SetUserNameRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
 
             // Set player username as requested
-            sql = Db.GetCommand("UPDATE `sw_players` SET username = '{0}' WHERE id = '{1}';", request.userName, uid);
-            command = new MySqlCommand(sql, conn);
+            var sql = Db.GetCommand("UPDATE `sw_players` SET username = '{0}' WHERE id = '{1}';", clientReq.request.userName, clientReq.userId);
+            var command = new MySqlCommand(sql, conn);
             command.ExecuteScalar();
 
             conn.Close();

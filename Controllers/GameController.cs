@@ -17,11 +17,14 @@ namespace spikewall.Controllers
         public JsonResult GetDailyChalData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -35,11 +38,14 @@ namespace spikewall.Controllers
         public JsonResult GetCostList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -53,11 +59,14 @@ namespace spikewall.Controllers
         public JsonResult GetMileageData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -71,11 +80,14 @@ namespace spikewall.Controllers
         public JsonResult GetCampaignList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -89,11 +101,14 @@ namespace spikewall.Controllers
         public JsonResult GetFreeItemList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -110,26 +125,21 @@ namespace spikewall.Controllers
             BaseResponse error = null;
 
             // FIXME: Actually do something with this information
-            QuickActStartRequest request = BaseRequest.Retrieve<QuickActStartRequest>(param, secure, key, out error);
-            if (error != null)
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<QuickActStartRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             QuickActStartResponse quickActStartBaseResponse = new();
 
-            using var conn = Db.Get();
-            conn.Open();
-
-            // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
-
             // Now that we have the user ID, we can retrieve the player state
             PlayerState playerState = new PlayerState();
 
-            var populateStatus = playerState.Populate(conn, uid);
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
 
             conn.Close();
 
@@ -153,24 +163,25 @@ namespace spikewall.Controllers
             var iv = (string)Config.Get("encryption_iv");
             BaseResponse error = null;
 
-            QuickPostGameResultsRequest request = BaseRequest.Retrieve<QuickPostGameResultsRequest>(param, secure, key, out error);
-            if (error != null)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
-
             using var conn = Db.Get();
             conn.Open();
 
-            // Client will have only sent the session ID. We'll need to find the user ID ourselves
-            var sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", request.sessionId);
-            var command = new MySqlCommand(sql, conn);
-            var uid = command.ExecuteScalar().ToString();
+            var clientReq = new ClientRequest<QuickPostGameResultsRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            var request = clientReq.request;
 
             // Now that we have the user ID, we can retrieve the player state
             PlayerState playerState = new PlayerState();
 
-            var populateStatus = playerState.Populate(conn, uid);
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
 
             conn.Close();
 

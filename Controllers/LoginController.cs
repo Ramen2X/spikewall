@@ -21,20 +21,20 @@ namespace spikewall.Controllers
         [Produces("text/json")]
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            LoginRequest loginRequest = BaseRequest.Retrieve<LoginRequest>(param, secure, key, out error, true);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
-            }
-
             using var conn = Db.Get();
 
             conn.Open();
 
+            string iv = (string) Config.Get("encryption_iv");
+            var clientReq = new ClientRequest<LoginRequest>(conn, param, secure, key, true);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
             // Determine this login time
             var loginTime = DateTimeOffset.Now.ToUnixTimeSeconds();
 
+            var loginRequest = clientReq.request;
             var uid = loginRequest.lineAuth.userId;
             string sql;
             MySqlCommand command;
@@ -201,15 +201,20 @@ namespace spikewall.Controllers
         [Produces("text/json")]
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
+            string iv = (string) Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+
+            conn.Open();
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
+
+            conn.Close();
 
             var variousParameterResponse = new VariousParameterResponse();
             return new JsonResult(EncryptedResponse.Generate(iv, variousParameterResponse));
@@ -220,14 +225,17 @@ namespace spikewall.Controllers
         [Produces("text/json")]
         public JsonResult GetInformation([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
-            var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
+            string iv = (string) Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+
+            conn.Open();
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -241,17 +249,17 @@ namespace spikewall.Controllers
         public JsonResult GetTicker([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
+
+            using var conn = Db.Get();
+
+            conn.Open();
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
-
-            using var conn = Db.Get();
-            conn.Open();
 
             var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers`");
             var command = new MySqlCommand(sql, conn);
@@ -290,14 +298,17 @@ namespace spikewall.Controllers
         public JsonResult LoginBonus([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
+
+            using var conn = Db.Get();
+
+            conn.Open();
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -311,14 +322,17 @@ namespace spikewall.Controllers
         public JsonResult LoginBonusSelect([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
+
+            using var conn = Db.Get();
+
+            conn.Open();
 
             // I don't think we need any information from this request, but
             // we will deserialize anyway just in case we do in the future.
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null)
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub

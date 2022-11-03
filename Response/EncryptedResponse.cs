@@ -25,5 +25,10 @@ namespace spikewall.Response
         {
             return new EncryptedResponse(key, EncryptionHelper.Encrypt(JsonSerializer.Serialize(input), key), "1");
         }
+
+        public static EncryptedResponse Generate(string key, SRStatusCode statusCode)
+        {
+            return new EncryptedResponse(key, EncryptionHelper.Encrypt(JsonSerializer.Serialize(new BaseResponse(statusCode)), key), "1");
+        }
     }
 }

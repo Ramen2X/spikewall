@@ -15,10 +15,13 @@ namespace spikewall.Controllers
         public JsonResult GetWeeklyLeaderboardOptions([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -32,10 +35,13 @@ namespace spikewall.Controllers
         public JsonResult GetWeeklyLeaderboardEntries([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
@@ -49,10 +55,13 @@ namespace spikewall.Controllers
         public JsonResult GetLeagueData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-            BaseRequest request = BaseRequest.Retrieve<BaseRequest>(param, secure, key, out error);
-            if (error != null) {
-                return new JsonResult(EncryptedResponse.Generate(iv, error));
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok) {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             // FIXME: Stub
