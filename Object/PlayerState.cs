@@ -89,5 +89,85 @@ namespace spikewall.Object
 
             return SRStatusCode.Ok;
         }
+
+        public SRStatusCode Save(MySqlConnection conn, string uid)
+        {
+            // FIXME: I strongly suspect some of these can be calculated rather than manual cells
+            //        in this table so expect these to change.
+            // FIXME: Missing items and equipItemList
+            var sql = Db.GetCommand(
+                @"UPDATE `sw_players` SET
+                    main_chara_id = '{0}',
+                    sub_chara_id = '{1}',
+                    main_chao_id = '{2}',
+                    sub_chao_id = '{3}',
+                    num_rings = '{4}',
+                    num_buy_rings = '{5}',
+                    num_red_rings = '{6}',
+                    num_buy_red_rings = '{7}',
+                    energy = '{8}',
+                    energy_buy = '{9}',
+                    energy_renews_at = '{10}',
+                    num_messages = '{11}',
+                    ranking_league = '{12}',
+                    quick_ranking_league = '{13}',
+                    num_roulette_ticket = '{14}',
+                    num_chao_roulette_ticket = '{15}',
+                    chao_eggs = '{16}',
+                    total_high_score = '{17}',
+                    quick_total_high_score = '{18}',
+                    total_distance = '{19}',
+                    maximum_distance = '{20}',
+                    daily_mission_id = '{21}',
+                    daily_mission_end_time = '{22}',
+                    daily_challenge_value = '{23}',
+                    daily_challenge_complete = '{24}',
+                    num_daily_challenge_cont = '{25}',
+                    num_playing = '{26}',
+                    num_animals = '{27}',
+                    num_rank = '{28}',
+                  WHERE id = '{29}';",
+                    this.mainCharaID,
+                    this.subCharaID,
+                    this.mainChaoID,
+                    this.subChaoID,
+                    this.numRings,
+                    this.numBuyRings,
+                    this.numRedRings,
+                    this.numBuyRedRings,
+                    this.energy,
+                    this.energyBuy,
+                    this.energyRenewsAt,
+                    this.mumMessages,
+                    this.rankingLeague,
+                    this.quickRankingLeague,
+                    this.numRouletteTicket,
+                    this.numChaoRouletteTicket,
+                    this.chaoEggs,
+                    this.totalHighScore,
+                    this.quickTotalHighScore,
+                    this.totalDistance,
+                    this.maximumDistance,
+                    this.dailyMissionId,
+                    this.dailyMissionEndTime,
+                    this.dailyChallengeValue,
+                    this.dailyChallengeComplete,
+                    this.numDailyChalCont,
+                    this.numPlaying,
+                    this.numAnimals,
+                    this.numRank,
+                    uid);
+            var command = new MySqlCommand(sql, conn);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected == 0)
+            {
+                // Failed to find row with this user ID
+                return SRStatusCode.MissingPlayer;
+            }
+
+            return SRStatusCode.Ok;
+        }
     }
 }
