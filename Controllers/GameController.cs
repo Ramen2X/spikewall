@@ -255,9 +255,20 @@ namespace spikewall.Controllers
             if (playerState.numRedRings >= reviveCost)
             {
                 playerState.numRedRings -= reviveCost;
+
+                var saveStatus = playerState.Save(conn, clientReq.userId);
+                if (saveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
+                }
+                conn.Close();
                 return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
             }
-            else return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(SRStatusCode.NotEnoughRedStarRings)));
+            else
+            {
+                conn.Close();
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(SRStatusCode.NotEnoughRedStarRings)));
+            }
         }
     }
 }
