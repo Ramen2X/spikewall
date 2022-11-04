@@ -27,18 +27,9 @@ It is built for small and large scale deployment, flexibility, and ease of use. 
 - Web interface for configuration
 
 
-## Building
+## Building and Setup
 
-To build spikewall (PLACEHOLDER INSTRUCTIONS)
-
-```
-go to the plus
-check to see if the hamburgers are on sale
-cry since they aren't
-go to the based albert heijn
-check again to see if the hamburgers are on sale
-profit
-```
+Coming soon!
 
 
 ## Contributors
