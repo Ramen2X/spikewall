@@ -121,6 +121,24 @@ namespace spikewall
                             message VARCHAR(600) NOT NULL,
                             language TINYINT NOT NULL
                         );
+                        CREATE TABLE IF NOT EXISTS `sw_dailychallenge` (
+                            id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            item1 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item1count BIGINT UNSIGNED NOT NULL DEFAULT 1000,
+                            item2 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item2count BIGINT UNSIGNED NOT NULL DEFAULT 10,
+                            item3 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item3count BIGINT UNSIGNED NOT NULL DEFAULT 5000,
+                            item4 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item4count BIGINT UNSIGNED NOT NULL DEFAULT 20,
+                            item5 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item5count BIGINT UNSIGNED NOT NULL DEFAULT 10000,
+                            item6 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item6count BIGINT UNSIGNED NOT NULL DEFAULT 30,
+                            item7 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item7count BIGINT UNSIGNED NOT NULL DEFAULT 60
+                        );
+                        INSERT IGNORE INTO `sw_dailychallenge` (id) VALUES ('1');
                         CREATE TABLE IF NOT EXISTS `sw_itemownership` (
                             user_id BIGINT UNSIGNED NOT NULL,
                             item_id BIGINT UNSIGNED NOT NULL

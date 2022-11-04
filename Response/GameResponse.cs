@@ -2,7 +2,20 @@
 
 namespace spikewall.Response
 {
-    public class FreeItemListResponse : BaseResponse
+    /// <summary>
+    /// Response containing Daily Challenge data.
+    /// </summary>
+    public class DailyChalDataResponse : BaseResponse
+    {
+        public Incentive[]? incentiveList { get; set; }
+        public long? incentiveListCont { get; set; }
+        public long? numDilayChalCont { get; set; }
+        public long? numDailyChalDay { get; set; }
+        public long? maxDailyChalDay { get; set; }
+        public long? chalEndTime { get; set; }
+    }
+
+public class FreeItemListResponse : BaseResponse
     {
         public Item[]? freeItemList { get; set; }
 

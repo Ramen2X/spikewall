@@ -27,9 +27,39 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // FIXME: Stub
+            var sql = Db.GetCommand("SELECT * FROM `sw_dailychallenge`");
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new DailyChalDataResponse()));
+            DailyChalDataResponse dailyChalDataResponse = new();
+
+            if (reader.Read())
+            {
+                Incentive[] incentives = new Incentive[7];
+
+                for (int i = 0; i < 7; i++)
+                {
+                    incentives[i] = new Incentive();
+                    incentives[i].itemId = reader.GetInt64("item" + (i + 1));
+                    incentives[i].numItem = reader.GetInt64("item" + (i + 1) + "count");
+                    incentives[i].numIncentiveCont = i + 1;
+                }
+
+                reader.Close();
+
+                PlayerState playerState = new();
+                playerState.Populate(conn, clientReq.userId);
+
+                dailyChalDataResponse.incentiveList = incentives;
+                dailyChalDataResponse.incentiveListCont = 7;
+                dailyChalDataResponse.numDilayChalCont = playerState.numDailyChalCont;
+                dailyChalDataResponse.maxDailyChalDay = 7;
+                dailyChalDataResponse.numDailyChalDay = 1; // FIXME: Hardcoded
+                dailyChalDataResponse.chalEndTime = DateTimeOffset.Now.AddDays(1).AddTicks(-1).ToUnixTimeSeconds(); // FIXME: This should be the end of the day
+            }
+            else dailyChalDataResponse.incentiveList = Array.Empty<Incentive>();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, dailyChalDataResponse));
         }
 
         [HttpPost]
