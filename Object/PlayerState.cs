@@ -125,7 +125,7 @@ namespace spikewall.Object
                     num_daily_challenge_cont = '{25}',
                     num_playing = '{26}',
                     num_animals = '{27}',
-                    num_rank = '{28}',
+                    num_rank = '{28}'
                   WHERE id = '{29}';",
                     this.mainCharaID,
                     this.subCharaID,

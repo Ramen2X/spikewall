@@ -183,14 +183,12 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
             }
 
-            conn.Close();
-
             var score = ulong.Parse(request.score);
             var animals = ulong.Parse(request.numAnimals);
             var rings = ulong.Parse(request.numRings);
             var redStarRings = ulong.Parse(request.numRedStarRings);
+            var distance = ulong.Parse(request.distance);
 
-            // Update the PlayerState with information from the run
             if (playerState.quickTotalHighScore < score)
             {
                 playerState.quickTotalHighScore = score;
@@ -199,8 +197,15 @@ namespace spikewall.Controllers
             playerState.numAnimals += animals;
             playerState.numRings += rings;
             playerState.numRedRings += redStarRings;
+            playerState.totalDistance += distance;
 
-            // FIXME: Push this new PlayerState to the one in the database
+            var saveStatus = playerState.Save(conn, clientReq.userId);
+            if (saveStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
+            }
+
+            conn.Close();
 
             QuickPostGameResultsResponse quickPostGameResultsResponse = new();
             quickPostGameResultsResponse.playerState = playerState;
