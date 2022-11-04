@@ -220,5 +220,44 @@ namespace spikewall.Controllers
 
             return new JsonResult(EncryptedResponse.Generate(iv, quickPostGameResultsResponse));
         }
+
+        /// <summary>
+        /// Endpoint hit when a player revives using Red Star Rings.
+        /// </summary>
+        [HttpPost]
+        [Route("/Game/actRetry/")]
+        [Produces("text/json")]
+        public JsonResult ActRetry([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            // Now that we have the user ID, we can retrieve the player state
+            PlayerState playerState = new PlayerState();
+
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
+
+            ulong reviveCost = (ulong)Config.Get("revive_rsr_cost");
+
+            if (playerState.numRedRings >= reviveCost)
+            {
+                playerState.numRedRings -= reviveCost;
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
+            }
+            else return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(SRStatusCode.NotEnoughRedStarRings)));
+        }
     }
 }

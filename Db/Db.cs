@@ -110,7 +110,8 @@ namespace spikewall
                             assets_version VARCHAR(3) NOT NULL DEFAULT '049',
                             client_version VARCHAR(8) NOT NULL DEFAULT '2.0.3',
                             data_version VARCHAR(2) NOT NULL DEFAULT '15',
-                            info_version VARCHAR(3) NOT NULL DEFAULT '017'
+                            info_version VARCHAR(3) NOT NULL DEFAULT '017',
+                            revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 3
                         );
                         INSERT IGNORE INTO `sw_config` (id) VALUES ('1');
                         CREATE TABLE IF NOT EXISTS `sw_tickers` (
