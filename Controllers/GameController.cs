@@ -41,7 +41,7 @@ namespace spikewall.Controllers
                 {
                     incentives[i] = new Incentive();
                     incentives[i].itemId = reader.GetInt64("item" + (i + 1));
-                    incentives[i].numItem = reader.GetInt64("item" + (i + 1) + "count");
+                    incentives[i].numItem = reader.GetInt64("item" + (i + 1) + "_count");
                     incentives[i].numIncentiveCont = i + 1;
                 }
 
