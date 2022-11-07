@@ -72,8 +72,8 @@ namespace spikewall.Object
             this.numRouletteTicket = reader.GetInt64("num_roulette_ticket");
             this.numChaoRouletteTicket = reader.GetInt64("num_chao_roulette_ticket");
             this.chaoEggs = reader.GetInt64("chao_eggs");
-            this.totalHighScore = reader.GetUInt64("total_high_score");
-            this.quickTotalHighScore = reader.GetUInt64("quick_total_high_score");
+            this.totalHighScore = reader.GetUInt64("story_high_score");
+            this.quickTotalHighScore = reader.GetUInt64("quick_high_score");
             this.totalDistance = reader.GetUInt64("total_distance");
             this.maximumDistance = reader.GetUInt64("maximum_distance");
             this.dailyMissionId = reader.GetInt64("daily_mission_id");
@@ -114,8 +114,8 @@ namespace spikewall.Object
                     num_roulette_ticket = '{14}',
                     num_chao_roulette_ticket = '{15}',
                     chao_eggs = '{16}',
-                    total_high_score = '{17}',
-                    quick_total_high_score = '{18}',
+                    story_high_score = '{17}',
+                    quick_high_score = '{18}',
                     total_distance = '{19}',
                     maximum_distance = '{20}',
                     daily_mission_id = '{21}',

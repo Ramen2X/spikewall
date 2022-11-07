@@ -207,6 +207,10 @@ namespace spikewall.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint hit when finishing a Timed Mode run.
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [Route("/Game/quickPostGameResults/")]
         [Produces("text/json")]

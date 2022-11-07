@@ -67,9 +67,9 @@ namespace spikewall
                             main_chao_id MEDIUMINT NOT NULL DEFAULT 400000,
                             sub_chao_id MEDIUMINT NOT NULL DEFAULT 400001,
 
-                            num_rings BIGINT NOT NULL DEFAULT 0,
+                            num_rings BIGINT UNSIGNED NOT NULL DEFAULT 0,
                             num_buy_rings BIGINT NOT NULL DEFAULT 0,
-                            num_red_rings BIGINT NOT NULL DEFAULT 0,
+                            num_red_rings BIGINT UNSIGNED NOT NULL DEFAULT 0,
                             num_buy_red_rings BIGINT NOT NULL DEFAULT 0,
                             energy BIGINT NOT NULL DEFAULT 0,
                             energy_buy BIGINT NOT NULL DEFAULT 0,
@@ -80,9 +80,9 @@ namespace spikewall
                             num_roulette_ticket BIGINT NOT NULL DEFAULT 0,
                             num_chao_roulette_ticket BIGINT NOT NULL DEFAULT 0,
                             chao_eggs BIGINT NOT NULL DEFAULT 0,
-                            total_high_score BIGINT NOT NULL DEFAULT 0,
-                            quick_total_high_score BIGINT NOT NULL DEFAULT 0,
-                            total_distance BIGINT NOT NULL DEFAULT 0,
+                            story_high_score BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                            quick_high_score BIGINT UNSIGNED NOT NULL DEFAULT 0,
+                            total_distance BIGINT UNSIGNED NOT NULL DEFAULT 0,
                             maximum_distance BIGINT NOT NULL DEFAULT 0,
                             daily_mission_id INTEGER NOT NULL DEFAULT 0,
                             daily_mission_end_time BIGINT NOT NULL DEFAULT 0,
@@ -90,7 +90,7 @@ namespace spikewall
                             daily_challenge_complete BIGINT NOT NULL DEFAULT 0,
                             num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
                             num_playing BIGINT NOT NULL DEFAULT 0,
-                            num_animals BIGINT NOT NULL DEFAULT 0,
+                            num_animals BIGINT UNSIGNED NOT NULL DEFAULT 0,
                             num_rank INTEGER NOT NULL DEFAULT 0
 
                         );
