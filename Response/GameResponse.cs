@@ -15,7 +15,7 @@ namespace spikewall.Response
         public long? chalEndTime { get; set; }
     }
 
-public class FreeItemListResponse : BaseResponse
+    public class FreeItemListResponse : BaseResponse
     {
         public Item[]? freeItemList { get; set; }
 
@@ -27,6 +27,14 @@ public class FreeItemListResponse : BaseResponse
             // takes the free item list from the database.
             freeItemList = new Item[0];
         }
+    }
+
+    /// <summary>
+    /// Response containing cost list (FIXME: Elaborate)
+    /// </summary>
+    public class CostListResponse : BaseResponse
+    {
+        public ConsumedItem[]? consumedCostList { get; set; }
     }
 
     public class QuickActStartResponse : BaseResponse

@@ -78,9 +78,31 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // FIXME: Stub
+            var sql = Db.GetCommand("SELECT * FROM `sw_costlist`");
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new CostListResponse()));
+            CostListResponse costListResponse = new();
+
+            if (reader.Read())
+            {
+                ConsumedItem[] consumedItems = new ConsumedItem[15];
+
+                for (int i = 0; i < 15; i++)
+                {
+                    consumedItems[i] = new ConsumedItem();
+                    consumedItems[i].itemId = reader.GetInt64("item" + (i + 1));
+                    consumedItems[i].numItem = reader.GetInt64("item" + (i + 1) + "_cost");
+                    consumedItems[i].consumedItemId = reader.GetInt64("item" + (i + 1) + "_id");
+                }
+
+                reader.Close();
+
+                costListResponse.consumedCostList = consumedItems;
+            }
+            else costListResponse.consumedCostList = Array.Empty<ConsumedItem>();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, costListResponse));
         }
 
         [HttpPost]

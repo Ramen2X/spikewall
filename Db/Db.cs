@@ -111,7 +111,7 @@ namespace spikewall
                             client_version VARCHAR(8) NOT NULL DEFAULT '2.0.3',
                             data_version VARCHAR(2) NOT NULL DEFAULT '15',
                             info_version VARCHAR(3) NOT NULL DEFAULT '017',
-                            revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 3
+                            revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 5
                         );
                         INSERT IGNORE INTO `sw_config` (id) VALUES ('1');
                         CREATE TABLE IF NOT EXISTS `sw_tickers` (
@@ -139,6 +139,57 @@ namespace spikewall
                             item7_count BIGINT UNSIGNED NOT NULL DEFAULT 60
                         );
                         INSERT IGNORE INTO `sw_dailychallenge` (id) VALUES ('1');
+                        CREATE TABLE IF NOT EXISTS `sw_costlist` (
+                            id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            item1 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item1_cost BIGINT UNSIGNED NOT NULL DEFAULT 6000,
+                            item1_id MEDIUMINT NOT NULL DEFAULT 110000,
+                            item2 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item2_cost BIGINT UNSIGNED NOT NULL DEFAULT 1000,
+                            item2_id MEDIUMINT NOT NULL DEFAULT 110001,
+                            item3 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item3_cost BIGINT UNSIGNED NOT NULL DEFAULT 4000,
+                            item3_id MEDIUMINT NOT NULL DEFAULT 110002,
+
+                            item4 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item4_cost BIGINT UNSIGNED NOT NULL DEFAULT 3000,
+                            item4_id MEDIUMINT NOT NULL DEFAULT 120000,
+                            item5 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item5_cost BIGINT UNSIGNED NOT NULL DEFAULT 1000,
+                            item5_id MEDIUMINT NOT NULL DEFAULT 120001,
+                            item6 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item6_cost BIGINT UNSIGNED NOT NULL DEFAULT 3000,
+                            item6_id MEDIUMINT NOT NULL DEFAULT 120002,
+                            item7 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item7_cost BIGINT UNSIGNED NOT NULL DEFAULT 2000,
+                            item7_id MEDIUMINT NOT NULL DEFAULT 120003,
+                            item8 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item8_cost BIGINT UNSIGNED NOT NULL DEFAULT 3000,
+                            item8_id MEDIUMINT NOT NULL DEFAULT 120004,
+                            item9 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item9_cost BIGINT UNSIGNED NOT NULL DEFAULT 5000,
+                            item9_id MEDIUMINT NOT NULL DEFAULT 120005,
+                            item10 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item10_cost BIGINT UNSIGNED NOT NULL DEFAULT 4000,
+                            item10_id MEDIUMINT NOT NULL DEFAULT 120006,
+                            item11 MEDIUMINT NOT NULL DEFAULT 910000,
+                            item11_cost BIGINT UNSIGNED NOT NULL DEFAULT 5000,
+                            item11_id MEDIUMINT NOT NULL DEFAULT 120007,
+
+                            item12 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item12_cost BIGINT UNSIGNED NOT NULL DEFAULT 5,
+                            item12_id MEDIUMINT NOT NULL DEFAULT 950000,
+                            item13 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item13_cost BIGINT UNSIGNED NOT NULL DEFAULT 2,
+                            item13_id MEDIUMINT NOT NULL DEFAULT 980000,
+                            item14 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item14_cost BIGINT UNSIGNED NOT NULL DEFAULT 5,
+                            item14_id MEDIUMINT NOT NULL DEFAULT 980001,
+                            item15 MEDIUMINT NOT NULL DEFAULT 900000,
+                            item15_cost BIGINT UNSIGNED NOT NULL DEFAULT 10,
+                            item15_id MEDIUMINT NOT NULL DEFAULT 980002
+                        );
+                        INSERT IGNORE INTO `sw_costlist` (id) VALUES ('1');
                         CREATE TABLE IF NOT EXISTS `sw_itemownership` (
                             user_id BIGINT UNSIGNED NOT NULL,
                             item_id BIGINT UNSIGNED NOT NULL
