@@ -55,9 +55,8 @@ namespace spikewall.Request
         public long? bossDestroyed { get; set; }
         public long? chapterClear { get; set; }
         public long? getChaoEgg { get; set; }
-        public long? numBossAttack { get; set; }
-        public long? reachPoint { get; set; }
-
+        public string? numBossAttack { get; set; }
+        public string? reachPoint { get; set; }
     }
 
     /// <summary>

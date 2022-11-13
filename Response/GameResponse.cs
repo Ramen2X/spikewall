@@ -15,6 +15,28 @@ namespace spikewall.Response
         public long? chalEndTime { get; set; }
     }
 
+    /// <summary>
+    /// Response containing Mileage 
+    /// data for the current episode.
+    /// </summary>
+    public class MileageDataResponse : BaseResponse
+    {
+        public MileageFriend[]? mileageFriendList { get; set; }
+        public MileageMapState? mileageMapState { get; set; }
+
+        public MileageDataResponse()
+        {
+            // FIXME: Set up remaining defaults
+            mileageFriendList = Array.Empty<MileageFriend>();
+            mileageMapState = new MileageMapState();
+        }
+    }
+
+    public class MileageRewardResponse : BaseResponse
+    {
+        public MileageReward[]? mileageMapRewardList { get; set; }
+    }
+
     public class FreeItemListResponse : BaseResponse
     {
         public Item[]? freeItemList { get; set; }
@@ -59,5 +81,13 @@ namespace spikewall.Response
         public long? totalMessage { get; set; }
         public long? totalOperatorMessage { get; set; }
         public Character[]? playCharacterState { get; set; }
+    }
+
+    public class PostGameResultsResponse : QuickPostGameResultsResponse
+    {
+        public MileageMapState? mileageMapState { get; set; }
+        public MileageIncentive[]? mileageIncentiveList { get; set; }
+        public Item[]? eventIncentiveList { get; set; }
+        public WheelOptions? wheelOptions { get; set; }
     }
 }

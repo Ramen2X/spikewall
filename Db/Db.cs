@@ -111,7 +111,8 @@ namespace spikewall
                             client_version VARCHAR(8) NOT NULL DEFAULT '2.0.3',
                             data_version VARCHAR(2) NOT NULL DEFAULT '15',
                             info_version VARCHAR(3) NOT NULL DEFAULT '017',
-                            revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 5
+                            revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 5,
+                            enable_limited_time_incentives TINYINT NOT NULL DEFAULT 1
                         );
                         INSERT IGNORE INTO `sw_config` (id) VALUES ('1');
                         CREATE TABLE IF NOT EXISTS `sw_tickers` (
@@ -248,6 +249,19 @@ namespace spikewall
                             level INTEGER UNSIGNED NOT NULL DEFAULT 0,
                             set_status TINYINT NOT NULL DEFAULT 0,
                             acquired TINYINT NOT NULL DEFAULT 0
+                        );
+                        CREATE TABLE IF NOT EXISTS `sw_mileagemapstates` (
+                            user_id BIGINT UNSIGNED NOT NULL,
+                            episode TINYINT NOT NULL,
+                            chapter TINYINT NOT NULL,
+                            point BIGINT NOT NULL,
+                            stage_total_score BIGINT UNSIGNED NOT NULL,
+                            chapter_start_time BIGINT NOT NULL,
+                            
+                            map_distance BIGINT NOT NULL,
+                            num_boss_attack BIGINT NOT NULL,
+                            stage_distance BIGINT NOT NULL,
+                            stage_max_score BIGINT UNSIGNED NOT NULL
                         );", conn);
 
                     cmd.ExecuteNonQuery();
