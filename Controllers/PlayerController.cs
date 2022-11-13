@@ -228,6 +228,13 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
+            // This should never happen on a vanilla client but we should catch it anyway
+            if (clientReq.request.userName.Length > 12)
+            {
+                // TODO: Test this on an unmodified 2.0.3 client
+                return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.UsernameTooLong));
+            }
+
             // Set player username as requested
             var sql = Db.GetCommand("UPDATE `sw_players` SET username = '{0}' WHERE id = '{1}';", clientReq.request.userName, clientReq.userId);
             var command = new MySqlCommand(sql, conn);
