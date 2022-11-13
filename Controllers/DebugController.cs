@@ -2,6 +2,7 @@
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
+using spikewall.Debug;
 
 namespace spikewall.Controllers
 {
@@ -37,6 +38,8 @@ namespace spikewall.Controllers
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
+
+            DebugHelper.Log("User " + clientReq.userId.ToString() + " updated their MileageMapState through Debug Menu", 2);
 
             MileageMapState mileageMapState = clientReq.request.mileageMapState;
 
