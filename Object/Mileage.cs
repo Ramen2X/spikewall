@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace spikewall.Object
 {
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class MapInfo
     {
         public long? mapDistance { get; set; }
@@ -31,6 +32,7 @@ namespace spikewall.Object
         }
     }
 
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class MileageMapState : MapInfo
     {
         public sbyte? episode { get; set; }
