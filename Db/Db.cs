@@ -105,6 +105,7 @@ namespace spikewall
                             is_maintenance TINYINT NOT NULL DEFAULT 0,
                             support_legacy_versions TINYINT NOT NULL DEFAULT 1,
                             debug_log TINYINT NOT NULL DEFAULT 0,
+                            enable_debug_endpoints TINYINT NOT NULL DEFAULT 0,
                             encryption_iv VARCHAR(16) NOT NULL DEFAULT 'burgersMetKortin',
                             session_time INT NOT NULL DEFAULT 3600,
                             assets_version VARCHAR(3) NOT NULL DEFAULT '049',

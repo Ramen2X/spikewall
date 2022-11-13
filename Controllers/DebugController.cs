@@ -30,27 +30,29 @@ namespace spikewall.Controllers
         {
             var iv = (string)Config.Get("encryption_iv");
 
-            using var conn = Db.Get();
-            conn.Open();
-
-            var clientReq = new ClientRequest<UpdateMileageDataRequest>(conn, param, secure, key);
-            if (clientReq.error != SRStatusCode.Ok)
+            if ((sbyte)Config.Get("enable_debug_endpoints") == 1)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+                using var conn = Db.Get();
+                conn.Open();
+
+                var clientReq = new ClientRequest<UpdateMileageDataRequest>(conn, param, secure, key);
+                if (clientReq.error != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+                }
+
+                DebugHelper.Log("user " + clientReq.userId.ToString() + " updated their MileageMapState through Debug Menu", 2);
+
+                MileageMapState mileageMapState = clientReq.request.mileageMapState;
+
+                var saveStatus = mileageMapState.Save(conn, clientReq.userId);
+                if (saveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
+                }
+
+                conn.Close();
             }
-
-            DebugHelper.Log("User " + clientReq.userId.ToString() + " updated their MileageMapState through Debug Menu", 2);
-
-            MileageMapState mileageMapState = clientReq.request.mileageMapState;
-
-            var saveStatus = mileageMapState.Save(conn, clientReq.userId);
-            if (saveStatus != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
-            }
-
-            conn.Close();
-
             return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
         }
     }
