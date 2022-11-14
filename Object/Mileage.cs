@@ -4,6 +4,38 @@ using System.Text.Json.Serialization;
 
 namespace spikewall.Object
 {
+    public static class StoryProgressionHelper
+    {
+        // List of all Story Mode episodes and how many chapters that they have
+        public static readonly Dictionary<sbyte, sbyte> episodeChapterMap = new Dictionary<sbyte, sbyte>
+        {
+            { 6, 2 },
+            { 11, 2 },
+            { 16, 2 },
+            { 19, 2 },
+            { 20, 2 },
+            { 22, 2 },
+            { 23, 2 },
+            { 24, 2 },
+            { 29, 2 },
+            { 31, 2 },
+            { 33, 2 },
+            { 36, 2 },
+            { 38, 2 },
+            { 39, 2 },
+            { 40, 3 },
+            { 41, 3 },
+            { 42, 2 },
+            { 43, 2 },
+            { 44, 2 },
+            { 46, 2 },
+            { 47, 2 },
+            { 48, 2 },
+            { 49, 2 },
+            { 50, 5 }
+        };
+    }
+
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class MapInfo
     {
@@ -68,37 +100,8 @@ namespace spikewall.Object
 
         public void Advance()
         {
-            // List of all Story Mode episodes and how many chapters that they have
-            var episodeChapterMap = new Dictionary<sbyte, sbyte>
-            {
-                { 6, 2 },
-                { 11, 2 },
-                { 16, 2 },
-                { 19, 2 },
-                { 20, 2 },
-                { 22, 2 },
-                { 23, 2 },
-                { 24, 2 },
-                { 29, 2 },
-                { 31, 2 },
-                { 33, 2 },
-                { 36, 2 },
-                { 38, 2 },
-                { 39, 2 },
-                { 40, 3 },
-                { 41, 3 },
-                { 42, 2 },
-                { 43, 2 },
-                { 44, 2 },
-                { 46, 2 },
-                { 47, 2 },
-                { 48, 2 },
-                { 49, 2 },
-                { 50, 5 }
-            };
-
             sbyte num;
-            if (episodeChapterMap.TryGetValue(this.episode, out num))
+            if (StoryProgressionHelper.episodeChapterMap.TryGetValue(this.episode, out num))
             {
                 if (this.chapter != num)
                 {
