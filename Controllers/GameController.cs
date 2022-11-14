@@ -105,6 +105,10 @@ namespace spikewall.Controllers
             return new JsonResult(EncryptedResponse.Generate(iv, costListResponse));
         }
 
+        /// <summary>
+        /// Endpoint that returns the player's MapMileageState
+        /// hit when the opening the main menu.
+        /// </summary>
         [HttpPost]
         [Route("/Game/getMileageData/")]
         [Produces("text/json")]
@@ -121,9 +125,68 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
+            MileageDataResponse mileageDataResponse = new();
+
+            MileageMapState mileageMapState = new();
+
+            var sql = Db.GetCommand("SELECT * FROM `sw_mileagemapstates` WHERE user_id = '{0}';", clientReq.userId);
+            var stateCmd = new MySqlCommand(sql, conn);
+            var stateRdr = stateCmd.ExecuteReader();
+
+            if (stateRdr.HasRows)
+            {
+                stateRdr.Close();
+                var populateStatus = mileageMapState.Populate(conn, clientReq.userId);
+
+                if (populateStatus != SRStatusCode.Ok)
+                {
+                    // Return error code from Populate() to client
+                    return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
+                }
+            }
+            else
+            {
+                // No MileageMapState for this player, create one
+                stateRdr.Close();
+
+                sql = Db.GetCommand(@"INSERT INTO `sw_mileagemapstates` (
+                                            user_id, episode, chapter, point, stage_total_score, chapter_start_time, map_distance, num_boss_attack, stage_distance, stage_max_score
+                                        ) VALUES (
+                                            '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
+                                        );", clientReq.userId, mileageMapState.episode, mileageMapState.chapter, mileageMapState.point, mileageMapState.stageTotalScore, mileageMapState.chapterStartTime, mileageMapState.mapDistance, mileageMapState.numBossAttack, mileageMapState.stageDistance, mileageMapState.stageMaxScore);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+            }
+            mileageDataResponse.mileageMapState = mileageMapState;
+            return new JsonResult(EncryptedResponse.Generate(iv, mileageDataResponse));
+        }
+
+        /// <summary>
+        /// Endpoint hit when the Story Mode
+        /// mileage screen is opened.
+        /// </summary>
+        [HttpPost]
+        [Route("/Game/getMileageReward/")]
+        [Produces("text/json")]
+        public JsonResult GetMileageReward([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            MileageRewardResponse mileageRewardResponse = new();
+            mileageRewardResponse.mileageMapRewardList = Array.Empty<MileageReward>();
+
             // FIXME: Stub
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new MileageDataResponse()));
+            return new JsonResult(EncryptedResponse.Generate(iv, mileageRewardResponse));
         }
 
         [HttpPost]
@@ -168,6 +231,51 @@ namespace spikewall.Controllers
             return new JsonResult(EncryptedResponse.Generate(iv, new FreeItemListResponse()));
         }
 
+        /// <summary>
+        /// Endpoint hit when beginning a Story Mode run.
+        /// </summary>
+        [HttpPost]
+        [Route("/Game/actStart/")]
+        [Produces("text/json")]
+        public JsonResult ActStart([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            // FIXME: Actually do something with this information
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<QuickActStartRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            ActStartResponse actStartResponse = new();
+
+            // Now that we have the user ID, we can retrieve the player state
+            PlayerState playerState = new PlayerState();
+
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+
+            conn.Close();
+
+            if (populateStatus == SRStatusCode.Ok)
+            {
+                actStartResponse.playerState = playerState;
+                return new JsonResult(EncryptedResponse.Generate(iv, actStartResponse));
+            }
+            else
+            {
+                // Return error code from Populate() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
+            }
+        }
+
+        /// <summary>
+        /// Endpoint hit when beginning a Timed Mode run.
+        /// </summary>
         [HttpPost]
         [Route("/Game/quickActStart/")]
         [Produces("text/json")]
@@ -186,7 +294,7 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            QuickActStartResponse quickActStartBaseResponse = new();
+            QuickActStartResponse quickActStartResponse = new();
 
             // Now that we have the user ID, we can retrieve the player state
             PlayerState playerState = new PlayerState();
@@ -197,8 +305,8 @@ namespace spikewall.Controllers
 
             if (populateStatus == SRStatusCode.Ok)
             {
-                quickActStartBaseResponse.playerState = playerState;
-                return new JsonResult(EncryptedResponse.Generate(iv, quickActStartBaseResponse));
+                quickActStartResponse.playerState = playerState;
+                return new JsonResult(EncryptedResponse.Generate(iv, quickActStartResponse));
             }
             else
             {
@@ -210,7 +318,6 @@ namespace spikewall.Controllers
         /// <summary>
         /// Endpoint hit when finishing a Timed Mode run.
         /// </summary>
-        /// <returns></returns>
         [HttpPost]
         [Route("/Game/quickPostGameResults/")]
         [Produces("text/json")]
@@ -239,21 +346,15 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
             }
 
-            var score = ulong.Parse(request.score);
-            var animals = ulong.Parse(request.numAnimals);
-            var rings = ulong.Parse(request.numRings);
-            var redStarRings = ulong.Parse(request.numRedStarRings);
-            var distance = ulong.Parse(request.distance);
-
-            if (playerState.quickTotalHighScore < score)
+            if (playerState.quickTotalHighScore < request.score)
             {
-                playerState.quickTotalHighScore = score;
+                playerState.quickTotalHighScore = request.score;
             }
 
-            playerState.numAnimals += animals;
-            playerState.numRings += rings;
-            playerState.numRedRings += redStarRings;
-            playerState.totalDistance += distance;
+            playerState.numAnimals += request.numAnimals;
+            playerState.numRings += request.numRings;
+            playerState.numRedRings += request.numRedStarRings;
+            playerState.totalDistance += request.distance;
 
             var saveStatus = playerState.Save(conn, clientReq.userId);
             if (saveStatus != SRStatusCode.Ok)
@@ -275,6 +376,108 @@ namespace spikewall.Controllers
             quickPostGameResultsResponse.totalOperatorMessage = 0;
 
             return new JsonResult(EncryptedResponse.Generate(iv, quickPostGameResultsResponse));
+        }
+
+        /// <summary>
+        /// Endpoint hit when finishing a Story Mode run.
+        /// </summary>
+        [HttpPost]
+        [Route("/Game/postGameResults/")]
+        [Produces("text/json")]
+        public JsonResult PostGameResults([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+            BaseResponse error = null;
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<PostGameResultsRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            var request = clientReq.request;
+
+            PostGameResultsResponse postGameResultsResponse = new();
+
+            // If the run wasn't exited out of
+            if (request.closed != 1)
+            {
+                // Now that we have the user ID, we can retrieve the player state
+                PlayerState playerState = new();
+
+                var populateStatus = playerState.Populate(conn, clientReq.userId);
+                if (populateStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+                }
+
+                if (playerState.totalHighScore < request.score)
+                {
+                    playerState.totalHighScore = request.score;
+                }
+
+                playerState.numAnimals += request.numAnimals;
+                playerState.numRings += request.numRings;
+                playerState.numRedRings += request.numRedStarRings;
+                playerState.totalDistance += request.distance;
+
+                MileageMapState mileageMapState = new();
+
+                var populateMMSStatus = mileageMapState.Populate(conn, clientReq.userId);
+                if (populateMMSStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, populateMMSStatus));
+                }
+
+                mileageMapState.stageTotalScore += request.score;
+
+                // Despite its misleading name, this is set to 1 whether a chapter OR an episode is cleared.
+                if (request.chapterClear == 1)
+                {
+                    // Chapter or episode cleared, go to the next one
+                    mileageMapState.Advance();
+
+                    // Prevent player rank from going over 999
+                    if (playerState.numRank < 998)
+                    {
+                        playerState.numRank++;
+                    }
+                }
+                else mileageMapState.point = request.reachPoint;
+
+                var saveStatus = playerState.Save(conn, clientReq.userId);
+                if (saveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
+                }
+
+                var saveMMSStatus = mileageMapState.Save(conn, clientReq.userId);
+                if (saveMMSStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveMMSStatus));
+                }
+
+                conn.Close();
+
+                postGameResultsResponse.playerState = playerState;
+
+                // FIXME: Actually implement this normally lmao
+
+                postGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
+                postGameResultsResponse.messageList = new string[0];
+                postGameResultsResponse.operatorMessageList = new string[0];
+                postGameResultsResponse.totalMessage = 0;
+                postGameResultsResponse.totalOperatorMessage = 0;
+                postGameResultsResponse.mileageMapState = mileageMapState;
+                postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
+                postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
+                postGameResultsResponse.wheelOptions = new WheelOptions();
+            }
+
+            return new JsonResult(EncryptedResponse.Generate(iv, postGameResultsResponse));
         }
 
         /// <summary>

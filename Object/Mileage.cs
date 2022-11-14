@@ -35,8 +35,8 @@ namespace spikewall.Object
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class MileageMapState : MapInfo
     {
-        public sbyte? episode { get; set; }
-        public sbyte? chapter { get; set; }
+        public sbyte episode { get; set; }
+        public sbyte chapter { get; set; }
         public long? point { get; set; }
         public ulong? stageTotalScore { get; set; }
         public long? chapterStartTime { get; set; }
@@ -66,22 +66,72 @@ namespace spikewall.Object
             chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
-        public void AdvanceToNextEpisode()
+        public void Advance()
         {
-            stageTotalScore = 0;
-            // Sonic Runners' story ends at Episode 50,
-            // make sure to not progress further.
-            if (episode < 50) {
-                episode += 1;
+            // List of all Story Mode episodes and how many chapters that they have
+            var episodeChapterMap = new Dictionary<sbyte, sbyte>
+            {
+                { 6, 2 },
+                { 11, 2 },
+                { 16, 2 },
+                { 19, 2 },
+                { 20, 2 },
+                { 22, 2 },
+                { 23, 2 },
+                { 24, 2 },
+                { 29, 2 },
+                { 31, 2 },
+                { 33, 2 },
+                { 36, 2 },
+                { 38, 2 },
+                { 39, 2 },
+                { 40, 3 },
+                { 41, 3 },
+                { 42, 2 },
+                { 43, 2 },
+                { 44, 2 },
+                { 46, 2 },
+                { 47, 2 },
+                { 48, 2 },
+                { 49, 2 },
+                { 50, 5 }
+            };
+
+            sbyte num;
+            if (episodeChapterMap.TryGetValue(this.episode, out num))
+            {
+                if (this.chapter != num)
+                {
+                    // This episode still has more chapters in it, advance to next chapter
+                    AdvanceToNextChapter();
+                    return;
+                }
             }
-            chapter = 1;
-            point = 0;
-            chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
+            // This episode has no more chapters in it, advance to next episode
+            AdvanceToNextEpisode();
         }
 
-        public void AddScore(ulong p_score)
+        public void AdvanceToNextEpisode()
         {
-            stageTotalScore += p_score;
+            this.stageTotalScore = 0;
+
+            // Sonic Runners' story ends at Episode 50,
+            // make sure to not progress further.
+            if (this.episode < 50) {
+                this.episode++;
+            }
+
+            this.chapter = 1;
+            this.point = 0;
+            this.chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
+        }
+
+        public void AdvanceToNextChapter()
+        {
+            this.stageTotalScore = 0;
+            this.chapter++;
+            this.point = 0;
+            this.chapterStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
 
         public SRStatusCode Populate(MySqlConnection conn, string uid)

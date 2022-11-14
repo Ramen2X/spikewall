@@ -31,17 +31,18 @@ namespace spikewall.Request
     /// Class which represents data from a QuickPostGameResults request.
     /// QuickPostGameResults is sent when finishing a Timed Mode run.
     /// </summary>
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class QuickPostGameResultsRequest : BaseRequest
     {
-        public string? score { get; set; }
-        public string? numRings { get; set; }
-        public string? numFailureRings { get; set; }
-        public string? numRedStarRings { get; set; }
-        public string? distance { get; set; }
+        public ulong? score { get; set; }
+        public ulong? numRings { get; set; }
+        public ulong? numFailureRings { get; set; }
+        public ulong? numRedStarRings { get; set; }
+        public ulong? distance { get; set; }
         public string? dailyChallengeValue { get; set; }
         public sbyte? dailyChallengeComplete { get; set; }
-        public string? numAnimals { get; set; }
-        public string? maxCombo { get; set; }
+        public ulong? numAnimals { get; set; }
+        public ulong? maxCombo { get; set; }
         public sbyte? closed { get; set; }
         public string? cheatResult { get; set; }
     }
@@ -50,13 +51,14 @@ namespace spikewall.Request
     /// Class which represents data from a PostGameResults request.
     /// PostGameResults is sent when finishing a Story Mode/Endless run.
     /// </summary>
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class PostGameResultsRequest : QuickPostGameResultsRequest
     {
-        public long? bossDestroyed { get; set; }
-        public long? chapterClear { get; set; }
+        public sbyte? bossDestroyed { get; set; }
+        public sbyte? chapterClear { get; set; }
         public long? getChaoEgg { get; set; }
-        public string? numBossAttack { get; set; }
-        public string? reachPoint { get; set; }
+        public long? numBossAttack { get; set; }
+        public long? reachPoint { get; set; }
     }
 
     /// <summary>
