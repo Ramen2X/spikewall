@@ -5,6 +5,7 @@ using spikewall.Encryption;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
+using System.Text;
 
 namespace spikewall.Controllers
 {
@@ -37,11 +38,22 @@ namespace spikewall.Controllers
             {
                 Incentive[] incentives = new Incentive[7];
 
+                // We use StringBuilder here rather than concatenation
+                // to prevent mass creation of unnecessary objects.
+                StringBuilder str = new(11);
                 for (int i = 0; i < 7; i++)
                 {
+                    str.Clear();
+                    str.Append("item");
+
                     incentives[i] = new Incentive();
-                    incentives[i].itemId = reader.GetInt64("item" + (i + 1));
-                    incentives[i].numItem = reader.GetInt64("item" + (i + 1) + "_count");
+
+                    str.Append(i + 1);
+                    incentives[i].itemId = reader.GetInt64(str.ToString());
+
+                    str.Append("_count");
+                    incentives[i].numItem = reader.GetInt64(str.ToString());
+
                     incentives[i].numIncentiveCont = i + 1;
                 }
 
@@ -88,12 +100,25 @@ namespace spikewall.Controllers
             {
                 ConsumedItem[] consumedItems = new ConsumedItem[15];
 
+                // We use StringBuilder here rather than concatenation
+                // to prevent mass creation of unnecessary objects.
+                StringBuilder str = new(11);
+
                 for (int i = 0; i < 15; i++)
                 {
+                    str.Clear();
+                    str.Append("item");
+
                     consumedItems[i] = new ConsumedItem();
-                    consumedItems[i].itemId = reader.GetInt64("item" + (i + 1));
-                    consumedItems[i].numItem = reader.GetInt64("item" + (i + 1) + "_cost");
-                    consumedItems[i].consumedItemId = reader.GetInt64("item" + (i + 1) + "_id");
+
+                    str.Append(i + 1);
+                    consumedItems[i].itemId = reader.GetInt64(str.ToString());
+
+                    str.Append("_cost");
+                    consumedItems[i].numItem = reader.GetInt64(str.ToString());
+
+                    str.Replace("_cost", "_id");
+                    consumedItems[i].consumedItemId = reader.GetInt64(str.ToString());
                 }
 
                 reader.Close();
