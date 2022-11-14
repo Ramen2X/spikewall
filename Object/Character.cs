@@ -9,19 +9,19 @@ namespace spikewall.Object
 
         // The amount of rings this character
         // currently costs to level up.
-        public long? numRings { get; set; }
+        public ulong? numRings { get; set; }
 
         // UNUSED: The amount of Red Star Rings
         // this character costs to level up.
-        public long? numRedRings { get; set; }
+        public ulong? numRedRings { get; set; }
 
         // The amount of rings this
         // character costs to buy/limit smash.
-        public long? priceNumRings { get; set; }
+        public ulong? priceNumRings { get; set; }
 
         // The amount of Red Star Rings this
         // character costs to buy/limit smash.
-        public long? priceNumRedRings { get; set; }
+        public ulong? priceNumRedRings { get; set; }
 
         // Whether or not the character is unlocked.
         public sbyte? status { get; set; }
@@ -31,7 +31,7 @@ namespace spikewall.Object
 
         // How many rings until
         // the next level up??
-        public long? exp { get; set; }
+        public ulong? exp { get; set; }
 
         // Amount of times the character
         // has been limit smashed.

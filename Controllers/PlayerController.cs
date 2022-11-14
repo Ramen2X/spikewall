@@ -75,10 +75,10 @@ namespace spikewall.Controllers
                 // FIXME: Hardcoded empty
                 c.campaignList = new Campaign[0];
 
-                c.numRings = Convert.ToInt64(charRdr["num_rings"]);
-                c.numRedRings = Convert.ToInt64(charRdr["num_red_rings"]);
-                c.priceNumRings = Convert.ToInt64(charRdr["price_num_rings"]);
-                c.priceNumRedRings = Convert.ToInt64(charRdr["price_num_red_rings"]);
+                c.numRings = Convert.ToUInt64(charRdr["num_rings"]);
+                c.numRedRings = Convert.ToUInt64(charRdr["num_red_rings"]);
+                c.priceNumRings = Convert.ToUInt64(charRdr["price_num_rings"]);
+                c.priceNumRedRings = Convert.ToUInt64(charRdr["price_num_red_rings"]);
                 c.starMax = Convert.ToSByte(charRdr["star_max"]);
                 c.lockCondition = Convert.ToSByte(charRdr["lock_condition"]);
 
@@ -100,7 +100,7 @@ namespace spikewall.Controllers
 
                     c.status = Convert.ToSByte(stateRdr["status"]);
                     c.level = Convert.ToSByte(stateRdr["level"]);
-                    c.exp = Convert.ToInt64(stateRdr["exp"]);
+                    c.exp = Convert.ToUInt64(stateRdr["exp"]);
                     c.star = Convert.ToSByte(stateRdr["star"]);
 
                     c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));

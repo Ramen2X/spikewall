@@ -198,10 +198,10 @@ namespace spikewall
                         );
                         CREATE TABLE IF NOT EXISTS `sw_characters` (
                             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
-                            num_rings BIGINT NOT NULL,
-                            num_red_rings BIGINT NOT NULL,
-                            price_num_rings BIGINT NOT NULL,
-                            price_num_red_rings BIGINT NOT NULL,
+                            num_rings BIGINT UNSIGNED NOT NULL,
+                            num_red_rings BIGINT UNSIGNED NOT NULL,
+                            price_num_rings BIGINT UNSIGNED NOT NULL,
+                            price_num_red_rings BIGINT UNSIGNED NOT NULL,
                             lock_condition TINYINT NOT NULL,
                             star_max INTEGER NOT NULL DEFAULT 10,
                             visible TINYINT NOT NULL
@@ -211,7 +211,7 @@ namespace spikewall
                             character_id BIGINT UNSIGNED NOT NULL,
                             status TINYINT NOT NULL,
                             level TINYINT NOT NULL,
-                            exp BIGINT NOT NULL,
+                            exp BIGINT UNSIGNED NOT NULL,
                             star TINYINT NOT NULL,
                             ability_level TINYTEXT NOT NULL,
                             ability_num_rings TINYTEXT NOT NULL,
