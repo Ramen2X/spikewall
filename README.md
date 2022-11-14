@@ -12,11 +12,11 @@ It is built for small and large scale deployment, flexibility, and ease of use. 
 - Logging in
 - Tutorial
 - Ticker system
+- Story Mode (without incentives)
 
 ## To Do
 
 - Login Bonus
-- Story Mode
 - Timed Mode
 - High score saving
 - Event support
