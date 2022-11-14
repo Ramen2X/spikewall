@@ -23,6 +23,7 @@ It is built for small and large scale deployment, flexibility, and ease of use. 
 - Leaderboards
 - Runners League
 - Daily Battles
+- Roulette
 - Support for older clients
 - Web interface for configuration
 
