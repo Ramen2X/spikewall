@@ -1,4 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using MySql.Data.MySqlClient;
+using spikewall.Response;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace spikewall.Object
 {
@@ -65,5 +68,133 @@ namespace spikewall.Object
         // I'm also not sure what this is right now.
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long[]? abilityLevelupExp { get; set; }
+
+        public static SRStatusCode PopulateCharacterState(MySqlConnection conn, string uid, out Character[] characterState)
+        {
+            List<Character> characters = new List<Character>();
+            characterState = null;
+
+            // Get list of all visible characters
+            var command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
+
+            var charRdr = command.ExecuteReader();
+            while (charRdr.Read())
+            {
+                Character c = new Character();
+
+                c.characterId = charRdr.GetString("id");
+
+                // FIXME: Hardcoded empty
+                c.campaignList = new Campaign[0];
+
+                c.numRings = Convert.ToUInt64(charRdr["num_rings"]);
+                c.numRedRings = Convert.ToUInt64(charRdr["num_red_rings"]);
+                c.priceNumRings = Convert.ToUInt64(charRdr["price_num_rings"]);
+                c.priceNumRedRings = Convert.ToUInt64(charRdr["price_num_red_rings"]);
+                c.starMax = Convert.ToSByte(charRdr["star_max"]);
+                c.lockCondition = Convert.ToSByte(charRdr["lock_condition"]);
+
+                characters.Add(c);
+            }
+
+            charRdr.Close();
+
+            for (int i = 0; i < characters.Count; i++)
+            {
+                Character c = characters[i];
+
+                var sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}' AND character_id = '{1}';", uid, c.characterId);
+                var stateCmd = new MySqlCommand(sql, conn);
+                var stateRdr = stateCmd.ExecuteReader();
+
+                if (stateRdr.HasRows)
+                {
+                    // Read row
+                    stateRdr.Read();
+
+                    c.status = Convert.ToSByte(stateRdr["status"]);
+                    c.level = Convert.ToSByte(stateRdr["level"]);
+                    c.exp = Convert.ToUInt64(stateRdr["exp"]);
+                    c.star = Convert.ToSByte(stateRdr["star"]);
+
+                    c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
+                    c.abilityNumRings = ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
+                    c.abilityLevelup = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
+                    c.abilityLevelupExp = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
+
+                    stateRdr.Close();
+                }
+                else
+                {
+                    // Somehow failed to find player, return error code
+                    return SRStatusCode.MissingPlayer;
+                }
+            }
+
+            conn.Close();
+            
+            characterState = characters.ToArray();
+            return SRStatusCode.Ok;
+        }
+
+        public static SRStatusCode SaveCharacterState(MySqlConnection conn, string uid, Character[] characterState)
+        {
+            // FIXME: Does not support adding characters right now
+            for (int i = 0; i < characterState.Length; i++)
+            {
+                var sql = Db.GetCommand(
+                    @"UPDATE `sw_characterstates` SET
+                    character_id = '{0}',
+                    status = '{1}',
+                    level = '{2}',
+                    exp = '{3}',
+                    star = '{4}',
+                    ability_level = '{5}',
+                    ability_num_rings = '{6}',
+                    ability_levelup = '{7}',
+                    ability_levelup_exp = '{8}'
+                  WHERE user_id = '{9}';",
+                        characterState[i].characterId,
+                        characterState[i].status,
+                        characterState[i].level,
+                        characterState[i].exp,
+                        characterState[i].star,
+                        ConvertIntArrayToDBList(characterState[i].abilityLevel),
+                        ConvertIntArrayToDBList(characterState[i].abilityNumRings),
+                        ConvertIntArrayToDBList(characterState[i].abilityLevelup),
+                        ConvertIntArrayToDBList(characterState[i].abilityLevelupExp),
+                        uid);
+                var command = new MySqlCommand(sql, conn);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    // Failed to find row with this user ID
+                    return SRStatusCode.MissingPlayer;
+                }
+            }
+
+            return SRStatusCode.Ok;
+        }
+
+        private static long[] ConvertDBListToIntArray(string s)
+        {
+            string[] tokens = s.Split(' ');
+            long[] values = new long[tokens.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = long.Parse(tokens[i]);
+            }
+            return values;
+        }
+
+        private static string ConvertIntArrayToDBList(long[] a)
+        {
+            StringBuilder dbList = new();
+            dbList.AppendJoin(' ', a);
+
+            return dbList.ToString();
+        }
     }
 }
