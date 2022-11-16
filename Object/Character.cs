@@ -86,7 +86,7 @@ namespace spikewall.Object
 
             for (int lvl = 0; lvl <= level; lvl++)
             {
-                var upgrdSql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", characterId, level);
+                var upgrdSql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", characterId, lvl);
                 var upgrdCmd = new MySqlCommand(upgrdSql, conn);
 
                 ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
