@@ -69,6 +69,23 @@ namespace spikewall.Object
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long[]? abilityLevelupExp { get; set; }
 
+        public static ulong GenerateTotalCost(MySqlConnection conn, string characterId, sbyte level)
+        {
+            ulong cost = 0;
+
+            for (int lvl = 0; lvl <= level; lvl++)
+            {
+                var upgrdSql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", characterId, level);
+                var upgrdCmd = new MySqlCommand(upgrdSql, conn);
+
+                ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
+
+                cost += multiple;
+            }
+
+            return cost;
+        }
+
         public static SRStatusCode PopulateCharacterState(MySqlConnection conn, string uid, out Character[] characterState)
         {
             List<Character> characters = new List<Character>();
@@ -125,15 +142,7 @@ namespace spikewall.Object
                     stateRdr.Close();
 
                     // We calculate character prices dynamically
-                    for (int lvl = 0; lvl <= c.level; lvl++)
-                    {
-                        var upgrdSql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", c.characterId, lvl);
-                        var upgrdCmd = new MySqlCommand(upgrdSql, conn);
-
-                        ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
-
-                        c.numRings += multiple;
-                    }
+                    c.numRings = GenerateTotalCost(conn, c.characterId, c.level);
                 }
                 else
                 {
