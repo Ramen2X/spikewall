@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Store")]
     public class StoreController : ControllerBase
     {
         [HttpPost]
-        [Route("/Store/getRedstarExchangeList/")]
+        [Route("getRedstarExchangeList")]
         [Produces("text/json")]
         public JsonResult GetRedstarExchangeList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

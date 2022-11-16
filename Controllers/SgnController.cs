@@ -7,11 +7,12 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
-    [Route("/sgn/sendApollo/")]
+    [Route("sgn")]
     [Produces("text/json")]
     public class SgnController : ControllerBase
     {
         [HttpPost]
+        [Route("sendApollo")]
         public JsonResult sendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");

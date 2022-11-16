@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Leaderboard")]
     public class LeaderboardController : ControllerBase
     {
         [HttpPost]
-        [Route("/Leaderboard/getWeeklyLeaderboardOptions/")]
+        [Route("getWeeklyLeaderboardOptions")]
         [Produces("text/json")]
         public JsonResult GetWeeklyLeaderboardOptions([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -30,7 +31,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Leaderboard/getWeeklyLeaderboardEntries/")]
+        [Route("getWeeklyLeaderboardEntries")]
         [Produces("text/json")]
         public JsonResult GetWeeklyLeaderboardEntries([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -50,7 +51,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Leaderboard/getLeagueData/")]
+        [Route("getLeagueData")]
         [Produces("text/json")]
         public JsonResult GetLeagueData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

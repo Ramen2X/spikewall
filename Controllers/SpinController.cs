@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Spin")]
     public class SpinController : ControllerBase
     {
         [HttpPost]
-        [Route("/Spin/getWheelOptions/")]
+        [Route("getWheelOptions")]
         [Produces("text/json")]
         public JsonResult GetWheelOptions([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

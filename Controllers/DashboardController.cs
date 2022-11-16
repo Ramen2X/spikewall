@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Dashboard")]
     public class DashboardController : ControllerBase
     {
         private void QuickRun(MySqlConnection conn, string query)
@@ -14,7 +15,7 @@ namespace spikewall.Controllers
         }
 
         [HttpGet]
-        [Route("/Dashboard/resetDatabase/")]
+        [Route("resetDatabase")]
         public IActionResult ResetDatabase(bool chao = false,
                                            bool players = false,
                                            bool characters = false,

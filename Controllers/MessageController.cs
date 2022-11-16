@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Message")]
     public class MessageController : ControllerBase
     {
         [HttpPost]
-        [Route("/Message/getMessageList/")]
+        [Route("getMessageList")]
         [Produces("text/json")]
         public JsonResult GetMessageList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

@@ -10,10 +10,11 @@ using System.Text;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Game")]
     public class GameController : ControllerBase
     {
         [HttpPost]
-        [Route("/Game/getDailyChalData/")]
+        [Route("getDailyChalData")]
         [Produces("text/json")]
         public JsonResult GetDailyChalData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -75,7 +76,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Game/getCostList/")]
+        [Route("getCostList")]
         [Produces("text/json")]
         public JsonResult GetCostList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -135,7 +136,7 @@ namespace spikewall.Controllers
         /// hit when the opening the main menu.
         /// </summary>
         [HttpPost]
-        [Route("/Game/getMileageData/")]
+        [Route("getMileageData")]
         [Produces("text/json")]
         public JsonResult GetMileageData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -191,7 +192,7 @@ namespace spikewall.Controllers
         /// mileage screen is opened.
         /// </summary>
         [HttpPost]
-        [Route("/Game/getMileageReward/")]
+        [Route("getMileageReward")]
         [Produces("text/json")]
         public JsonResult GetMileageReward([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -215,7 +216,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Game/getCampaignList/")]
+        [Route("getCampaignList")]
         [Produces("text/json")]
         public JsonResult GetCampaignList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -236,7 +237,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Game/getFreeItemList/")]
+        [Route("getFreeItemList")]
         [Produces("text/json")]
         public JsonResult GetFreeItemList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -260,7 +261,7 @@ namespace spikewall.Controllers
         /// Endpoint hit when beginning a Story Mode run.
         /// </summary>
         [HttpPost]
-        [Route("/Game/actStart/")]
+        [Route("actStart")]
         [Produces("text/json")]
         public JsonResult ActStart([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -302,7 +303,7 @@ namespace spikewall.Controllers
         /// Endpoint hit when beginning a Timed Mode run.
         /// </summary>
         [HttpPost]
-        [Route("/Game/quickActStart/")]
+        [Route("quickActStart")]
         [Produces("text/json")]
         public JsonResult QuickActStart([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -344,7 +345,7 @@ namespace spikewall.Controllers
         /// Endpoint hit when finishing a Timed Mode run.
         /// </summary>
         [HttpPost]
-        [Route("/Game/quickPostGameResults/")]
+        [Route("quickPostGameResults")]
         [Produces("text/json")]
         public JsonResult QuickPostGameResults([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -407,7 +408,7 @@ namespace spikewall.Controllers
         /// Endpoint hit when finishing a Story Mode run.
         /// </summary>
         [HttpPost]
-        [Route("/Game/postGameResults/")]
+        [Route("postGameResults")]
         [Produces("text/json")]
         public JsonResult PostGameResults([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -509,7 +510,7 @@ namespace spikewall.Controllers
         /// Endpoint hit when a player revives using Red Star Rings.
         /// </summary>
         [HttpPost]
-        [Route("/Game/actRetry/")]
+        [Route("actRetry")]
         [Produces("text/json")]
         public JsonResult ActRetry([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

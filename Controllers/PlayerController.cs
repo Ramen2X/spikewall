@@ -10,10 +10,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Player")]
     public class PlayerController : ControllerBase
     {
         [HttpPost]
-        [Route("/Player/getPlayerState/")]
+        [Route("getPlayerState")]
         [Produces("text/json")]
         public JsonResult GetPlayerState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -47,7 +48,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Player/getCharacterState/")]
+        [Route("getCharacterState")]
         [Produces("text/json")]
         public JsonResult GetCharacterState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -75,7 +76,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Player/getChaoState/")]
+        [Route("getChaoState")]
         [Produces("text/json")]
         public JsonResult GetChaoState([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -147,7 +148,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Player/setUserName/")]
+        [Route("setUserName")]
         [Produces("text/json")]
         public JsonResult SetUserName([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

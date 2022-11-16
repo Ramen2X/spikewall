@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Battle")]
     public class BattleController : ControllerBase
     {
         /*[HttpPost]
-        [Route("/Battle/getDailyBattleData/")]
+        [Route("getDailyBattleData")]
         [Produces("text/json")]
         public JsonResult GetDailyBattleData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -27,7 +28,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Battle/updateDailyBattleStatus/")]
+        [Route("updateDailyBattleStatus")]
         [Produces("text/json")]
         public JsonResult UpdateDailyBattleStatus([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

@@ -14,10 +14,11 @@ using System.Reflection.PortableExecutable;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("login")]
     public class LoginController : ControllerBase
     {
         [HttpPost]
-        [Route("/login/Login/")]
+        [Route("Login")]
         [Produces("text/json")]
         public JsonResult Login([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -197,7 +198,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/login/getVariousParameter/")]
+        [Route("getVariousParameter")]
         [Produces("text/json")]
         public JsonResult GetVariousParameter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -221,7 +222,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/login/getInformation/")]
+        [Route("getInformation")]
         [Produces("text/json")]
         public JsonResult GetInformation([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -244,7 +245,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/login/getTicker/")]
+        [Route("getTicker")]
         [Produces("text/json")]
         public JsonResult GetTicker([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -295,7 +296,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/login/loginBonus/")]
+        [Route("loginBonus")]
         [Produces("text/json")]
         public JsonResult LoginBonus([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -319,7 +320,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/login/loginBonusSelect/")]
+        [Route("loginBonusSelect")]
         [Produces("text/json")]
         public JsonResult LoginBonusSelect([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

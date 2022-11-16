@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Chao")]
     public class ChaoController : ControllerBase
     {
         [HttpPost]
-        [Route("/Chao/getChaoWheelOptions/")]
+        [Route("getChaoWheelOptions")]
         [Produces("text/json")]
         public JsonResult GetChaoWheelOptions([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
@@ -30,7 +31,7 @@ namespace spikewall.Controllers
         }
 
         [HttpPost]
-        [Route("/Chao/getPrizeChaoWheelSpin/")]
+        [Route("getPrizeChaoWheelSpin")]
         [Produces("text/json")]
         public JsonResult GetPrizeChaoWheelOptions([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

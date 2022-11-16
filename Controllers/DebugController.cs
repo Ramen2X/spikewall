@@ -21,10 +21,11 @@ namespace spikewall.Controllers
     /// when running in a production environment.
     /// </summary>
     [ApiController]
+    [Route("Debug")]
     public class DebugController : ControllerBase
     {
         [HttpPost]
-        [Route("/Debug/updMileageData/")]
+        [Route("updMileageData")]
         [Produces("text/json")]
         public JsonResult UpdateMileageData([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {

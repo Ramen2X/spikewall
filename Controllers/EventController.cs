@@ -7,10 +7,11 @@ using spikewall.Response;
 namespace spikewall.Controllers
 {
     [ApiController]
+    [Route("Event")]
     public class EventController : ControllerBase
     {
         [HttpPost]
-        [Route("/Event/getEventList/")]
+        [Route("getEventList")]
         [Produces("text/json")]
         public JsonResult GetEventList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
