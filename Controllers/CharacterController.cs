@@ -174,20 +174,18 @@ namespace spikewall.Controllers
                     switch (characterState[index].status)
                     {
                         // Character not unlocked yet, unlock it
-                        case 0:
-                            characterState[index].status = 1;
+                        case (sbyte)Character.Status.Locked:
+                            characterState[index].status = (sbyte)Character.Status.Unlocked;
                             break;
                         // Character already unlocked, limit smash
-                        case 1:
-                            characterState[index].star++;
-                            if (characterState[index].star == characterState[index].starMax)
+                        case (sbyte)Character.Status.Unlocked:
+                            if (characterState[index].star < characterState[index].starMax)
                             {
-                                characterState[index].status = 2;
+                                characterState[index].star++;
+                                break;
                             }
-                            break;
-                        // Character is already fully limit smashed, this should never happen
-                        case 2:
-                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                            // Character is already fully limit smashed, this should never happen
+                            else return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                     }
                 }
             }
@@ -203,20 +201,18 @@ namespace spikewall.Controllers
                     switch (characterState[index].status)
                     {
                         // Character not unlocked yet, unlock it
-                        case 0:
-                            characterState[index].status = 1;
+                        case (sbyte)Character.Status.Locked:
+                            characterState[index].status = (sbyte)Character.Status.Unlocked;
                             break;
                         // Character already unlocked, limit smash
-                        case 1:
-                            characterState[index].star++;
-                            if (characterState[index].star == characterState[index].starMax)
+                        case (sbyte)Character.Status.Unlocked:
+                            if (characterState[index].star < characterState[index].starMax)
                             {
-                                characterState[index].status = 2;
+                                characterState[index].star++;
+                                break;
                             }
-                            break;
-                        // Character is already fully limit smashed, this should never happen
-                        case 2:
-                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                            // Character is already fully limit smashed, this should never happen
+                            else return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                     }
                 }
             }

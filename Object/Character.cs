@@ -69,6 +69,17 @@ namespace spikewall.Object
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long[]? abilityLevelupExp { get; set; }
 
+        /// <summary>
+        /// Enum that contains all of the
+        /// possible states of a character.
+        /// </summary>
+        public enum Status
+        {
+            Locked,
+            Unlocked,
+            MaxLevel
+        }
+
         public static ulong GenerateTotalCost(MySqlConnection conn, string characterId, sbyte level)
         {
             ulong cost = 0;
