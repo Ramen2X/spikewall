@@ -8,60 +8,60 @@ namespace spikewall.Object
     public class Character
     {
         // The internal ID for this character.
-        public string? characterId { get; set; }
+        public string characterId { get; set; }
 
         // The amount of rings this character
         // currently costs to level up.
-        public ulong? numRings { get; set; }
+        public ulong numRings { get; set; }
 
         // UNUSED: The amount of Red Star Rings
         // this character costs to level up.
-        public ulong? numRedRings { get; set; }
+        public ulong numRedRings { get; set; }
 
         // The amount of rings this
         // character costs to buy/limit smash.
-        public ulong? priceNumRings { get; set; }
+        public ulong priceNumRings { get; set; }
 
         // The amount of Red Star Rings this
         // character costs to buy/limit smash.
-        public ulong? priceNumRedRings { get; set; }
+        public ulong priceNumRedRings { get; set; }
 
         // Whether or not the character is unlocked.
-        public sbyte? status { get; set; }
+        public sbyte status { get; set; }
 
         // The level of the character.
-        public sbyte? level { get; set; }
+        public sbyte level { get; set; }
 
         // How many rings until
         // the next level up??
-        public ulong? exp { get; set; }
+        public ulong exp { get; set; }
 
         // Amount of times the character
         // has been limit smashed.
-        public sbyte? star { get; set; }
+        public sbyte star { get; set; }
 
         // Maximum amount of times the
         // character can be limit smashed.
-        public sbyte? starMax { get; set; }
+        public sbyte starMax { get; set; }
 
         // How the character can be unlocked
         // (Purchasable with Red Rings, Winnable
         // on the Premium Roulette, etc).
         // TODO: Probably move this to an enum soon.
-        public sbyte? lockCondition { get; set; }
+        public sbyte lockCondition { get; set; }
 
         // Not sure what this is right now.
         public Campaign[]? campaignList { get; set; }
 
         // The current levels for each ability.
-        public long[]? abilityLevel { get; set; }
+        public long[] abilityLevel { get; set; }
 
         // Apparently this may be unused?
         // Otherwise, not sure what this is.
-        public long[]? abilityNumRings { get; set; }
+        public long[] abilityNumRings { get; set; }
 
         // The current ability to be leveled up?
-        public long[]? abilityLevelup { get; set; }
+        public long[] abilityLevelup { get; set; }
 
         // This is not always sent, so it needs to be
         // specifically handled during deserialization.
@@ -123,6 +123,17 @@ namespace spikewall.Object
                     c.abilityLevelupExp = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
 
                     stateRdr.Close();
+
+                    // We calculate character prices dynamically
+                    for (int lvl = 0; lvl <= c.level; lvl++)
+                    {
+                        var upgrdSql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", c.characterId, lvl);
+                        var upgrdCmd = new MySqlCommand(upgrdSql, conn);
+
+                        ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
+
+                        c.numRings += multiple;
+                    }
                 }
                 else
                 {

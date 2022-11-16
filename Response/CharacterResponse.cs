@@ -5,7 +5,7 @@ namespace spikewall.Response
 {
     public class UpgradeCharacterResponse : BaseResponse
     {
-        public PlayerState? playerState { get; set; }
-        public Character[]? characterState { get; set; }
+        public PlayerState playerState { get; set; }
+        public Character[] characterState { get; set; }
     }
 }

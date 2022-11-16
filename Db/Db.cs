@@ -237,6 +237,79 @@ namespace spikewall
                             '10',
                             '1'
                         );
+                        CREATE TABLE IF NOT EXISTS `sw_characterupgrades` (
+                            character_id MEDIUMINT UNSIGNED NOT NULL,
+                            min_level TINYINT NOT NULL,
+                            max_level TINYINT NOT NULL,
+                            multiple MEDIUMINT NOT NULL
+                        );
+                        INSERT IGNORE INTO `sw_characterupgrades` 
+                        VALUES (
+                            '300000',
+                            '0',
+                            '0',
+                            '0'
+                        ),
+                        (
+                            '300000',
+                            '1',
+                            '9',
+                            '200'
+                        ),
+                        (
+                            '300000',
+                            '10',
+                            '19',
+                            '400'
+                        ),
+                        (
+                            '300000',
+                            '20',
+                            '29',
+                            '600'
+                        ),
+                        (
+                            '300000',
+                            '30',
+                            '39',
+                            '800'
+                        ),
+                        (
+                            '300000',
+                            '40',
+                            '49',
+                            '1000'
+                        ),
+                        (
+                            '300000',
+                            '50',
+                            '59',
+                            '1200'
+                        ),
+                        (
+                            '300000',
+                            '60',
+                            '69',
+                            '1400'
+                        ),
+                        (
+                            '300000',
+                            '70',
+                            '79',
+                            '1600'
+                        ),
+                        (
+                            '300000',
+                            '80',
+                            '89',
+                            '1800'
+                        ),
+                        (
+                            '300000',
+                            '90',
+                            '100',
+                            '2000'
+                        );
                         CREATE TABLE IF NOT EXISTS `sw_chao` (
                             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
                             rarity INTEGER NOT NULL DEFAULT 0,

@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using spikewall.Debug;
-using spikewall.Encryption;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
-using System.Reflection.PortableExecutable;
 
 namespace spikewall.Controllers
 {
@@ -65,17 +62,24 @@ namespace spikewall.Controllers
 
             ulong? ringCost = characterState[index].numRings - characterState[index].exp;
 
+            conn.Open();
+
             if (characterState[index].level < 100)
             {
                 // Honestly unsure of the signifiance of 120000 here, but it works
-                int abilityIndex = int.Parse(abilityID) - 120000;
+                int abilityIndex = abilityID - 120000;
 
                 characterState[index].level++;
                 characterState[index].abilityLevel[abilityIndex]++;
                 characterState[index].exp = 0;
-                characterState[index].numRings += (ulong?)characterState[index].level * 250; // FIXME: Hardcoded upgrade multiple
 
-                conn.Open();
+                // Recalculate the multiple
+                var sql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", characterID, characterState[index].level);
+                var upgrdCmd = new MySqlCommand(sql, conn);
+
+                ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
+                characterState[index].numRings += multiple;
+
                 PlayerState playerState = new();
                 playerState.Populate(conn, clientReq.userId);
 
