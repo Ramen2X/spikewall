@@ -254,15 +254,19 @@ namespace spikewall.Controllers
 
             conn.Open();
 
-            // I don't think we need any information from this request, but
-            // we will deserialize anyway just in case we do in the future.
             var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
             if (clientReq.error != SRStatusCode.Ok) {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers`");
+            // Get user's language so we ensure they only get tickers in their language
+            var sql = Db.GetCommand("SELECT language FROM sw_players WHERE id = '{0}'", clientReq.userId);
             var command = new MySqlCommand(sql, conn);
+            var language = command.ExecuteScalar();
+
+            // Get appropriate tickers
+            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers` WHERE language = '{0}'", language);
+            command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
             LoginGetTickerResponse tickerResponse = new();
@@ -280,8 +284,6 @@ namespace spikewall.Controllers
                     tickers[i].start = reader.GetInt64("start_time");
                     tickers[i].end = reader.GetInt64("end_time");
                     tickers[i].param = reader.GetString("message");
-
-                    // TODO: Language stuff here
 
                     reader.Read();
                 }
