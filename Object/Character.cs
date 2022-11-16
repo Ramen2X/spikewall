@@ -137,8 +137,30 @@ namespace spikewall.Object
                 }
                 else
                 {
-                    // Somehow failed to find player, return error code
-                    return SRStatusCode.MissingPlayer;
+                    // Player does not have a CharacterState yet, generate one
+                    stateRdr.Close();
+
+                    // Insert rows
+                    c.status = 1; // FIXME: Hardcoded to "enabled" for now, should calculate this (probably based on lockCondition) later
+                    c.level = 0;
+                    c.exp = 0;
+                    c.star = 0;
+
+                    var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
+                    var abilityLevelupStr = "120000";
+
+                    c.abilityLevel = ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityNumRings = ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityLevelup = ConvertDBListToIntArray(abilityLevelupStr);
+                    c.abilityLevelupExp = ConvertDBListToIntArray(abilityLevelStr);
+
+                    sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
+                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
+                                          ) VALUES (
+                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
+                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
+                    var insertCmd = new MySqlCommand(sql, conn);
+                    insertCmd.ExecuteNonQuery();
                 }
             }
 

@@ -57,88 +57,21 @@ namespace spikewall.Controllers
             conn.Open();
 
             var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
-            if (clientReq.error != SRStatusCode.Ok) {
+            if (clientReq.error != SRStatusCode.Ok)
+            {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // Get list of all visible characters
-            var command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
+            Character[] characterState;
 
-            List<Character> characters = new List<Character>();
-
-            var charRdr = command.ExecuteReader();
-            while (charRdr.Read()) {
-                Character c = new Character();
-
-                c.characterId = charRdr.GetString("id");
-
-                // FIXME: Hardcoded empty
-                c.campaignList = new Campaign[0];
-
-                c.numRings = Convert.ToUInt64(charRdr["num_rings"]);
-                c.numRedRings = Convert.ToUInt64(charRdr["num_red_rings"]);
-                c.priceNumRings = Convert.ToUInt64(charRdr["price_num_rings"]);
-                c.priceNumRedRings = Convert.ToUInt64(charRdr["price_num_red_rings"]);
-                c.starMax = Convert.ToSByte(charRdr["star_max"]);
-                c.lockCondition = Convert.ToSByte(charRdr["lock_condition"]);
-
-                characters.Add(c);
-            }
-
-            charRdr.Close();
-
-            for (int i = 0; i < characters.Count; i++) {
-                Character c = characters[i];
-
-                var sql = Db.GetCommand("SELECT * FROM `sw_characterstates` WHERE user_id = '{0}' AND character_id = '{1}';", clientReq.userId, c.characterId);
-                var stateCmd = new MySqlCommand(sql, conn);
-                var stateRdr = stateCmd.ExecuteReader();
-
-                if (stateRdr.HasRows) {
-                    // Read row
-                    stateRdr.Read();
-
-                    c.status = Convert.ToSByte(stateRdr["status"]);
-                    c.level = Convert.ToSByte(stateRdr["level"]);
-                    c.exp = Convert.ToUInt64(stateRdr["exp"]);
-                    c.star = Convert.ToSByte(stateRdr["star"]);
-
-                    c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
-                    c.abilityNumRings = ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
-                    c.abilityLevelup = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
-                    c.abilityLevelupExp = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
-
-                    stateRdr.Close();
-                } else {
-                    stateRdr.Close();
-
-                    // Insert rows
-                    c.status = 1; // FIXME: Hardcoded to "enabled" for now, should calculate this (probably based on lockCondition) later
-                    c.level = 0;
-                    c.exp = 0;
-                    c.star = 0;
-
-                    var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
-                    var abilityLevelupStr = "120000";
-
-                    c.abilityLevel = ConvertDBListToIntArray(abilityLevelStr);
-                    c.abilityNumRings = ConvertDBListToIntArray(abilityLevelStr);
-                    c.abilityLevelup = ConvertDBListToIntArray(abilityLevelupStr);
-                    c.abilityLevelupExp = ConvertDBListToIntArray(abilityLevelStr);
-
-                    sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
-                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
-                                          ) VALUES (
-                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
-                                          );", clientReq.userId, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
-                    var insertCmd = new MySqlCommand(sql, conn);
-                    insertCmd.ExecuteNonQuery();
-                }
+            var populateState = Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+            if (populateState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(SRStatusCode.InternalServerError)));
             }
 
             conn.Close();
-
-            return new JsonResult(EncryptedResponse.Generate(iv, new CharacterStateResponse(characters.ToArray())));
+            return new JsonResult(EncryptedResponse.Generate(iv, new CharacterStateResponse(characterState)));
         }
 
         [HttpPost]
@@ -243,16 +176,6 @@ namespace spikewall.Controllers
             conn.Close();
 
             return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
-        }
-
-        static private long[] ConvertDBListToIntArray(string s)
-        {
-            string[] tokens = s.Split(' ');
-            long[] values = new long[tokens.Length];
-            for (int i = 0; i < values.Length; i++) {
-                values[i] = long.Parse(tokens[i]);
-            }
-            return values;
         }
     }
 }
