@@ -229,7 +229,7 @@ namespace spikewall
                             visible
                         ) VALUES (
                             '300000',
-                            '18750',
+                            '0',
                             '1337',
                             '100000',
                             '50',
