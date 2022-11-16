@@ -1,17 +1,19 @@
 ﻿using MySql.Data;
 using MySql.Data.MySqlClient;
 using spikewall.Response;
+using System.Text.Json.Serialization;
 
 namespace spikewall.Object
 {
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class PlayerState
     {
         public Item[]? items { get; set; }
         public string[]? equipItemList { get; set; }
-        public string? mainCharaID { get; set; }
-        public string? subCharaID { get; set; }
-        public string? mainChaoID { get; set; }
-        public string? subChaoID { get; set; }
+        public int mainCharaID { get; set; }
+        public int subCharaID { get; set; }
+        public int mainChaoID { get; set; }
+        public int subChaoID { get; set; }
         public ulong? numRings { get; set; }
         public long? numBuyRings { get; set; }
         public ulong? numRedRings { get; set; }
@@ -55,10 +57,10 @@ namespace spikewall.Object
             // FIXME: Missing items and equipItemList
             this.items = new Item[0];
             this.equipItemList = new string[0];
-            this.mainCharaID = reader.GetString("main_chara_id");
-            this.subCharaID = reader.GetString("sub_chara_id");
-            this.mainChaoID = reader.GetString("main_chao_id");
-            this.subChaoID = reader.GetString("sub_chao_id");
+            this.mainCharaID = reader.GetInt32("main_chara_id");
+            this.subCharaID = reader.GetInt32("sub_chara_id");
+            this.mainChaoID = reader.GetInt32("main_chao_id");
+            this.subChaoID = reader.GetInt32("sub_chao_id");
             this.numRings = reader.GetUInt64("num_rings");
             this.numBuyRings = reader.GetInt64("num_buy_rings");
             this.numRedRings = reader.GetUInt64("num_red_rings");
