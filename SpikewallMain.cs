@@ -23,7 +23,6 @@ DebugHelper.ColorfulWrite(new ColorfulString(ConsoleColor.Red, Console.Backgroun
 
 // TODO: May be a cleaner way of doing this
 spikewall.Db.Initialize(ref builder);
-spikewall.Db.SetupTables();
 
 // TODO: Make this configurable
 spikewall.Config.SwitchConfig(1);
