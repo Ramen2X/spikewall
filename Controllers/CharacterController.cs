@@ -70,6 +70,13 @@ namespace spikewall.Controllers
                 int abilityIndex = abilityID - 120000;
 
                 characterState[index].level++;
+
+                // If we just reached level 100, set character status to max level
+                if (characterState[index].level == 100) 
+                {
+                    characterState[index].status = (sbyte)Character.Status.MaxLevel;
+                }
+
                 characterState[index].abilityLevel[abilityIndex]++;
                 characterState[index].exp = 0;
 
