@@ -15,9 +15,10 @@ namespace spikewall.Request
         public string characterId { get; set; }
     }
 
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class UnlockedCharacterRequest : BaseRequest
     {
         public string characterId { get; set; }
-        public string itemId { get; set; }
+        public int itemId { get; set; }
     }
 }

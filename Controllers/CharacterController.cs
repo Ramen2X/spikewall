@@ -26,7 +26,7 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            UpgradeCharacterResponse upgradeCharacterResponse = new();
+            CharacterResponse upgradeCharacterResponse = new();
 
             var characterID = clientReq.request.characterId;
             var abilityID = clientReq.request.abilityId;
@@ -99,6 +99,135 @@ namespace spikewall.Controllers
             else return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
 
             return new JsonResult(EncryptedResponse.Generate(iv, upgradeCharacterResponse));
+        }
+
+        [HttpPost]
+        [Route("unlockedCharacter")]
+        [Produces("text/json")]
+        public JsonResult UnlockedCharacter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<UnlockedCharacterRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            var characterID = clientReq.request.characterId;
+            var currency = clientReq.request.itemId;
+
+            CharacterResponse unlockedCharacterResponse = new();
+
+            PlayerState playerState = new();
+            Character[] characterState;
+
+            // Get the player's CharacterState from the db
+            var populateCharacterStatus = Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+
+            if (populateCharacterStatus != SRStatusCode.Ok)
+            {
+                // Return error code from PopulateCharacterState() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateCharacterStatus)));
+            }
+
+            conn.Open();
+
+            // Get the player's PlayerState from the db
+            var populatePlayerStatus = playerState.Populate(conn, clientReq.userId);
+
+            if (populatePlayerStatus != SRStatusCode.Ok)
+            {
+                // Return error code from PopulateCharacterState() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populatePlayerStatus)));
+            }
+
+            // Now we need to find the index of the provided character in the CharacterState
+            int index = -1;
+            for (int i = 0; i < characterState.Length; i++)
+            {
+                if (characterState[i].characterId == characterID)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index == -1)
+            {
+                // The character the client wants to purchase isn't available to the player, abort
+                return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
+            }
+
+            if (currency == (int)Item.ItemID.RedStarRing)
+            {
+                if (characterState[index].priceNumRedRings > playerState.numRedRings)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.NotEnoughRedStarRings));
+                }
+                else
+                {
+                    playerState.numRedRings -= characterState[index].priceNumRedRings;
+                    switch (characterState[index].status)
+                    {
+                        // Character not unlocked yet, unlock it
+                        case 0:
+                            characterState[index].status = 1;
+                            break;
+                        // Character already unlocked, limit smash
+                        case 1:
+                            characterState[index].star++;
+                            if (characterState[index].star == characterState[index].starMax)
+                            {
+                                characterState[index].status = 2;
+                            }
+                            break;
+                        // Character is already fully limit smashed, this should never happen
+                        case 2:
+                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                    }
+                }
+            }
+            else if (currency == (int)Item.ItemID.Ring)
+            {
+                if (characterState[index].priceNumRings > playerState.numRings)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.NotEnoughRings));
+                }
+                else
+                {
+                    playerState.numRings -= characterState[index].priceNumRings;
+                    switch (characterState[index].status)
+                    {
+                        // Character not unlocked yet, unlock it
+                        case 0:
+                            characterState[index].status = 1;
+                            break;
+                        // Character already unlocked, limit smash
+                        case 1:
+                            characterState[index].star++;
+                            if (characterState[index].star == characterState[index].starMax)
+                            {
+                                characterState[index].status = 2;
+                            }
+                            break;
+                        // Character is already fully limit smashed, this should never happen
+                        case 2:
+                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                    }
+                }
+            }
+
+            Character.SaveCharacterState(conn, clientReq.userId, characterState);
+            playerState.Save(conn, clientReq.userId);
+
+            unlockedCharacterResponse.playerState = playerState;
+            unlockedCharacterResponse.characterState = characterState;
+
+            return new JsonResult(EncryptedResponse.Generate(iv, unlockedCharacterResponse));
         }
     }
 }
