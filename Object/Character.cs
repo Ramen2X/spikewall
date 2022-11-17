@@ -231,6 +231,20 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
+        public static int FindCharacterInCharacterState(int characterId, Character[] characterState)
+        {
+            int index = -1;
+            for (int i = 0; i < characterState.Length; i++)
+            {
+                if (characterState[i].characterId == characterId)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
+
         private static long[] ConvertDBListToIntArray(string s)
         {
             string[] tokens = s.Split(' ');

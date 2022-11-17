@@ -34,17 +34,17 @@ namespace spikewall.Request
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class QuickPostGameResultsRequest : BaseRequest
     {
-        public ulong? score { get; set; }
-        public ulong? numRings { get; set; }
-        public ulong? numFailureRings { get; set; }
-        public ulong? numRedStarRings { get; set; }
-        public ulong? distance { get; set; }
-        public string? dailyChallengeValue { get; set; }
-        public sbyte? dailyChallengeComplete { get; set; }
-        public ulong? numAnimals { get; set; }
-        public ulong? maxCombo { get; set; }
-        public sbyte? closed { get; set; }
-        public string? cheatResult { get; set; }
+        public ulong score { get; set; }
+        public ulong numRings { get; set; }
+        public ulong numFailureRings { get; set; }
+        public ulong numRedStarRings { get; set; }
+        public ulong distance { get; set; }
+        public string dailyChallengeValue { get; set; }
+        public sbyte dailyChallengeComplete { get; set; }
+        public ulong numAnimals { get; set; }
+        public ulong maxCombo { get; set; }
+        public sbyte closed { get; set; }
+        public string cheatResult { get; set; }
     }
 
     /// <summary>
@@ -54,11 +54,11 @@ namespace spikewall.Request
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class PostGameResultsRequest : QuickPostGameResultsRequest
     {
-        public sbyte? bossDestroyed { get; set; }
-        public sbyte? chapterClear { get; set; }
-        public long? getChaoEgg { get; set; }
-        public long? numBossAttack { get; set; }
-        public long? reachPoint { get; set; }
+        public sbyte bossDestroyed { get; set; }
+        public sbyte chapterClear { get; set; }
+        public long getChaoEgg { get; set; }
+        public long numBossAttack { get; set; }
+        public long reachPoint { get; set; }
     }
 
     /// <summary>

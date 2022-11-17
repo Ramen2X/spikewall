@@ -43,15 +43,7 @@ namespace spikewall.Controllers
             }
 
             // Now we need to find the index of the provided character in the CharacterState
-            int index = -1;
-            for (int i = 0; i < characterState.Length; i++)
-            {
-                if (characterState[i].characterId == characterID)
-                {
-                    index = i;
-                    break;
-                }
-            }
+            int index = Character.FindCharacterInCharacterState(characterID, characterState);
 
             if (index == -1)
             {
