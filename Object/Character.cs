@@ -8,7 +8,7 @@ namespace spikewall.Object
     public class Character
     {
         // The internal ID for this character.
-        public string characterId { get; set; }
+        public int characterId { get; set; }
 
         // The amount of rings this character
         // currently costs to level up.
@@ -80,7 +80,7 @@ namespace spikewall.Object
             MaxLevel
         }
 
-        public static ulong GenerateTotalCost(MySqlConnection conn, string characterId, sbyte level)
+        public static ulong GenerateTotalCost(MySqlConnection conn, int characterId, sbyte level)
         {
             ulong cost = 0;
 
@@ -110,7 +110,7 @@ namespace spikewall.Object
             {
                 Character c = new Character();
 
-                c.characterId = charRdr.GetString("id");
+                c.characterId = charRdr.GetInt32("id");
 
                 // FIXME: Hardcoded empty
                 c.campaignList = new Campaign[0];
