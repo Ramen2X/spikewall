@@ -28,6 +28,14 @@
         // the chao is unlocked is already noted
         // with "status", so it cannot be that?
         public long? acquired { get; set; }
+
+        public ChaoBase()
+        {
+            status = 0;
+            level = 0;
+            setStatus = 0;
+            acquired = 0;
+        }
     }
 
     public class ChaoWheelOptions

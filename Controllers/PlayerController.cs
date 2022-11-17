@@ -130,12 +130,7 @@ namespace spikewall.Controllers
                 } else {
                     stateRdr.Close();
 
-                    // Insert rows
-                    c.status = 0;
-                    c.level = 0;
-                    c.setStatus = 0;
-                    c.acquired = 0;
-
+                    // Insert a default chaostate
                     sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", c.chaoID, clientReq.userId);
                     var insertCmd = new MySqlCommand(sql, conn);
                     insertCmd.ExecuteNonQuery();
