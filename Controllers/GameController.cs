@@ -5,6 +5,7 @@ using spikewall.Encryption;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
+using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace spikewall.Controllers
@@ -363,44 +364,131 @@ namespace spikewall.Controllers
 
             var request = clientReq.request;
 
-            // Now that we have the user ID, we can retrieve the player state
-            PlayerState playerState = new PlayerState();
-
-            var populateStatus = playerState.Populate(conn, clientReq.userId);
-            if (populateStatus != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
-            }
-
-            if (playerState.quickTotalHighScore < request.score)
-            {
-                playerState.quickTotalHighScore = request.score;
-            }
-
-            playerState.numAnimals += request.numAnimals;
-            playerState.numRings += request.numRings;
-            playerState.numRedRings += request.numRedStarRings;
-            playerState.totalDistance += request.distance;
-
-            var saveStatus = playerState.Save(conn, clientReq.userId);
-            if (saveStatus != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
-            }
-
-            conn.Close();
-
             QuickPostGameResultsResponse quickPostGameResultsResponse = new();
-            quickPostGameResultsResponse.playerState = playerState;
 
-            // FIXME: Actually implement this normally lmao
+            // If the run wasn't exited out of
+            if (request.closed != 1)
+            {
+                // Now that we have the user ID, we can retrieve the player state
+                PlayerState playerState = new PlayerState();
 
-            quickPostGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
-            quickPostGameResultsResponse.messageList = new string[0];
-            quickPostGameResultsResponse.operatorMessageList = new string[0];
-            quickPostGameResultsResponse.totalMessage = 0;
-            quickPostGameResultsResponse.totalOperatorMessage = 0;
+                var populateStatus = playerState.Populate(conn, clientReq.userId);
+                if (populateStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+                }
 
+                if (playerState.quickTotalHighScore < request.score)
+                {
+                    playerState.quickTotalHighScore = request.score;
+                }
+
+                playerState.numAnimals += request.numAnimals;
+                playerState.numRings += request.numRings;
+                playerState.numRedRings += request.numRedStarRings;
+                playerState.totalDistance += request.distance;
+
+                Character[] characterState;
+                Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+
+                bool subCharacterPresent = playerState.subCharaID != -1;
+
+                // FIXME: Unfinished character experience system below
+
+                // Character experience is based on how many rings were collected in the entire run
+                var expIncrease = request.numRings + request.numFailureRings;
+
+                // Now we need to find the index of the provided character in the CharacterState
+                int mainCharaIndex = Character.FindCharacterInCharacterState(playerState.mainCharaID, characterState);
+
+                if (mainCharaIndex == -1)
+                {
+                    // The character we want to upgrade isn't available to the player, abort
+                    return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
+                }
+
+                sbyte charactersInRun = 1;
+                int subCharaIndex = -1;
+
+                if (subCharacterPresent)
+                {
+                    subCharaIndex = Character.FindCharacterInCharacterState(playerState.mainCharaID, characterState);
+
+                    if (subCharaIndex == -1)
+                    {
+                        // The character we want us to upgrade isn't available to the player, abort
+                        return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
+                    }
+                    charactersInRun = 2;
+
+                    // We'll level up the sub character now instead
+                    // of later to avoid needing to branch again
+                    if (characterState[subCharaIndex].level < 100)
+                    {
+                        characterState[subCharaIndex].exp += expIncrease;
+                        if (characterState[subCharaIndex].exp >= characterState[subCharaIndex].numRings)
+                        {
+                            var expOverflow = characterState[subCharaIndex].exp - characterState[subCharaIndex].numRings;
+                            characterState[subCharaIndex].level++;
+                            characterState[subCharaIndex].exp += expOverflow;
+
+                            // FIXME: More has to be done here!!!
+                        }
+                    }
+                }
+
+                if (characterState[mainCharaIndex].level < 100)
+                {
+                    characterState[mainCharaIndex].exp += expIncrease;
+                    if (characterState[mainCharaIndex].exp >= characterState[mainCharaIndex].numRings)
+                    {
+                        var expOverflow = characterState[mainCharaIndex].exp - characterState[mainCharaIndex].numRings;
+                        characterState[mainCharaIndex].level++;
+                        characterState[mainCharaIndex].exp += expOverflow;
+
+                        // FIXME: More has to be done here!!!
+                    }
+                }
+
+                Character[] playCharacterState = new Character[charactersInRun];
+
+                if (charactersInRun > 0)
+                {
+                    playCharacterState[0] = characterState[mainCharaIndex];
+                    for (int i = 1; i < charactersInRun; i++)
+                    {
+                        playCharacterState[i] = characterState[subCharaIndex];
+                    }
+                }
+
+                conn.Open();
+
+                var playerSaveStatus = playerState.Save(conn, clientReq.userId);
+                if (playerSaveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, playerSaveStatus));
+                }
+
+                var charSaveStatus = Character.SaveCharacterState(conn, clientReq.userId, characterState);
+                if (charSaveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
+                }
+
+                conn.Close();
+
+                quickPostGameResultsResponse.playerState = playerState;
+                quickPostGameResultsResponse.characterState = characterState;
+                quickPostGameResultsResponse.playCharacterState = playCharacterState;
+
+                // FIXME: Actually implement this normally lmao
+
+                quickPostGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
+                quickPostGameResultsResponse.messageList = new string[0];
+                quickPostGameResultsResponse.operatorMessageList = new string[0];
+                quickPostGameResultsResponse.totalMessage = 0;
+                quickPostGameResultsResponse.totalOperatorMessage = 0;
+            }
             return new JsonResult(EncryptedResponse.Generate(iv, quickPostGameResultsResponse));
         }
 

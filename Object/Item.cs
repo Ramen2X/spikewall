@@ -13,11 +13,15 @@
         {
             None = -1,
 
+            ScoreBoost = 110000,
+            SupportSpring,
+            SubCharacter,
+
             Invincible = 120000,
             Shield,
             Magnet,
-            Trampoline,
-            Combo,
+            Spring,
+            ComboBonus,
             Laser,
             Drill,
             Asteroid,
