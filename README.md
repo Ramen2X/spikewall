@@ -12,6 +12,7 @@ It is designed to be as accurate as possible to the original server with little 
 - Logging in
 - Tutorial
 - Ticker system
+- Information system
 - Story Mode (without incentives)
 
 ## To Do
@@ -23,6 +24,7 @@ It is designed to be as accurate as possible to the original server with little 
 - Leaderboards
 - Runners League
 - Daily Battles
+- Daily Challenge
 - Roulette
 - Support for older clients
 - Web interface for configuration

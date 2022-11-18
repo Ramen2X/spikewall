@@ -96,17 +96,9 @@ namespace spikewall.Response
 
     public class LoginInformationResponse : BaseResponse
     {
-        // FIXME: This is an array but shouldn't actually be strings, set up "LoginInformation" object
-        public string[]? informations { get; set; }
-        public string[]? operatorEachInfos { get; set; }
-        public long numOperatorInfo { get; set; }
-
-        public LoginInformationResponse()
-        {
-            informations = new string[0];
-            operatorEachInfos = new string[0];
-            numOperatorInfo = 0;
-        }
+        public Information[] informations { get; set; }
+        public OperatorInformation[] operatorEachInfos { get; set; }
+        public sbyte numOperatorInfo { get; set; }
     }
 
     public class LoginGetTickerResponse : BaseResponse

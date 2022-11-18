@@ -23,7 +23,8 @@ namespace spikewall.Controllers
                                            bool config = false,
                                            bool tickers = false,
                                            bool dailyChallenge = false,
-                                           bool costs = false)
+                                           bool costs = false,
+                                           bool information = false)
         {
             try
             {
@@ -376,6 +377,24 @@ namespace spikewall.Controllers
                             item15_id MEDIUMINT NOT NULL DEFAULT 980002
                         );
                         INSERT INTO `sw_costlist` (id) VALUES ('1');");
+                }
+
+                if (information)
+                {
+                    QuickRun(conn,
+                        @"DROP TABLE IF EXISTS `sw_information`;
+                        CREATE TABLE `sw_information` (
+                            id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                            priority TINYINT NOT NULL,
+                            info_type TINYINT NOT NULL,
+                            display_type TINYINT NOT NULL,
+                            start_time BIGINT UNSIGNED NOT NULL,
+                            end_time BIGINT UNSIGNED NOT NULL,
+                            message VARCHAR(1000) NOT NULL,
+                            image_id TINYTEXT NOT NULL,
+                            extra MEDIUMTEXT NOT NULL,
+                            language TINYINT NOT NULL
+                        );");
                 }
 
                 conn.Close();

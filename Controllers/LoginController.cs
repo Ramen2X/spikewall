@@ -232,16 +232,69 @@ namespace spikewall.Controllers
 
             conn.Open();
 
-            // I don't think we need any information from this request, but
-            // we will deserialize anyway just in case we do in the future.
             var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
             if (clientReq.error != SRStatusCode.Ok) {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // FIXME: Stub
+            // Get user's language so we ensure they only get information in their language
+            var sql = Db.GetCommand("SELECT language FROM sw_players WHERE id = '{0}'", clientReq.userId);
+            var command = new MySqlCommand(sql, conn);
+            var language = command.ExecuteScalar();
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new LoginInformationResponse()));
+            // Get appropriate information
+            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_information`) AS row_count FROM `sw_information` WHERE language = '{0}' OR language = -1", language);
+            command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            LoginInformationResponse informationResponse = new();
+
+            if (reader.Read())
+            {
+                var count = reader.GetInt32("row_count");
+
+                Information[] information = new Information[count];
+
+                StringBuilder paramString = new();
+
+                for (int i = 0; i < count; i++)
+                {
+                    information[i] = new Information();
+                    information[i].id = reader.GetInt64("id");
+                    information[i].priority = reader.GetSByte("priority");
+                    information[i].start = reader.GetInt64("start_time");
+                    information[i].end = reader.GetInt64("end_time");
+
+                    paramString.Clear();
+
+                    // StringBuilder.Append is apparently faster than
+                    // AppendFormat, so this is what we're going with
+                    paramString.Append(reader.GetInt16("display_type"));
+                    paramString.Append('_');
+                    paramString.Append(reader.GetString("message"));
+                    paramString.Append('_');
+                    paramString.Append(reader.GetString("image_id"));
+                    paramString.Append('_');
+                    paramString.Append(reader.GetInt16("info_type"));
+                    paramString.Append('_');
+                    paramString.Append(reader.GetString("extra"));
+
+                    information[i].param = paramString.ToString();
+
+                    reader.Read();
+                }
+                informationResponse.informations = information;
+            }
+            else
+            {
+                informationResponse.informations = Array.Empty<Information>();
+            }
+
+            // No idea what these are for right now, so we'll just return nothing
+            informationResponse.operatorEachInfos = Array.Empty<OperatorInformation>();
+            informationResponse.numOperatorInfo = 0;
+
+            return new JsonResult(EncryptedResponse.Generate(iv, informationResponse));
         }
 
         [HttpPost]
