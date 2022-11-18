@@ -1,5 +1,6 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using System.Text;
 
 namespace spikewall
 {
@@ -73,6 +74,25 @@ namespace spikewall
                 }
             }
             return string.Format(format, arg);
+        }
+
+        public static long[] ConvertDBListToIntArray(string s)
+        {
+            string[] tokens = s.Split(' ');
+            long[] values = new long[tokens.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = long.Parse(tokens[i]);
+            }
+            return values;
+        }
+
+        public static string ConvertIntArrayToDBList(long[] a)
+        {
+            StringBuilder dbList = new();
+            dbList.AppendJoin(' ', a);
+
+            return dbList.ToString();
         }
 
         private static string m_dbHost = "";

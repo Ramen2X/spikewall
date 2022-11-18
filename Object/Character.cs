@@ -145,10 +145,10 @@ namespace spikewall.Object
                     c.exp = Convert.ToUInt64(stateRdr["exp"]);
                     c.star = Convert.ToSByte(stateRdr["star"]);
 
-                    c.abilityLevel = ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
-                    c.abilityNumRings = ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
-                    c.abilityLevelup = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
-                    c.abilityLevelupExp = ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
+                    c.abilityLevel = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
+                    c.abilityNumRings = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
+                    c.abilityLevelup = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
+                    c.abilityLevelupExp = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
 
                     stateRdr.Close();
 
@@ -169,10 +169,10 @@ namespace spikewall.Object
                     var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
                     var abilityLevelupStr = "120000";
 
-                    c.abilityLevel = ConvertDBListToIntArray(abilityLevelStr);
-                    c.abilityNumRings = ConvertDBListToIntArray(abilityLevelStr);
-                    c.abilityLevelup = ConvertDBListToIntArray(abilityLevelupStr);
-                    c.abilityLevelupExp = ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityLevel = Db.ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityNumRings = Db.ConvertDBListToIntArray(abilityLevelStr);
+                    c.abilityLevelup = Db.ConvertDBListToIntArray(abilityLevelupStr);
+                    c.abilityLevelupExp = Db.ConvertDBListToIntArray(abilityLevelStr);
 
                     sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
                                               user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
@@ -212,10 +212,10 @@ namespace spikewall.Object
                         characterState[i].level,
                         characterState[i].exp,
                         characterState[i].star,
-                        ConvertIntArrayToDBList(characterState[i].abilityLevel),
-                        ConvertIntArrayToDBList(characterState[i].abilityNumRings),
-                        ConvertIntArrayToDBList(characterState[i].abilityLevelup),
-                        ConvertIntArrayToDBList(characterState[i].abilityLevelupExp),
+                        Db.ConvertIntArrayToDBList(characterState[i].abilityLevel),
+                        Db.ConvertIntArrayToDBList(characterState[i].abilityNumRings),
+                        Db.ConvertIntArrayToDBList(characterState[i].abilityLevelup),
+                        Db.ConvertIntArrayToDBList(characterState[i].abilityLevelupExp),
                         uid);
                 var command = new MySqlCommand(sql, conn);
 
@@ -243,25 +243,6 @@ namespace spikewall.Object
                 }
             }
             return index;
-        }
-
-        private static long[] ConvertDBListToIntArray(string s)
-        {
-            string[] tokens = s.Split(' ');
-            long[] values = new long[tokens.Length];
-            for (int i = 0; i < values.Length; i++)
-            {
-                values[i] = long.Parse(tokens[i]);
-            }
-            return values;
-        }
-
-        private static string ConvertIntArrayToDBList(long[] a)
-        {
-            StringBuilder dbList = new();
-            dbList.AppendJoin(' ', a);
-
-            return dbList.ToString();
         }
     }
 }

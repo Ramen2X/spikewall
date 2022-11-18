@@ -9,7 +9,7 @@ namespace spikewall.Object
     public class PlayerState
     {
         public Item[]? items { get; set; }
-        public string[]? equipItemList { get; set; }
+        public long[]? equipItemList { get; set; }
         public int mainCharaID { get; set; }
         public int subCharaID { get; set; }
         public int mainChaoID { get; set; }
@@ -54,9 +54,7 @@ namespace spikewall.Object
             // FIXME: I strongly suspect some of these can be calculated rather than manual cells
             //        in this table so expect these to change.
             reader.Read();
-            // FIXME: Missing items and equipItemList
-            this.items = new Item[0];
-            this.equipItemList = new string[0];
+
             this.mainCharaID = reader.GetInt32("main_chara_id");
             this.subCharaID = reader.GetInt32("sub_chara_id");
             this.mainChaoID = reader.GetInt32("main_chao_id");
@@ -87,7 +85,42 @@ namespace spikewall.Object
             this.numAnimals = reader.GetUInt64("num_animals");
             this.numRank = reader.GetInt16("num_rank");
 
+            string equipItemList = reader.GetString("equip_item_list");
+            if (string.IsNullOrEmpty(equipItemList)) {
+                this.equipItemList = Array.Empty<long>();
+            } else {
+                this.equipItemList = Db.ConvertDBListToIntArray(equipItemList);
+            }
+
             reader.Close();
+
+            // Populate item list
+            List<Item> items = new List<Item>();
+            sql = Db.GetCommand(@"SELECT item_id FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
+            command = new MySqlCommand(sql, conn);
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                long itemId = reader.GetInt64("item_id");
+                bool found = false;
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    if (items[i].itemId == itemId)
+                    {
+                        items[i].numItem++;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    items.Add(new Item(itemId, 1));
+                }
+            }
+            reader.Close();
+            this.items = items.ToArray();
 
             return SRStatusCode.Ok;
         }
@@ -96,7 +129,6 @@ namespace spikewall.Object
         {
             // FIXME: I strongly suspect some of these can be calculated rather than manual cells
             //        in this table so expect these to change.
-            // FIXME: Missing items and equipItemList
             var sql = Db.GetCommand(
                 @"UPDATE `sw_players` SET
                     main_chara_id = '{0}',
@@ -127,8 +159,9 @@ namespace spikewall.Object
                     num_daily_challenge_cont = '{25}',
                     num_playing = '{26}',
                     num_animals = '{27}',
-                    num_rank = '{28}'
-                  WHERE id = '{29}';",
+                    num_rank = '{28}',
+                    equip_item_list = '{29}'
+                  WHERE id = '{30}';",
                     this.mainCharaID,
                     this.subCharaID,
                     this.mainChaoID,
@@ -158,6 +191,7 @@ namespace spikewall.Object
                     this.numPlaying,
                     this.numAnimals,
                     this.numRank,
+                    Db.ConvertIntArrayToDBList(this.equipItemList),
                     uid);
             var command = new MySqlCommand(sql, conn);
 
@@ -168,6 +202,20 @@ namespace spikewall.Object
                 // Failed to find row with this user ID
                 return SRStatusCode.MissingPlayer;
             }
+
+            // Store item ownership into database
+            sql = Db.GetCommand(@"DELETE FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
+            for (int i = 0; i < this.items.Length; i++)
+            {
+                Item item = this.items[i];
+
+                for (int j = 0; j < item.numItem; j++)
+                {
+                    sql += Db.GetCommand(@"INSERT INTO `sw_itemownership` (user_id, item_id) VALUES ('{0}', '{1}');", uid, item.itemId);
+                }
+            }
+            command = new MySqlCommand(sql, conn);
+            command.ExecuteNonQuery();
 
             return SRStatusCode.Ok;
         }

@@ -32,5 +32,17 @@
             RedStarRing = 900000,
             Ring = 910000
         }
+
+        public Item(long itemId, long numItem)
+        {
+            this.itemId = itemId;
+            this.numItem = numItem;
+        }
+
+        public Item()
+        {
+            this.itemId = 0;
+            this.numItem = 0;
+        }
     }
 }

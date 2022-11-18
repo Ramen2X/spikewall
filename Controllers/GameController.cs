@@ -273,11 +273,18 @@ namespace spikewall.Controllers
             using var conn = Db.Get();
             conn.Open();
 
-            var clientReq = new ClientRequest<QuickActStartRequest>(conn, param, secure, key);
+            var clientReq = new ClientRequest<ActStartRequest>(conn, param, secure, key);
             if (clientReq.error != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
+
+            // Update equipItemList from """modifire"""
+            var sql = Db.GetCommand("UPDATE `sw_players` SET equip_item_list = '{0}' WHERE id = '{1}';",
+                                    Db.ConvertIntArrayToDBList(clientReq.request.modifire),
+                                    clientReq.userId);
+            var command = new MySqlCommand(sql, conn);
+            command.ExecuteNonQuery();
 
             ActStartResponse actStartResponse = new();
 
@@ -320,6 +327,13 @@ namespace spikewall.Controllers
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
+
+            // Update equipItemList from """modifire"""
+            var sql = Db.GetCommand("UPDATE `sw_players` SET equip_item_list = '{0}' WHERE id = '{1}';",
+                                    Db.ConvertIntArrayToDBList(clientReq.request.modifire),
+                                    clientReq.userId);
+            var command = new MySqlCommand(sql, conn);
+            command.ExecuteNonQuery();
 
             QuickActStartResponse quickActStartResponse = new();
 

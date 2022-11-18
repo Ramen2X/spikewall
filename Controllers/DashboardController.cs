@@ -105,8 +105,8 @@ namespace spikewall.Controllers
                             num_daily_challenge_cont BIGINT NOT NULL DEFAULT 0,
                             num_playing BIGINT NOT NULL DEFAULT 0,
                             num_animals BIGINT UNSIGNED NOT NULL DEFAULT 0,
-                            num_rank INTEGER NOT NULL DEFAULT 0
-
+                            num_rank INTEGER NOT NULL DEFAULT 0,
+                            equip_item_list TINYTEXT NOT NULL DEFAULT ''
                         );
                         ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
                         CREATE TABLE `sw_sessions` (
