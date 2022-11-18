@@ -64,7 +64,7 @@ namespace spikewall.Controllers
                 characterState[index].level++;
 
                 // If we just reached level 100, set character status to max level
-                if (characterState[index].level == 100) 
+                if (characterState[index].level == 100)
                 {
                     characterState[index].status = (sbyte)Character.Status.MaxLevel;
                 }
@@ -223,6 +223,54 @@ namespace spikewall.Controllers
             unlockedCharacterResponse.characterState = characterState;
 
             return new JsonResult(EncryptedResponse.Generate(iv, unlockedCharacterResponse));
+        }
+
+        [HttpPost]
+        [Route("changeCharacter")]
+        [Produces("text/json")]
+        public JsonResult ChangeCharacter([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<ChangeCharacterRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            var mainCharacterID = clientReq.request.mainCharacterId;
+            var subCharacterID = clientReq.request.subCharacterId;
+
+            ChangeCharacterResponse changeCharacterResponse = new();
+
+            PlayerState playerState = new();
+
+            // Get the player's PlayerState from the db
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                // Return error code from Populate() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
+            }
+
+            playerState.mainCharaID = mainCharacterID;
+            playerState.subCharaID = subCharacterID;
+
+            var saveStatus = playerState.Save(conn, clientReq.userId);
+
+            if (saveStatus != SRStatusCode.Ok)
+            {
+                // Return error code from Save() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(saveStatus)));
+            }
+
+            changeCharacterResponse.playerState = playerState;
+
+            return new JsonResult(EncryptedResponse.Generate(iv, changeCharacterResponse));
         }
     }
 }

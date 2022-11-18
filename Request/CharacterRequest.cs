@@ -2,6 +2,7 @@
 
 namespace spikewall.Request
 {
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public class ChangeCharacterRequest : BaseRequest
     {
         public int mainCharacterId { get; set; }

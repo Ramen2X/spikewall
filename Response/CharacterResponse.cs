@@ -12,4 +12,9 @@ namespace spikewall.Response
         public PlayerState playerState { get; set; }
         public Character[] characterState { get; set; }
     }
+
+    public class ChangeCharacterResponse : BaseResponse
+    {
+        public PlayerState playerState { get; set; }
+    }
 }
