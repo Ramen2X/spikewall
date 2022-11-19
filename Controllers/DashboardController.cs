@@ -160,7 +160,7 @@ namespace spikewall.Controllers
                             visible
                         ) VALUES (
                             '300000',
-                            '0',
+                            '200',
                             '0',
                             '100000',
                             '50',
