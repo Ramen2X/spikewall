@@ -20,14 +20,14 @@ namespace spikewall
         ///
         public static void Initialize(ref WebApplicationBuilder builder)
         {
-            m_dbHost = builder.Configuration["Db:Host"];
-            m_dbUser = builder.Configuration["Db:Username"];
-            m_dbPass = builder.Configuration["Db:Password"];
-            m_dbName = builder.Configuration["Db:Database"];
+            m_dbHost = builder.Configuration["Db:Host"] ?? throw new InvalidOperationException("The \"Db:Host\" secret cannot be null. Did you make sure you set up the secrets properly?");
+            m_dbUser = builder.Configuration["Db:Username"] ?? throw new InvalidOperationException("The \"Db:Username\" secret cannot be null. Did you make sure you set up the secrets properly?");
+            m_dbPass = builder.Configuration["Db:Password"] ?? throw new InvalidOperationException("The \"Db:Password\" secret cannot be null. Did you make sure you set up the secrets properly?");
+            m_dbName = builder.Configuration["Db:Database"] ?? throw new InvalidOperationException("The \"Db:Database\" secret cannot be null. Did you make sure you set up the secrets properly?");
 
             try
             {
-                m_dbPort = Int16.Parse(builder.Configuration["Db:Port"]);
+                m_dbPort = short.Parse(builder.Configuration["Db:Port"] ?? throw new InvalidOperationException("The \"Db:Port\" secret cannot be null. Did you make sure you set up the secrets properly?"));
             }
             catch (ArgumentNullException)
             {
@@ -51,8 +51,8 @@ namespace spikewall
         public static MySqlConnection Get()
         {
             // Build MySQL connection string out of loaded parameters
-            string connectionString = String.Format("server={0};user={1};database={2};port={3};password={4}",
-                                                    m_dbHost, m_dbUser, m_dbName, m_dbPort, m_dbPass);
+            var connectionString =
+                $"server={m_dbHost};user={m_dbUser};database={m_dbName};port={m_dbPort};password={m_dbPass}";
 
             // Return connection
             return new MySqlConnection(connectionString);
@@ -68,7 +68,7 @@ namespace spikewall
         /// </summary>
         public static string GetCommand(string format, params object[] arg)
         {
-            for (int i = 0; i < arg.Length; i++) {
+            for (var i = 0; i < arg.Length; i++) {
                 if (arg[i] is string) {
                     arg[i] = EscapeString((string) arg[i]);
                 }
@@ -78,16 +78,16 @@ namespace spikewall
 
         public static long[] ConvertDBListToIntArray(string s)
         {
-            string[] tokens = s.Split(' ');
-            long[] values = new long[tokens.Length];
-            for (int i = 0; i < values.Length; i++)
+            var tokens = s.Split(' ');
+            var values = new long[tokens.Length];
+            for (var i = 0; i < values.Length; i++)
             {
                 values[i] = long.Parse(tokens[i]);
             }
             return values;
         }
 
-        public static string ConvertIntArrayToDBList(long[] a)
+        public static string ConvertIntArrayToDBList(IEnumerable<long> a)
         {
             StringBuilder dbList = new();
             dbList.AppendJoin(' ', a);
@@ -98,7 +98,7 @@ namespace spikewall
         private static string m_dbHost = "";
         private static string m_dbUser = "";
         private static string m_dbPass = "";
-        private static Int16 m_dbPort = 0;
+        private static short m_dbPort = 0;
         private static string m_dbName = "";
     }
 }

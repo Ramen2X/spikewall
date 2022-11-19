@@ -50,7 +50,7 @@ namespace spikewall
 
                 if (reader.Read())
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    for (var i = 0; i < reader.FieldCount; i++)
                     {
                         m_configCache[reader.GetName(i)] = reader[i];
                     }
@@ -62,6 +62,6 @@ namespace spikewall
 
         private static int m_currentConfig = 1;
 
-        private static Dictionary<string, object> m_configCache = new Dictionary<string, object>();
+        private static Dictionary<string, object> m_configCache = new();
     }
 }
