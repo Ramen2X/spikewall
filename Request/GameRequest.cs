@@ -4,10 +4,11 @@ using System.Text.Json.Serialization;
 namespace spikewall.Request
 {
     /// <summary>
-    /// Class which represents data from a QuickActStart request.
+    /// Class which represents data from a Quick/ActStart request.
     /// QuickActStart is sent when beginning a Timed Mode run.
+    /// ActStart is sent when beginning a Story Mode/Endless run.
     /// </summary>
-    public class QuickActStartRequest : BaseRequest
+    public class ActStartRequest : BaseRequest
     {
         // Actually means "modifier", misspelling is actually
         // in the game though so we have to keep it like this.
@@ -16,14 +17,9 @@ namespace spikewall.Request
         // specifically handled during deserialization.
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long? tutorial { get; set; }
-    }
 
-    /// <summary>
-    /// Class which represents data from an ActStart request.
-    /// ActStart is sent when beginning a Story Mode/Endless run.
-    /// </summary>
-    public class ActStartRequest : QuickActStartRequest
-    {
+        // This is only sent as part of ActStartRequest (not quick/timed)
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MileageFriend[]? distanceFriendList { get; set; }
     }
 

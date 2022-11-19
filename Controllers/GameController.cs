@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using spikewall.Debug;
 using spikewall.Encryption;
@@ -76,27 +76,11 @@ namespace spikewall.Controllers
             return new JsonResult(EncryptedResponse.Generate(iv, dailyChalDataResponse));
         }
 
-        [HttpPost]
-        [Route("getCostList")]
-        [Produces("text/json")]
-        public JsonResult GetCostList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        private ConsumedItem[] GetCostListData(MySqlConnection conn)
         {
-            var iv = (string)Config.Get("encryption_iv");
-
-            using var conn = Db.Get();
-            conn.Open();
-
-            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
-            if (clientReq.error != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
-            }
-
             var sql = Db.GetCommand("SELECT * FROM `sw_costlist`");
             var command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
-
-            CostListResponse costListResponse = new();
 
             if (reader.Read())
             {
@@ -125,9 +109,33 @@ namespace spikewall.Controllers
 
                 reader.Close();
 
-                costListResponse.consumedCostList = consumedItems;
+                return consumedItems;
             }
-            else costListResponse.consumedCostList = Array.Empty<ConsumedItem>();
+
+            reader.Close();
+
+            return Array.Empty<ConsumedItem>();
+        }
+
+        [HttpPost]
+        [Route("getCostList")]
+        [Produces("text/json")]
+        public JsonResult GetCostList([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<BaseRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            CostListResponse costListResponse = new();
+
+            costListResponse.consumedCostList = GetCostListData(conn);
 
             return new JsonResult(EncryptedResponse.Generate(iv, costListResponse));
         }
@@ -259,9 +267,10 @@ namespace spikewall.Controllers
         }
 
         /// <summary>
-        /// Endpoint hit when beginning a Story Mode run.
+        /// Endpoint hit when beginning a Story Mode run (actStart) or Timed Mode run (quickActStart).
         /// </summary>
         [HttpPost]
+        [Route("quickActStart")]
         [Route("actStart")]
         [Produces("text/json")]
         public JsonResult ActStart([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
@@ -269,7 +278,6 @@ namespace spikewall.Controllers
             var iv = (string)Config.Get("encryption_iv");
             BaseResponse error = null;
 
-            // FIXME: Actually do something with this information
             using var conn = Db.Get();
             conn.Open();
 
@@ -279,12 +287,57 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // Update equipItemList from """modifire"""
-            var sql = Db.GetCommand("UPDATE `sw_players` SET equip_item_list = '{0}' WHERE id = '{1}';",
+            // NOTE: If this is `actStart` over `quickActStart`, the request will have `distanceFriendList`.
+            //       Otherwise it will be null.
+            //       Likewise, response will have `distanceFriendList` in `actStart`, otherwise null.
+
+            // Process items (aka "modifires")
+            {
+                string sql;
+                MySqlCommand command;
+
+                for (int i = 0; i < clientReq.request.modifire.Length; i++)
+                {
+                    long item = clientReq.request.modifire[i];
+
+                    sql = Db.GetCommand("DELETE FROM `sw_itemownership` WHERE user_id = '{0}' AND item_id = '{1}' LIMIT 1;", clientReq.userId, item);
+                    command = new MySqlCommand(sql, conn);
+                    var rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        // The user had this item and we've just removed one of them. No further action required.
+                    }
+                    else
+                    {
+                        // User doesn't have this item, decrement cost from ring count
+
+                        // Determine cost of item
+                        ConsumedItem[] costs = GetCostListData(conn);
+                        long cost = 0;
+                        foreach (ConsumedItem itemData in costs)
+                        {
+                            if (itemData.consumedItemId == item)
+                            {
+                                cost = (long)itemData.numItem;
+                                break;
+                            }
+                        }
+
+                        // Decrement cost from ring count
+                        sql = Db.GetCommand("UPDATE `sw_players` SET num_rings = num_rings - '{0}';", cost);
+                        command = new MySqlCommand(sql, conn);
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                // Update equipItemList
+                sql = Db.GetCommand("UPDATE `sw_players` SET equip_item_list = '{0}' WHERE id = '{1}';",
                                     Db.ConvertIntArrayToDBList(clientReq.request.modifire),
                                     clientReq.userId);
-            var command = new MySqlCommand(sql, conn);
-            command.ExecuteNonQuery();
+                command = new MySqlCommand(sql, conn);
+                command.ExecuteNonQuery();
+            }
 
             ActStartResponse actStartResponse = new();
 
@@ -299,55 +352,6 @@ namespace spikewall.Controllers
             {
                 actStartResponse.playerState = playerState;
                 return new JsonResult(EncryptedResponse.Generate(iv, actStartResponse));
-            }
-            else
-            {
-                // Return error code from Populate() to client
-                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
-            }
-        }
-
-        /// <summary>
-        /// Endpoint hit when beginning a Timed Mode run.
-        /// </summary>
-        [HttpPost]
-        [Route("quickActStart")]
-        [Produces("text/json")]
-        public JsonResult QuickActStart([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
-        {
-            var iv = (string)Config.Get("encryption_iv");
-            BaseResponse error = null;
-
-            // FIXME: Actually do something with this information
-            using var conn = Db.Get();
-            conn.Open();
-
-            var clientReq = new ClientRequest<QuickActStartRequest>(conn, param, secure, key);
-            if (clientReq.error != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
-            }
-
-            // Update equipItemList from """modifire"""
-            var sql = Db.GetCommand("UPDATE `sw_players` SET equip_item_list = '{0}' WHERE id = '{1}';",
-                                    Db.ConvertIntArrayToDBList(clientReq.request.modifire),
-                                    clientReq.userId);
-            var command = new MySqlCommand(sql, conn);
-            command.ExecuteNonQuery();
-
-            QuickActStartResponse quickActStartResponse = new();
-
-            // Now that we have the user ID, we can retrieve the player state
-            PlayerState playerState = new PlayerState();
-
-            var populateStatus = playerState.Populate(conn, clientReq.userId);
-
-            conn.Close();
-
-            if (populateStatus == SRStatusCode.Ok)
-            {
-                quickActStartResponse.playerState = playerState;
-                return new JsonResult(EncryptedResponse.Generate(iv, quickActStartResponse));
             }
             else
             {

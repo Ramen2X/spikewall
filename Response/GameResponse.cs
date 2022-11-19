@@ -1,4 +1,5 @@
 ﻿using spikewall.Object;
+using System.Text.Json.Serialization;
 
 namespace spikewall.Response
 {
@@ -59,14 +60,12 @@ namespace spikewall.Response
         public ConsumedItem[]? consumedCostList { get; set; }
     }
 
-    public class QuickActStartResponse : BaseResponse
+    public class ActStartResponse : BaseResponse
     {
         public Campaign[]? campaignList { get; set; }
         public PlayerState? playerState { get; set; }
-    }
 
-    public class ActStartResponse : QuickActStartResponse
-    {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MileageFriend[]? distanceFriendList { get; set; }
     }
 
