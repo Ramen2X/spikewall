@@ -13,12 +13,13 @@ It is designed to be as accurate as possible to the original server with little 
 - Tutorial
 - Ticker system
 - Information system
+- Experience system
 - Story Mode (without incentives)
+- Timed Mode
 
 ## To Do
 
 - Login Bonus
-- Timed Mode
 - High score saving
 - Event support
 - Leaderboards
