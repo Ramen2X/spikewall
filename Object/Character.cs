@@ -80,6 +80,18 @@ namespace spikewall.Object
             MaxLevel
         }
 
+        /// <summary>
+        /// Enum that contains all of the
+        /// possible lock conditions of a character.
+        /// </summary>
+        public enum LockCondition
+        {
+            UnlockedByDefault,
+            UnlockedAsMileageIncentive,
+            UnlockedByPurchasing,
+            UnlockedByRoulette
+        }
+
         public static ulong GenerateTotalCost(MySqlConnection conn, int characterId, sbyte level)
         {
             ulong cost = 0;
@@ -161,7 +173,8 @@ namespace spikewall.Object
                     stateRdr.Close();
 
                     // Insert rows
-                    c.status = 1; // FIXME: Hardcoded to "enabled" for now, should calculate this (probably based on lockCondition) later
+
+                    c.status = (sbyte)((c.lockCondition != (sbyte)LockCondition.UnlockedByDefault) ? 0 : 1);
                     c.level = 0;
                     c.exp = 0;
                     c.star = 0;

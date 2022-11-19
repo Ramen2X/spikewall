@@ -41,4 +41,5 @@ Coming soon!
  - [itsmattkc](https://github.com/itsmattkc) - core server logic, database logic
  - [F121Live](https://github.com/F121Live), [FairPlay137](https://github.com/FairPlay137) - server research from which this server is based upon
  - [fluofoxxo](https://github.com/fluofoxxo) - creating "[outrun](https://github.com/fluofoxxo/outrun)" from which some of this code is based upon
+ - [JKouga](https://github.com/JKouga) - documenting data from the original server, such as incentives, level up costs, and character prices
 
