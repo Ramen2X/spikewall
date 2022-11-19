@@ -10,4 +10,8 @@ namespace spikewall.Request
     {
         public MileageMapState? mileageMapState { get; set; }
     }
+    public class UpdateUserDataRequest : BaseRequest
+    {
+        public int? addRank { get; set; }
+    }
 }
