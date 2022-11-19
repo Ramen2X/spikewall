@@ -411,61 +411,32 @@ namespace spikewall.Controllers
 
                 bool subCharacterPresent = playerState.subCharaID != -1;
 
-                // FIXME: Unfinished character experience system below
-
                 // Character experience is based on how many rings were collected in the entire run
-                var expIncrease = request.numRings + request.numFailureRings;
-
-                // Now we need to find the index of the provided character in the CharacterState
-                int mainCharaIndex = Character.FindCharacterInCharacterState(playerState.mainCharaID, characterState);
-
-                if (mainCharaIndex == -1)
-                {
-                    // The character we want to upgrade isn't available to the player, abort
-                    return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
-                }
+                var exp = request.numRings + request.numFailureRings;
 
                 sbyte charactersInRun = 1;
+
+                int mainCharaIndex = -1;
                 int subCharaIndex = -1;
 
                 if (subCharacterPresent)
                 {
-                    subCharaIndex = Character.FindCharacterInCharacterState(playerState.mainCharaID, characterState);
-
-                    if (subCharaIndex == -1)
-                    {
-                        // The character we want us to upgrade isn't available to the player, abort
-                        return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
-                    }
                     charactersInRun = 2;
+                    var subLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.subCharaID, exp, ref characterState, out subCharaIndex);
 
-                    // We'll level up the sub character now instead
-                    // of later to avoid needing to branch again
-                    if (characterState[subCharaIndex].level < 100)
+                    if (subLevelUpStatus != SRStatusCode.Ok)
                     {
-                        characterState[subCharaIndex].exp += expIncrease;
-                        if (characterState[subCharaIndex].exp >= characterState[subCharaIndex].numRings)
-                        {
-                            var expOverflow = characterState[subCharaIndex].exp - characterState[subCharaIndex].numRings;
-                            characterState[subCharaIndex].level++;
-                            characterState[subCharaIndex].exp += expOverflow;
-
-                            // FIXME: More has to be done here!!!
-                        }
+                        return new JsonResult(EncryptedResponse.Generate(iv, subLevelUpStatus));
                     }
+
+                    conn.Close();
                 }
 
-                if (characterState[mainCharaIndex].level < 100)
-                {
-                    characterState[mainCharaIndex].exp += expIncrease;
-                    if (characterState[mainCharaIndex].exp >= characterState[mainCharaIndex].numRings)
-                    {
-                        var expOverflow = characterState[mainCharaIndex].exp - characterState[mainCharaIndex].numRings;
-                        characterState[mainCharaIndex].level++;
-                        characterState[mainCharaIndex].exp += expOverflow;
+                var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
 
-                        // FIXME: More has to be done here!!!
-                    }
+                if (mainLevelUpStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, mainLevelUpStatus));
                 }
 
                 Character[] playCharacterState = new Character[charactersInRun];
@@ -478,8 +449,6 @@ namespace spikewall.Controllers
                         playCharacterState[i] = characterState[subCharaIndex];
                     }
                 }
-
-                conn.Open();
 
                 var playerSaveStatus = playerState.Save(conn, clientReq.userId);
                 if (playerSaveStatus != SRStatusCode.Ok)
@@ -496,7 +465,6 @@ namespace spikewall.Controllers
                 conn.Close();
 
                 quickPostGameResultsResponse.playerState = playerState;
-                quickPostGameResultsResponse.characterState = characterState;
                 quickPostGameResultsResponse.playCharacterState = playCharacterState;
 
                 // FIXME: Actually implement this normally lmao
@@ -556,6 +524,50 @@ namespace spikewall.Controllers
                 playerState.numRedRings += request.numRedStarRings;
                 playerState.totalDistance += request.distance;
 
+                Character[] characterState;
+                Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+
+                bool subCharacterPresent = playerState.subCharaID != -1;
+
+                // Character experience is based on how many rings were collected in the entire run
+                var exp = request.numRings + request.numFailureRings;
+
+                sbyte charactersInRun = 1;
+
+                int mainCharaIndex = -1;
+                int subCharaIndex = -1;
+
+                if (subCharacterPresent)
+                {
+                    charactersInRun = 2;
+                    var subLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.subCharaID, exp, ref characterState, out subCharaIndex);
+
+                    if (subLevelUpStatus != SRStatusCode.Ok)
+                    {
+                        return new JsonResult(EncryptedResponse.Generate(iv, subLevelUpStatus));
+                    }
+
+                    conn.Close();
+                }
+
+                var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
+
+                if (mainLevelUpStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, mainLevelUpStatus));
+                }
+
+                Character[] playCharacterState = new Character[charactersInRun];
+
+                if (charactersInRun > 0)
+                {
+                    playCharacterState[0] = characterState[mainCharaIndex];
+                    for (int i = 1; i < charactersInRun; i++)
+                    {
+                        playCharacterState[i] = characterState[subCharaIndex];
+                    }
+                }
+
                 MileageMapState mileageMapState = new();
 
                 var populateMMSStatus = mileageMapState.Populate(conn, clientReq.userId);
@@ -592,9 +604,16 @@ namespace spikewall.Controllers
                     return new JsonResult(EncryptedResponse.Generate(iv, saveMMSStatus));
                 }
 
+                var charSaveStatus = Character.SaveCharacterState(conn, clientReq.userId, characterState);
+                if (charSaveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
+                }
+
                 conn.Close();
 
                 postGameResultsResponse.playerState = playerState;
+                postGameResultsResponse.playCharacterState = playCharacterState;
 
                 // FIXME: Actually implement this normally lmao
 

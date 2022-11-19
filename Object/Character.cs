@@ -1,6 +1,6 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using spikewall.Response;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace spikewall.Object
@@ -60,14 +60,15 @@ namespace spikewall.Object
         // Otherwise, not sure what this is.
         public long[] abilityNumRings { get; set; }
 
-        // The current ability to be leveled up?
+        // The abilities that have been leveled
+        // up using experience after a run.
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long[] abilityLevelup { get; set; }
 
-        // This is not always sent, so it needs to be
-        // specifically handled during deserialization.
-        // I'm also not sure what this is right now.
+        // The amount of experience that was used to
+        // level up the abilities in abilityLevelup.
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public long[]? abilityLevelupExp { get; set; }
+        public ulong[]? abilityLevelupExp { get; set; }
 
         /// <summary>
         /// Enum that contains all of the
@@ -159,8 +160,6 @@ namespace spikewall.Object
 
                     c.abilityLevel = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_level"));
                     c.abilityNumRings = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_num_rings"));
-                    c.abilityLevelup = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_levelup"));
-                    c.abilityLevelupExp = Db.ConvertDBListToIntArray(stateRdr.GetString("ability_levelup_exp"));
 
                     stateRdr.Close();
 
@@ -180,25 +179,22 @@ namespace spikewall.Object
                     c.star = 0;
 
                     var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
-                    var abilityLevelupStr = "120000";
 
                     c.abilityLevel = Db.ConvertDBListToIntArray(abilityLevelStr);
                     c.abilityNumRings = Db.ConvertDBListToIntArray(abilityLevelStr);
-                    c.abilityLevelup = Db.ConvertDBListToIntArray(abilityLevelupStr);
-                    c.abilityLevelupExp = Db.ConvertDBListToIntArray(abilityLevelStr);
 
                     sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
-                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings, ability_levelup, ability_levelup_exp
+                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings
                                           ) VALUES (
-                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}'
-                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr, abilityLevelupStr, abilityLevelStr);
+                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}'
+                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr);
                     var insertCmd = new MySqlCommand(sql, conn);
                     insertCmd.ExecuteNonQuery();
                 }
             }
 
             conn.Close();
-            
+
             characterState = characters.ToArray();
             return SRStatusCode.Ok;
         }
@@ -210,26 +206,21 @@ namespace spikewall.Object
             {
                 var sql = Db.GetCommand(
                     @"UPDATE `sw_characterstates` SET
-                    character_id = '{0}',
-                    status = '{1}',
-                    level = '{2}',
-                    exp = '{3}',
-                    star = '{4}',
-                    ability_level = '{5}',
-                    ability_num_rings = '{6}',
-                    ability_levelup = '{7}',
-                    ability_levelup_exp = '{8}'
-                  WHERE user_id = '{9}';",
-                        characterState[i].characterId,
+                    status = '{0}',
+                    level = '{1}',
+                    exp = '{2}',
+                    star = '{3}',
+                    ability_level = '{4}',
+                    ability_num_rings = '{5}'
+                  WHERE user_id = '{6}' AND character_id = '{7}';",
                         characterState[i].status,
                         characterState[i].level,
                         characterState[i].exp,
                         characterState[i].star,
                         Db.ConvertIntArrayToDBList(characterState[i].abilityLevel),
                         Db.ConvertIntArrayToDBList(characterState[i].abilityNumRings),
-                        Db.ConvertIntArrayToDBList(characterState[i].abilityLevelup),
-                        Db.ConvertIntArrayToDBList(characterState[i].abilityLevelupExp),
-                        uid);
+                        uid,
+                        characterState[i].characterId);
                 var command = new MySqlCommand(sql, conn);
 
                 int rowsAffected = command.ExecuteNonQuery();
@@ -256,6 +247,56 @@ namespace spikewall.Object
                 }
             }
             return index;
+        }
+
+        public static SRStatusCode LevelUpCharacterWithExp(MySqlConnection conn, int characterId, ulong exp, ref Character[] characterState, out int charaIndex)
+        {
+            // We need to find the index of the provided character in the CharacterState
+            charaIndex = FindCharacterInCharacterState(characterId, characterState);
+
+            if (charaIndex == -1)
+            {
+                // The character we want to upgrade isn't available to the player, abort
+                return SRStatusCode.InternalServerError;
+            }
+
+            if (characterState[charaIndex].level < 100)
+            {
+                characterState[charaIndex].exp += exp;
+
+                List<long> abilityLevelup = new();
+                List<ulong> abilityLevelupExp = new();
+
+                int abilityIndex;
+
+                Random random = new();
+
+                conn.Open();
+
+                while (characterState[charaIndex].exp >= characterState[charaIndex].numRings && characterState[charaIndex].level < 100)
+                {
+                    // Make sure we're only leveling up abilities that aren't maxed out
+                    do
+                    {
+                        abilityIndex = random.Next(0, 10);
+                    } while (characterState[charaIndex].abilityLevel[abilityIndex] == 10);
+
+                    characterState[charaIndex].level++;
+                    characterState[charaIndex].abilityLevel[abilityIndex]++;
+                    abilityLevelup.Add(120000 + abilityIndex);
+                    abilityLevelupExp.Add(characterState[charaIndex].numRings);
+                    characterState[charaIndex].exp -= characterState[charaIndex].numRings;
+
+                    characterState[charaIndex].numRings = GenerateTotalCost(conn, characterId, characterState[charaIndex].level);
+                }
+
+                characterState[charaIndex].abilityLevelup = abilityLevelup.ToArray();
+                characterState[charaIndex].abilityLevelupExp = abilityLevelupExp.ToArray();
+            }
+            // Character hit level 100, set them to max level
+            else characterState[charaIndex].status = (sbyte)Status.MaxLevel;
+
+            return SRStatusCode.Ok;
         }
     }
 }

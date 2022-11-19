@@ -181,7 +181,7 @@ namespace spikewall
                         quick_high_score BIGINT UNSIGNED NOT NULL DEFAULT 0,
                         total_distance BIGINT UNSIGNED NOT NULL DEFAULT 0,
                         maximum_distance BIGINT NOT NULL DEFAULT 0,
-                        daily_mission_id INTEGER NOT NULL DEFAULT 0,
+                        daily_mission_id INTEGER NOT NULL DEFAULT 1,
                         daily_mission_end_time BIGINT NOT NULL DEFAULT 0,
                         daily_challenge_value INTEGER NOT NULL DEFAULT 0,
                         daily_challenge_complete BIGINT NOT NULL DEFAULT 0,
@@ -228,9 +228,7 @@ namespace spikewall
                         exp BIGINT UNSIGNED NOT NULL,
                         star TINYINT NOT NULL,
                         ability_level TINYTEXT NOT NULL,
-                        ability_num_rings TINYTEXT NOT NULL,
-                        ability_levelup TINYTEXT NOT NULL,
-                        ability_levelup_exp TINYTEXT NOT NULL
+                        ability_num_rings TINYTEXT NOT NULL
                     );
                     INSERT INTO `sw_characters` (
                         id,
@@ -245,8 +243,8 @@ namespace spikewall
                         '300000',
                         '200',
                         '0',
-                        '100000',
-                        '50',
+                        '0',
+                        '0',
                         '0',
                         '10',
                         '1'
@@ -255,8 +253,8 @@ namespace spikewall
                         '300001',
                         '200',
                         '0',
-                        '100000',
-                        '50',
+                        '0',
+                        '0',
                         '1',
                         '10',
                         '0'
@@ -265,8 +263,8 @@ namespace spikewall
                         '300002',
                         '200',
                         '0',
-                        '100000',
-                        '50',
+                        '0',
+                        '0',
                         '1',
                         '10',
                         '0'
@@ -597,6 +595,66 @@ namespace spikewall
                         '90',
                         '100',
                         '2000'
+                    ),
+                    (
+                        '300003',
+                        '0',
+                        '9',
+                        '300'
+                    ),
+                    (
+                        '300003',
+                        '10',
+                        '19',
+                        '600'
+                    ),
+                    (
+                        '300003',
+                        '20',
+                        '29',
+                        '900'
+                    ),
+                    (
+                        '300003',
+                        '30',
+                        '39',
+                        '1200'
+                    ),
+                    (
+                        '300003',
+                        '40',
+                        '49',
+                        '1500'
+                    ),
+                    (
+                        '300003',
+                        '50',
+                        '59',
+                        '1800'
+                    ),
+                    (
+                        '300003',
+                        '60',
+                        '69',
+                        '2100'
+                    ),
+                    (
+                        '300003',
+                        '70',
+                        '79',
+                        '2400'
+                    ),
+                    (
+                        '300003',
+                        '80',
+                        '89',
+                        '2700'
+                    ),
+                    (
+                        '300003',
+                        '90',
+                        '100',
+                        '3000'
                     );");
             }
 

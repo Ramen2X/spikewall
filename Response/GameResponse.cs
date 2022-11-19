@@ -74,7 +74,6 @@ namespace spikewall.Response
         public PlayerState? playerState { get; set; }
         public Chao[]? chao { get; set; }
         public Incentive[]? dailyChallengeIncentive { get; set; }
-        public Character[]? characterState { get; set; }
         public string[]? messageList { get; set; }
         public string[]? operatorMessageList { get; set; }
         public long? totalMessage { get; set; }
