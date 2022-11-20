@@ -466,15 +466,16 @@ namespace spikewall.Controllers
 
                 quickPostGameResultsResponse.playerState = playerState;
                 quickPostGameResultsResponse.playCharacterState = playCharacterState;
-
-                // FIXME: Actually implement this normally lmao
-
-                quickPostGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
-                quickPostGameResultsResponse.messageList = new string[0];
-                quickPostGameResultsResponse.operatorMessageList = new string[0];
-                quickPostGameResultsResponse.totalMessage = 0;
-                quickPostGameResultsResponse.totalOperatorMessage = 0;
             }
+
+            // FIXME: Actually implement this normally lmao
+
+            quickPostGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
+            quickPostGameResultsResponse.messageList = new string[0];
+            quickPostGameResultsResponse.operatorMessageList = new string[0];
+            quickPostGameResultsResponse.totalMessage = 0;
+            quickPostGameResultsResponse.totalOperatorMessage = 0;
+
             return new JsonResult(EncryptedResponse.Generate(iv, quickPostGameResultsResponse));
         }
 
@@ -501,6 +502,14 @@ namespace spikewall.Controllers
             var request = clientReq.request;
 
             PostGameResultsResponse postGameResultsResponse = new();
+
+            MileageMapState mileageMapState = new();
+
+            var populateMMSStatus = mileageMapState.Populate(conn, clientReq.userId);
+            if (populateMMSStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateMMSStatus));
+            }
 
             // If the run wasn't exited out of
             if (request.closed != 1)
@@ -568,14 +577,6 @@ namespace spikewall.Controllers
                     }
                 }
 
-                MileageMapState mileageMapState = new();
-
-                var populateMMSStatus = mileageMapState.Populate(conn, clientReq.userId);
-                if (populateMMSStatus != SRStatusCode.Ok)
-                {
-                    return new JsonResult(EncryptedResponse.Generate(iv, populateMMSStatus));
-                }
-
                 mileageMapState.stageTotalScore += request.score;
 
                 // Despite its misleading name, this is set to 1 whether a chapter OR an episode is cleared.
@@ -614,19 +615,19 @@ namespace spikewall.Controllers
 
                 postGameResultsResponse.playerState = playerState;
                 postGameResultsResponse.playCharacterState = playCharacterState;
-
-                // FIXME: Actually implement this normally lmao
-
-                postGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
-                postGameResultsResponse.messageList = new string[0];
-                postGameResultsResponse.operatorMessageList = new string[0];
-                postGameResultsResponse.totalMessage = 0;
-                postGameResultsResponse.totalOperatorMessage = 0;
-                postGameResultsResponse.mileageMapState = mileageMapState;
-                postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
-                postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
-                postGameResultsResponse.wheelOptions = new WheelOptions();
             }
+
+            // FIXME: Actually implement this normally lmao
+
+            postGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
+            postGameResultsResponse.messageList = new string[0];
+            postGameResultsResponse.operatorMessageList = new string[0];
+            postGameResultsResponse.totalMessage = 0;
+            postGameResultsResponse.totalOperatorMessage = 0;
+            postGameResultsResponse.mileageMapState = mileageMapState;
+            postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
+            postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
+            postGameResultsResponse.wheelOptions = new WheelOptions();
 
             return new JsonResult(EncryptedResponse.Generate(iv, postGameResultsResponse));
         }
