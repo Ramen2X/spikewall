@@ -325,7 +325,7 @@ namespace spikewall.Controllers
                         }
 
                         // Decrement cost from ring count
-                        sql = Db.GetCommand("UPDATE `sw_players` SET num_rings = num_rings - '{0}';", cost);
+                        sql = Db.GetCommand("UPDATE `sw_players` SET num_rings = num_rings - '{0}' WHERE id = '{1}';", cost, clientReq.userId);
                         command = new MySqlCommand(sql, conn);
                         command.ExecuteNonQuery();
                     }
