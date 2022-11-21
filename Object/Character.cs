@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using spikewall.Response;
 using System.Text.Json.Serialization;
 
@@ -260,12 +259,12 @@ namespace spikewall.Object
                 return SRStatusCode.InternalServerError;
             }
 
+            List<long> abilityLevelup = new();
+            List<ulong> abilityLevelupExp = new();
+
             if (characterState[charaIndex].level < 100)
             {
                 characterState[charaIndex].exp += exp;
-
-                List<long> abilityLevelup = new();
-                List<ulong> abilityLevelupExp = new();
 
                 int abilityIndex;
 
@@ -276,10 +275,11 @@ namespace spikewall.Object
                 while (characterState[charaIndex].exp >= characterState[charaIndex].numRings && characterState[charaIndex].level < 100)
                 {
                     // Make sure we're only leveling up abilities that aren't maxed out
+                    // Strangely, the ability at index 1 seems to be invalid.
                     do
                     {
-                        abilityIndex = random.Next(0, 10);
-                    } while (characterState[charaIndex].abilityLevel[abilityIndex] == 10);
+                        abilityIndex = random.Next(0, 11);
+                    } while (characterState[charaIndex].abilityLevel[abilityIndex] == 10 || abilityIndex == 1);
 
                     characterState[charaIndex].level++;
                     characterState[charaIndex].abilityLevel[abilityIndex]++;
@@ -290,11 +290,13 @@ namespace spikewall.Object
                     characterState[charaIndex].numRings = GenerateTotalCost(conn, characterId, characterState[charaIndex].level);
                 }
 
-                characterState[charaIndex].abilityLevelup = abilityLevelup.ToArray();
-                characterState[charaIndex].abilityLevelupExp = abilityLevelupExp.ToArray();
+                conn.Close();
             }
             // Character hit level 100, set them to max level
             else characterState[charaIndex].status = (sbyte)Status.MaxLevel;
+
+            characterState[charaIndex].abilityLevelup = abilityLevelup.ToArray();
+            characterState[charaIndex].abilityLevelupExp = abilityLevelupExp.ToArray();
 
             return SRStatusCode.Ok;
         }

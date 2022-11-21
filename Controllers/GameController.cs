@@ -409,7 +409,18 @@ namespace spikewall.Controllers
                 Character[] characterState;
                 Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
 
-                bool subCharacterPresent = playerState.subCharaID != -1;
+                bool subCharacterPresent = false;
+
+                for (int i = 0; i < playerState.equipItemList.Length; i++)
+                {
+                    // Detect if the player equipped a sub character for this
+                    // run so we know if we need to level it up after the run
+                    if (playerState.equipItemList[i] == (long)Item.ItemID.SubCharacter)
+                    {
+                        subCharacterPresent = true;
+                        break;
+                    }
+                }
 
                 // Character experience is based on how many rings were collected in the entire run
                 var exp = request.numRings + request.numFailureRings;
@@ -428,8 +439,6 @@ namespace spikewall.Controllers
                     {
                         return new JsonResult(EncryptedResponse.Generate(iv, subLevelUpStatus));
                     }
-
-                    conn.Close();
                 }
 
                 var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
@@ -449,6 +458,8 @@ namespace spikewall.Controllers
                         playCharacterState[i] = characterState[subCharaIndex];
                     }
                 }
+
+                conn.Open();
 
                 var playerSaveStatus = playerState.Save(conn, clientReq.userId);
                 if (playerSaveStatus != SRStatusCode.Ok)
@@ -536,7 +547,18 @@ namespace spikewall.Controllers
                 Character[] characterState;
                 Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
 
-                bool subCharacterPresent = playerState.subCharaID != -1;
+                bool subCharacterPresent = false;
+
+                for (int i = 0; i < playerState.equipItemList.Length; i++)
+                {
+                    // Detect if the player equipped a sub character for this
+                    // run so we know if we need to level it up after the run
+                    if (playerState.equipItemList[i] == (long)Item.ItemID.SubCharacter)
+                    {
+                        subCharacterPresent = true;
+                        break;
+                    }
+                }
 
                 // Character experience is based on how many rings were collected in the entire run
                 var exp = request.numRings + request.numFailureRings;
@@ -555,8 +577,6 @@ namespace spikewall.Controllers
                     {
                         return new JsonResult(EncryptedResponse.Generate(iv, subLevelUpStatus));
                     }
-
-                    conn.Close();
                 }
 
                 var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
@@ -592,6 +612,8 @@ namespace spikewall.Controllers
                     }
                 }
                 else mileageMapState.point = request.reachPoint;
+
+                conn.Open();
 
                 var saveStatus = playerState.Save(conn, clientReq.userId);
                 if (saveStatus != SRStatusCode.Ok)
