@@ -111,21 +111,22 @@ namespace spikewall.Object
 
         public static SRStatusCode PopulateCharacterState(MySqlConnection conn, string uid, out Character[] characterState)
         {
-            List<Character> characters = new List<Character>();
+            List<Character> characters = new();
             characterState = null;
 
             // Get list of all visible characters
-            var command = new MySqlCommand("SELECT * FROM `sw_characters` WHERE visible = '1';", conn);
+            var charSql = Db.GetCommand("SELECT * FROM `sw_characters` WHERE visible = '1' OR id IN ( SELECT character_id FROM `sw_characterstates` WHERE user_id = '{0}' AND status > '0' );", uid);
+            var charCmd = new MySqlCommand(charSql, conn);
 
-            var charRdr = command.ExecuteReader();
+            var charRdr = charCmd.ExecuteReader();
             while (charRdr.Read())
             {
-                Character c = new Character();
+                Character c = new();
 
                 c.characterId = charRdr.GetInt32("id");
 
                 // FIXME: Hardcoded empty
-                c.campaignList = new Campaign[0];
+                c.campaignList = Array.Empty<Campaign>();
 
                 c.numRings = Convert.ToUInt64(charRdr["num_rings"]);
                 c.numRedRings = Convert.ToUInt64(charRdr["num_red_rings"]);
@@ -200,11 +201,10 @@ namespace spikewall.Object
 
         public static SRStatusCode SaveCharacterState(MySqlConnection conn, string uid, Character[] characterState)
         {
-            // FIXME: Does not support adding characters right now
             for (int i = 0; i < characterState.Length; i++)
             {
                 var sql = Db.GetCommand(
-                    @"UPDATE `sw_characterstates` SET
+                  @"UPDATE `sw_characterstates` SET
                     status = '{0}',
                     level = '{1}',
                     exp = '{2}',
@@ -232,6 +232,71 @@ namespace spikewall.Object
             }
 
             return SRStatusCode.Ok;
+        }
+
+        public static SRStatusCode AddCharacterToCharacterState(MySqlConnection conn, int characterId, ref Character[] characterState, string uid, ref int charIndex)
+        {
+            // Get info about provided character
+            var sql = Db.GetCommand("SELECT * FROM `sw_characters` WHERE id = '{0}';", characterId);
+            var charCmd = new MySqlCommand(sql, conn);
+            var charRdr = charCmd.ExecuteReader();
+
+            if (charRdr.HasRows)
+            {
+                // Convert CharacterState to list so we can append to it
+                List<Character> characterStateList = new(characterState);
+
+                // Read row
+                charRdr.Read();
+
+                var abilityLevelStr = "0 0 0 0 0 0 0 0 0 0 0";
+
+                Character c = new()
+                {
+                    characterId = characterId,
+
+                    // FIXME: Hardcoded empty
+                    campaignList = Array.Empty<Campaign>(),
+
+                    numRings = Convert.ToUInt64(charRdr["num_rings"]),
+                    numRedRings = Convert.ToUInt64(charRdr["num_red_rings"]),
+                    priceNumRings = Convert.ToUInt64(charRdr["price_num_rings"]),
+                    priceNumRedRings = Convert.ToUInt64(charRdr["price_num_red_rings"]),
+                    starMax = Convert.ToSByte(charRdr["star_max"]),
+                    lockCondition = Convert.ToSByte(charRdr["lock_condition"]),
+
+                    level = 0,
+                    exp = 0,
+                    star = 0,
+
+                    abilityLevel = Db.ConvertDBListToIntArray(abilityLevelStr),
+                    abilityNumRings = Db.ConvertDBListToIntArray(abilityLevelStr)
+                };
+                c.status = (sbyte)((c.lockCondition != (sbyte)LockCondition.UnlockedByDefault) ? 0 : 1);
+
+                charRdr.Close();
+
+                // Insert our newly crafted character into the CharacterState
+                sql = Db.GetCommand(@"INSERT INTO `sw_characterstates` (
+                                              user_id, character_id, status, level, exp, star, ability_level, ability_num_rings
+                                          ) VALUES (
+                                              '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}'
+                                          );", uid, c.characterId, c.status, c.level, c.exp, c.star, abilityLevelStr, abilityLevelStr);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+
+                characterStateList.Add(c);
+
+                // Convert CharacterState back to array to return it
+                characterState = characterStateList.ToArray();
+
+                // Return the index of the newly added character
+                charIndex = characterStateList.Count - 1;
+
+                return SRStatusCode.Ok;
+            }
+            // The character we're being requested to add does not exist
+            else return SRStatusCode.InternalServerError;
         }
 
         public static int FindCharacterInCharacterState(int characterId, Character[] characterState)
