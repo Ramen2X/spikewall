@@ -52,7 +52,7 @@ namespace spikewall.Controllers
             }
 
 
-            ulong? ringCost = characterState[index].numRings - characterState[index].exp;
+            ulong ringCost = characterState[index].numRings - characterState[index].exp;
 
             conn.Open();
 

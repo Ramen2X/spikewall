@@ -18,11 +18,12 @@ namespace spikewall.Controllers
                                            bool tickers = false,
                                            bool dailyChallenge = false,
                                            bool costs = false,
-                                           bool information = false)
+                                           bool information = false,
+                                           bool incentives = false)
         {
             try
             {
-                Db.ResetDatabase(chao, players, characters, mileageMapStates, config, tickers, dailyChallenge, costs, information);
+                Db.ResetDatabase(chao, players, characters, mileageMapStates, config, tickers, dailyChallenge, costs, information, incentives);
                 return StatusCode(200, "Database reset successfully");
             }
             catch (MySqlException e)

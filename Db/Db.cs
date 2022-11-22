@@ -109,7 +109,8 @@ namespace spikewall
                                          bool tickers = false,
                                          bool dailyChallenge = false,
                                          bool costs = false,
-                                         bool information = false)
+                                         bool information = false,
+                                         bool incentives = false)
         {
             using var conn = Db.Get();
             conn.Open();
@@ -2284,7 +2285,7 @@ namespace spikewall
                 QuickRun(conn,
                     @"DROP TABLE IF EXISTS `sw_mileagemapstates`;
                     CREATE TABLE `sw_mileagemapstates` (
-                        user_id BIGINT UNSIGNED NOT NULL,
+                        user_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
                         episode TINYINT NOT NULL,
                         chapter TINYINT NOT NULL,
                         point BIGINT NOT NULL,
@@ -2339,20 +2340,20 @@ namespace spikewall
                     @"DROP TABLE IF EXISTS `sw_dailychallenge`;
                     CREATE TABLE `sw_dailychallenge` (
                         id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                        item1 MEDIUMINT NOT NULL DEFAULT 910000,
-                        item1_count BIGINT UNSIGNED NOT NULL DEFAULT 1000,
+                        item1 MEDIUMINT NOT NULL DEFAULT 900000,
+                        item1_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
                         item2 MEDIUMINT NOT NULL DEFAULT 900000,
-                        item2_count BIGINT UNSIGNED NOT NULL DEFAULT 10,
-                        item3 MEDIUMINT NOT NULL DEFAULT 910000,
-                        item3_count BIGINT UNSIGNED NOT NULL DEFAULT 5000,
+                        item2_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
+                        item3 MEDIUMINT NOT NULL DEFAULT 900000,
+                        item3_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
                         item4 MEDIUMINT NOT NULL DEFAULT 900000,
-                        item4_count BIGINT UNSIGNED NOT NULL DEFAULT 20,
-                        item5 MEDIUMINT NOT NULL DEFAULT 910000,
-                        item5_count BIGINT UNSIGNED NOT NULL DEFAULT 10000,
+                        item4_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
+                        item5 MEDIUMINT NOT NULL DEFAULT 900000,
+                        item5_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
                         item6 MEDIUMINT NOT NULL DEFAULT 900000,
-                        item6_count BIGINT UNSIGNED NOT NULL DEFAULT 30,
+                        item6_count BIGINT UNSIGNED NOT NULL DEFAULT 5,
                         item7 MEDIUMINT NOT NULL DEFAULT 900000,
-                        item7_count BIGINT UNSIGNED NOT NULL DEFAULT 60
+                        item7_count BIGINT UNSIGNED NOT NULL DEFAULT 10
                     );
                     INSERT INTO `sw_dailychallenge` (id) VALUES ('1');");
             }
@@ -2429,6 +2430,346 @@ namespace spikewall
                         image_id TINYTEXT NOT NULL,
                         extra MEDIUMTEXT NOT NULL,
                         language TINYINT NOT NULL
+                    );");
+            }
+
+            if (incentives)
+            {
+                QuickRun(conn,
+                    @"DROP TABLE IF EXISTS `sw_incentives`;
+                    CREATE TABLE `sw_incentives` (
+                        episode TINYINT NOT NULL,
+                        chapter TINYINT NOT NULL,
+                        type TINYINT NOT NULL,
+                        item_id BIGINT NOT NULL,
+                        num_item BIGINT UNSIGNED NOT NULL,
+                        point TINYINT NOT NULL,
+                        limit_time TINYINT NOT NULL
+                    );
+                    INSERT INTO `sw_incentives`
+                    VALUES (
+                        '1',
+                        '1',
+                        '3',
+                        '120004',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '1',
+                        '1',
+                        '3',
+                        '910000',
+                        '8000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '1',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '2',
+                        '1',
+                        '3',
+                        '120003',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '2',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '2',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '3',
+                        '1',
+                        '3',
+                        '120002',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '3',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '3',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '4',
+                        '1',
+                        '3',
+                        '120001',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '4',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '4',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '5',
+                        '1',
+                        '3',
+                        '120000',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '5',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '5',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '6',
+                        '1',
+                        '2',
+                        '910000',
+                        '10000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '6',
+                        '1',
+                        '2',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '6',
+                        '2',
+                        '3',
+                        '120000',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '6',
+                        '2',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '6',
+                        '2',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '7',
+                        '1',
+                        '3',
+                        '120006',
+                        '2',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '7',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '7',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '8',
+                        '1',
+                        '3',
+                        '120005',
+                        '2',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '8',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '8',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '9',
+                        '1',
+                        '3',
+                        '120007',
+                        '2',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '9',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '9',
+                        '1',
+                        '3',
+                        '900000',
+                        '10',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '10',
+                        '1',
+                        '3',
+                        '300001',
+                        '1',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '10',
+                        '1',
+                        '3',
+                        '910000',
+                        '5000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '10',
+                        '1',
+                        '3',
+                        '900000',
+                        '20',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '11',
+                        '1',
+                        '1',
+                        '910000',
+                        '2000',
+                        '2',
+                        '1'
+                    ),
+                    (
+                        '11',
+                        '1',
+                        '1',
+                        '910000',
+                        '4000',
+                        '4',
+                        '2'
+                    ),
+                    (
+                        '11',
+                        '1',
+                        '2',
+                        '910000',
+                        '6000',
+                        '5',
+                        '0'
+                    ),
+                    (
+                        '11',
+                        '1',
+                        '2',
+                        '900000',
+                        '5',
+                        '5',
+                        '0'
                     );");
             }
 

@@ -69,9 +69,9 @@ namespace spikewall.Object
     {
         public sbyte episode { get; set; }
         public sbyte chapter { get; set; }
-        public long? point { get; set; }
-        public ulong? stageTotalScore { get; set; }
-        public long? chapterStartTime { get; set; }
+        public long point { get; set; }
+        public ulong stageTotalScore { get; set; }
+        public long chapterStartTime { get; set; }
 
         // TODO: Although a new account should always start at Chapter 1
         // Episode 1, it probably wouldn't hurt to make this configurable.
@@ -214,21 +214,21 @@ namespace spikewall.Object
 
     public class MileageReward
     {
-        public long? type { get; set; }
-        public long? itemId { get; set; }
-        public long? numItem { get; set; }
-        public sbyte? point { get; set; }
-        public long? limitTime { get; set; }
+        public sbyte type { get; set; }
+        public long itemId { get; set; }
+        public ulong numItem { get; set; }
+        public sbyte point { get; set; }
+        public long limitTime { get; set; }
     }
 
     public class MileageIncentive
     {
-        public long? type { get; set; }
-        public long? itemId { get; set; }
+        public sbyte type { get; set; }
+        public long itemId { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? friendId { get; set; }
-        public long? numItem { get; set; }
-        public long? pointId { get; set; }
+        public ulong numItem { get; set; }
+        public sbyte pointId { get; set; }
     }
 }

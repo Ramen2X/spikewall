@@ -7,6 +7,8 @@ using spikewall.Request;
 using spikewall.Response;
 using System.Reflection.PortableExecutable;
 using System.Text;
+using static spikewall.Object.Character;
+using static spikewall.Object.Item;
 
 namespace spikewall.Controllers
 {
@@ -216,10 +218,57 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            MileageRewardResponse mileageRewardResponse = new();
-            mileageRewardResponse.mileageMapRewardList = Array.Empty<MileageReward>();
+            // Get player's MileageMapState
+            MileageMapState mileageMapState = new();
+            var populateStatus = mileageMapState.Populate(conn, clientReq.userId);
 
-            // FIXME: Stub
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                // Return error code from Populate() to client
+                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
+            }
+
+            MileageRewardResponse mileageRewardResponse = new();
+
+            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives`) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}'", mileageMapState.episode, mileageMapState.chapter);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                var count = reader.GetInt32("row_count");
+
+                MileageReward[] mileageMapRewardList = new MileageReward[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    mileageMapRewardList[i] = new MileageReward();
+                    mileageMapRewardList[i].type = reader.GetSByte("type");
+                    mileageMapRewardList[i].itemId = reader.GetInt64("item_id");
+                    mileageMapRewardList[i].numItem = reader.GetUInt64("num_item");
+                    mileageMapRewardList[i].point = reader.GetSByte("point");
+
+                    switch (reader.GetSByte("limit_time"))
+                    {
+                        // No time limit on this incentive
+                        case 0:
+                            mileageMapRewardList[i].limitTime = -1;
+                            break;
+                        // Time limit of 12 hours on this incentive
+                        case 1:
+                            mileageMapRewardList[i].limitTime = mileageMapState.chapterStartTime + 43200;
+                            break;
+                        // Time limit of 24 hours on this incentive
+                        case 2:
+                            mileageMapRewardList[i].limitTime = mileageMapState.chapterStartTime + 86400;
+                            break;
+                    }
+
+                    reader.Read();
+                }
+                mileageRewardResponse.mileageMapRewardList = mileageMapRewardList;
+            }
+            else mileageRewardResponse.mileageMapRewardList = Array.Empty<MileageReward>();
 
             return new JsonResult(EncryptedResponse.Generate(iv, mileageRewardResponse));
         }
@@ -597,6 +646,10 @@ namespace spikewall.Controllers
                     }
                 }
 
+                var previousPoint = mileageMapState.point;
+                var previousChapter = mileageMapState.chapter;
+                var previousEpisode = mileageMapState.episode;
+
                 mileageMapState.stageTotalScore += request.score;
 
                 // Despite its misleading name, this is set to 1 whether a chapter OR an episode is cleared.
@@ -614,6 +667,128 @@ namespace spikewall.Controllers
                 else mileageMapState.point = request.reachPoint;
 
                 conn.Open();
+
+                postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
+
+                // Prevent player from getting incentives more than once
+                if (previousPoint != mileageMapState.point)
+                {
+                    // Award the player any incentives that they hit
+
+                    string sql;
+
+                    if (request.bossDestroyed == 0)
+                    {
+                        if (mileageMapState.point == 5)
+                            // Boss point, prevent awarding incentives until boss is defeated
+                            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE point <= 4) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point <= 4", mileageMapState.episode, mileageMapState.chapter);
+
+                        // Boss has not been defeated, get all possible incentives up to this point
+                        else sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE point >= '{2}' AND point <= '{3}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}' AND point <= '{3}'", mileageMapState.episode, mileageMapState.chapter, previousPoint, request.reachPoint);
+                    }
+                    // Boss was just defeated, get incentives from previous chapter/episode
+                    else sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE point = 5) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point = 5", previousEpisode, previousChapter);
+                    
+                    var command = new MySqlCommand(sql, conn);
+                    var reader = command.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        var count = reader.GetInt32("row_count");
+                        bool incentiveIsValid = false;
+
+                        List<MileageIncentive> mileageIncentiveList = new();
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            incentiveIsValid = false;
+
+                            switch (reader.GetSByte("limit_time"))
+                            {
+                                // No time limit on this incentive, always give it to the player
+                                case 0:
+                                    incentiveIsValid = true;
+                                    break;
+                                // Time limit of 12 hours on this incentive, check if still valid
+                                case 1:
+                                    if ((mileageMapState.chapterStartTime + 43200) > DateTimeOffset.Now.ToUnixTimeSeconds())
+                                        incentiveIsValid = true;
+                                    break;
+                                // Time limit of 24 hours on this incentive, check if still valid
+                                case 2:
+                                    if ((mileageMapState.chapterStartTime + 86400) > DateTimeOffset.Now.ToUnixTimeSeconds())
+                                        incentiveIsValid = true;
+                                    break;
+                            }
+
+                            if (incentiveIsValid)
+                            {
+                                // Append valid incentives to list so we can return it to
+                                // the client and use it to add items to player's account
+                                MileageIncentive incentive = new()
+                                {
+                                    itemId = reader.GetInt64("item_id"),
+                                    numItem = reader.GetUInt64("num_item"),
+                                    type = reader.GetSByte("type"),
+                                    pointId = reader.GetSByte("point")
+                                };
+
+                                mileageIncentiveList.Add(incentive);
+                            }
+                            reader.Read();
+                        }
+                        reader.Close();
+
+                        for (int i = 0; i < mileageIncentiveList.Count; i++)
+                        {
+                            long itemID = mileageIncentiveList[i].itemId;
+                            ulong itemCount = mileageIncentiveList[i].numItem;
+
+                            // Only add valid incentives to the item list (120000 - 120007)
+                            if (itemID > (long)ItemID.SubCharacter && itemID < (long)ItemID.RingBonus)
+                            {
+                                for (ulong i2 = 0; i2 < itemCount; i2++)
+                                {
+                                    var itemSQL = Db.GetCommand(@"INSERT INTO `sw_itemownership` (
+                                                                    user_id, item_id
+                                                                ) VALUES (
+                                                                    '{0}', '{1}'
+                                                                );", clientReq.userId, itemID);
+                                    var insertCmd = new MySqlCommand(itemSQL, conn);
+                                    insertCmd.ExecuteNonQuery();
+                                }
+                            }
+                            else if (itemID == (long)ItemID.RedStarRing)
+                                playerState.numRedRings += itemCount;
+
+                            else if (itemID == (long)ItemID.Ring)
+                                playerState.numRings += itemCount;
+
+                            // This incentive is a character, unlock it
+                            // FIXME: Although you never get multiple characters as incentives in
+                            // the original game, it probably wouldn't hurt to handle itemCount here
+                            else if (itemID >= 300000 && itemID <= 399999)
+                            {
+                                var incentiveIndex = FindCharacterInCharacterState((int)itemID, characterState);
+
+                                if (incentiveIndex == -1)
+                                    // The character to be awarded doesn't exist in the CharacterState, abort
+                                    return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.InternalServerError));
+
+                                if (characterState[incentiveIndex].status == 0)
+                                    characterState[incentiveIndex].status = 1;
+                                else
+                                {
+                                    if (characterState[incentiveIndex].star < characterState[incentiveIndex].starMax)
+                                        characterState[incentiveIndex].star++;
+                                }
+                            }
+                        }
+
+                        postGameResultsResponse.mileageIncentiveList = mileageIncentiveList.ToArray();
+                    }
+                    reader.Close();
+                }
 
                 var saveStatus = playerState.Save(conn, clientReq.userId);
                 if (saveStatus != SRStatusCode.Ok)
@@ -647,7 +822,6 @@ namespace spikewall.Controllers
             postGameResultsResponse.totalMessage = 0;
             postGameResultsResponse.totalOperatorMessage = 0;
             postGameResultsResponse.mileageMapState = mileageMapState;
-            postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
             postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
             postGameResultsResponse.wheelOptions = new WheelOptions();
 

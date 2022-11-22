@@ -14,9 +14,9 @@ namespace spikewall.Object
         public int subCharaID { get; set; }
         public int mainChaoID { get; set; }
         public int subChaoID { get; set; }
-        public ulong? numRings { get; set; }
+        public ulong numRings { get; set; }
         public long? numBuyRings { get; set; }
-        public ulong? numRedRings { get; set; }
+        public ulong numRedRings { get; set; }
         public long? numBuyRedRings { get; set; }
         public int? energy { get; set; }
         public long? energyBuy { get; set; }
