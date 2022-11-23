@@ -202,19 +202,8 @@ namespace spikewall.Object
                 return SRStatusCode.MissingPlayer;
             }
 
-            // Store item ownership into database
-            sql = Db.GetCommand(@"DELETE FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
-            for (int i = 0; i < this.items.Length; i++)
-            {
-                Item item = this.items[i];
-
-                for (int j = 0; j < item.numItem; j++)
-                {
-                    sql += Db.GetCommand(@"INSERT INTO `sw_itemownership` (user_id, item_id) VALUES ('{0}', '{1}');", uid, item.itemId);
-                }
-            }
-            command = new MySqlCommand(sql, conn);
-            command.ExecuteNonQuery();
+            // NOTE: Item ownership is not stored by this function, that must
+            //       be handled separately.
 
             return SRStatusCode.Ok;
         }
