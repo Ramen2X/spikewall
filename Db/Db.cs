@@ -109,6 +109,7 @@ namespace spikewall
                                          bool tickers = false,
                                          bool dailyChallenge = false,
                                          bool costs = false,
+                                         bool itemOwnership = false,
                                          bool information = false,
                                          bool incentives = false)
         {
@@ -2413,6 +2414,17 @@ namespace spikewall
                         item15_id MEDIUMINT NOT NULL DEFAULT 980002
                     );
                     INSERT INTO `sw_costlist` (id) VALUES ('1');");
+            }
+
+            // Drop and recreate itemownership
+            if (itemOwnership)
+            {
+                QuickRun(conn,
+                    @"DROP TABLE IF EXISTS `sw_itemownership`;
+                    CREATE TABLE `sw_itemownership` (
+                        user_id BIGINT UNSIGNED NOT NULL,
+                        item_id BIGINT NOT NULL
+                    );");
             }
 
             if (information)
