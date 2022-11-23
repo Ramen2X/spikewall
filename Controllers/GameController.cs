@@ -564,10 +564,10 @@ namespace spikewall.Controllers
 
             MileageMapState mileageMapState = new();
 
-            var populateMMSStatus = mileageMapState.Populate(conn, clientReq.userId);
-            if (populateMMSStatus != SRStatusCode.Ok)
+            var populateMileageStatus = mileageMapState.Populate(conn, clientReq.userId);
+            if (populateMileageStatus != SRStatusCode.Ok)
             {
-                return new JsonResult(EncryptedResponse.Generate(iv, populateMMSStatus));
+                return new JsonResult(EncryptedResponse.Generate(iv, populateMileageStatus));
             }
 
             // If the run wasn't exited out of
@@ -592,8 +592,7 @@ namespace spikewall.Controllers
                 playerState.numRedRings += request.numRedStarRings;
                 playerState.totalDistance += request.distance;
 
-                Character[] characterState;
-                Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+                Character.PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
 
                 bool subCharacterPresent = false;
 
@@ -619,7 +618,7 @@ namespace spikewall.Controllers
                 if (subCharacterPresent)
                 {
                     charactersInRun = 2;
-                    var subLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.subCharaID, exp, ref characterState, out subCharaIndex);
+                    var subLevelUpStatus = LevelUpCharacterWithExp(conn, playerState.subCharaID, exp, ref characterState, out subCharaIndex);
 
                     if (subLevelUpStatus != SRStatusCode.Ok)
                     {
@@ -627,7 +626,7 @@ namespace spikewall.Controllers
                     }
                 }
 
-                var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
+                var mainLevelUpStatus = LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
 
                 if (mainLevelUpStatus != SRStatusCode.Ok)
                 {
@@ -751,14 +750,15 @@ namespace spikewall.Controllers
                         // Only add valid incentives to the item list (120000 - 120007)
                         if (itemID > (long)ItemID.SubCharacter && itemID < (long)ItemID.RingBonus)
                         {
-                            for (ulong i2 = 0; i2 < itemCount; i2++)
-                            {
-                                var itemSQL = Db.GetCommand(@"INSERT INTO `sw_itemownership` (
+                            var itemSQL = Db.GetCommand(@"INSERT INTO `sw_itemownership` (
                                                                 user_id, item_id
                                                             ) VALUES (
                                                                 '{0}', '{1}'
                                                             );", clientReq.userId, itemID);
-                                var insertCmd = new MySqlCommand(itemSQL, conn);
+                            var insertCmd = new MySqlCommand(itemSQL, conn);
+
+                            for (ulong i2 = 0; i2 < itemCount; i2++)
+                            {
                                 insertCmd.ExecuteNonQuery();
                             }
                         }
