@@ -14,7 +14,7 @@ It is designed to be as accurate as possible to the original server with little 
 - Ticker system
 - Information system
 - Experience system
-- Story Mode (without incentives)
+- Story Mode
 - Timed Mode
 
 ## To Do

@@ -93,33 +93,7 @@ namespace spikewall.Object
 
             reader.Close();
 
-            // Populate item list
-            List<Item> items = new List<Item>();
-            sql = Db.GetCommand(@"SELECT item_id FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
-            command = new MySqlCommand(sql, conn);
-            reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                long itemId = reader.GetInt64("item_id");
-                bool found = false;
-
-                for (int i = 0; i < items.Count; i++)
-                {
-                    if (items[i].itemId == itemId)
-                    {
-                        items[i].numItem++;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    items.Add(new Item(itemId, 1));
-                }
-            }
-            reader.Close();
-            this.items = items.ToArray();
+            this.PopulateItems(conn, uid);
 
             return SRStatusCode.Ok;
         }
@@ -204,6 +178,39 @@ namespace spikewall.Object
 
             // NOTE: Item ownership is not stored by this function, that must
             //       be handled separately.
+
+            return SRStatusCode.Ok;
+        }
+
+        public SRStatusCode PopulateItems(MySqlConnection conn, string uid)
+        {
+            // Populate item list
+            List<Item> items = new List<Item>();
+            var sql = Db.GetCommand(@"SELECT item_id FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                long itemId = reader.GetInt64("item_id");
+                bool found = false;
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    if (items[i].itemId == itemId)
+                    {
+                        items[i].numItem++;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    items.Add(new Item(itemId, 1));
+                }
+            }
+            reader.Close();
+            this.items = items.ToArray();
 
             return SRStatusCode.Ok;
         }

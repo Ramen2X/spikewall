@@ -792,6 +792,9 @@ namespace spikewall.Controllers
                 }
                 reader.Close();
 
+                // Re-populate the item list so any awarded incentives are immediately usable
+                playerState.PopulateItems(conn, clientReq.userId);
+
                 endOfIncentiveCode:
 
                 var saveStatus = playerState.Save(conn, clientReq.userId);
