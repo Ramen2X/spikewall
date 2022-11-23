@@ -1,7 +1,4 @@
-﻿using spikewall.Object;
-using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Response containing cost list (FIXME: Elaborate)

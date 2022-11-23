@@ -1,5 +1,4 @@
 ﻿using spikewall.Object;
-using System;
 
 namespace spikewall.Response
 {
@@ -12,7 +11,7 @@ namespace spikewall.Response
 
         public CampaignListResponse()
         {
-            this.campaignList = new Campaign[0];
+            this.campaignList = Array.Empty<Campaign>();
         }
     }
 }

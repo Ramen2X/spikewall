@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data;
 using MySql.Data.MySqlClient;
 
 namespace spikewall.Controllers

@@ -1,5 +1,4 @@
 ﻿using spikewall.Object;
-using System;
 
 namespace spikewall.Response
 {
@@ -28,7 +27,7 @@ namespace spikewall.Response
             this.startIndex = 0;
             this.mode = 0;
             this.totalEntries = 0;
-            this.entriesList = new PlayerEntry[0];
+            this.entriesList = Array.Empty<PlayerEntry>();
         }
     }
 }

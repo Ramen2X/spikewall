@@ -1,5 +1,4 @@
-﻿using MySql.Data;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using spikewall.Response;
 
 namespace spikewall.Object
@@ -43,7 +42,7 @@ namespace spikewall.Object
 
         public static SRStatusCode PopulateChaoState(MySqlConnection conn, string uid, out Chao[] chaoState)
         {
-            List<Chao> chao = new List<Chao>();
+            List<Chao> chao = new();
 
             // Get list of all visible chao
             var command = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
@@ -51,7 +50,7 @@ namespace spikewall.Object
             using (var chaoRdr = command.ExecuteReader())
             {
                 while (chaoRdr.Read()) {
-                    Chao c = new Chao();
+                    Chao c = new();
 
                     c.chaoID = chaoRdr.GetString("id");
                     c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
@@ -115,9 +114,9 @@ namespace spikewall.Object
         public ChaoWheelOptions()
         {
             // FIXME: Dummy data
-            rarity = new long[0];
-            itemWeight = new long[0];
-            campaignList = new Campaign[0];
+            rarity = Array.Empty<long>();
+            itemWeight = Array.Empty<long>();
+            campaignList = Array.Empty<Campaign>();
             spinCost = 0;
             chaoRouletteType = 0;
             numSpecialEgg = 0;

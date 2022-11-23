@@ -1,7 +1,4 @@
-﻿using spikewall.Object;
-using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Response containing event list (FIXME: Elaborate)
@@ -13,7 +10,7 @@ namespace spikewall.Response
 
         public EventListResponse()
         {
-            this.eventList = new string[0];
+            this.eventList = Array.Empty<string>();
         }
     }
 }

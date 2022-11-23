@@ -1,7 +1,4 @@
-﻿using spikewall.Object;
-using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Response containing list of messages
@@ -16,9 +13,9 @@ namespace spikewall.Response
 
         public MessageListResponse()
         {
-            messageList = new string[0];
+            messageList = Array.Empty<string>();
             totalMessage = 0;
-            operatorMessageList = new string[0];
+            operatorMessageList = Array.Empty<string>();
             totalOperatorMessage = 0;
         }
     }

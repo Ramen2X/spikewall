@@ -1,8 +1,6 @@
-using MySql.Data;
 using MySql.Data.MySqlClient;
 using spikewall.Encryption;
 using spikewall.Response;
-using System.Text;
 using System.Text.Json;
 
 namespace spikewall.Request

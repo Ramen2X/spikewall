@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
-using spikewall.Debug;
-using spikewall.Encryption;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
-using System.Reflection.PortableExecutable;
 using System.Text;
 using static spikewall.Object.Character;
 using static spikewall.Object.Item;
@@ -97,7 +94,7 @@ namespace spikewall.Controllers
                     str.Clear();
                     str.Append("item");
 
-                    consumedItems[i] = new ConsumedItem();
+                    consumedItems[i] = new();
 
                     str.Append(i + 1);
                     consumedItems[i].itemId = reader.GetInt64(str.ToString());
@@ -242,11 +239,13 @@ namespace spikewall.Controllers
 
                 for (int i = 0; i < count; i++)
                 {
-                    mileageMapRewardList[i] = new MileageReward();
-                    mileageMapRewardList[i].type = reader.GetSByte("type");
-                    mileageMapRewardList[i].itemId = reader.GetInt64("item_id");
-                    mileageMapRewardList[i].numItem = reader.GetUInt64("num_item");
-                    mileageMapRewardList[i].point = reader.GetSByte("point");
+                    mileageMapRewardList[i] = new()
+                    {
+                        type = reader.GetSByte("type"),
+                        itemId = reader.GetInt64("item_id"),
+                        numItem = reader.GetUInt64("num_item"),
+                        point = reader.GetSByte("point")
+                    };
 
                     switch (reader.GetSByte("limit_time"))
                     {
@@ -391,7 +390,7 @@ namespace spikewall.Controllers
             ActStartResponse actStartResponse = new();
 
             // Now that we have the user ID, we can retrieve the player state
-            PlayerState playerState = new PlayerState();
+            PlayerState playerState = new();
 
             var populateStatus = playerState.Populate(conn, clientReq.userId);
 
@@ -437,7 +436,7 @@ namespace spikewall.Controllers
             if (request.closed != 1)
             {
                 // Now that we have the user ID, we can retrieve the player state
-                PlayerState playerState = new PlayerState();
+                PlayerState playerState = new();
 
                 var populateStatus = playerState.Populate(conn, clientReq.userId);
                 if (populateStatus != SRStatusCode.Ok)
@@ -530,9 +529,9 @@ namespace spikewall.Controllers
 
             // FIXME: Actually implement this normally lmao
 
-            quickPostGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
-            quickPostGameResultsResponse.messageList = new string[0];
-            quickPostGameResultsResponse.operatorMessageList = new string[0];
+            quickPostGameResultsResponse.dailyChallengeIncentive = Array.Empty<Incentive>();
+            quickPostGameResultsResponse.messageList = Array.Empty<string>();
+            quickPostGameResultsResponse.operatorMessageList = Array.Empty<string>();
             quickPostGameResultsResponse.totalMessage = 0;
             quickPostGameResultsResponse.totalOperatorMessage = 0;
 
@@ -795,42 +794,42 @@ namespace spikewall.Controllers
 
                 endOfIncentiveCode:
 
-                    var saveStatus = playerState.Save(conn, clientReq.userId);
-                    if (saveStatus != SRStatusCode.Ok)
-                    {
-                        return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
-                    }
-
-                    var saveMMSStatus = mileageMapState.Save(conn, clientReq.userId);
-                    if (saveMMSStatus != SRStatusCode.Ok)
-                    {
-                        return new JsonResult(EncryptedResponse.Generate(iv, saveMMSStatus));
-                    }
-
-                    var charSaveStatus = Character.SaveCharacterState(conn, clientReq.userId, characterState);
-                    if (charSaveStatus != SRStatusCode.Ok)
-                    {
-                        return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
-                    }
-
-                    conn.Close();
-
-                    postGameResultsResponse.playerState = playerState;
-                    postGameResultsResponse.playCharacterState = playCharacterState;
+                var saveStatus = playerState.Save(conn, clientReq.userId);
+                if (saveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveStatus));
                 }
 
-                // FIXME: Actually implement this normally lmao
+                var saveMMSStatus = mileageMapState.Save(conn, clientReq.userId);
+                if (saveMMSStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, saveMMSStatus));
+                }
 
-                postGameResultsResponse.dailyChallengeIncentive = new Incentive[0];
-                postGameResultsResponse.messageList = new string[0];
-                postGameResultsResponse.operatorMessageList = new string[0];
-                postGameResultsResponse.totalMessage = 0;
-                postGameResultsResponse.totalOperatorMessage = 0;
-                postGameResultsResponse.mileageMapState = mileageMapState;
-                postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
-                postGameResultsResponse.wheelOptions = new WheelOptions();
+                var charSaveStatus = Character.SaveCharacterState(conn, clientReq.userId, characterState);
+                if (charSaveStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
+                }
 
-                return new JsonResult(EncryptedResponse.Generate(iv, postGameResultsResponse));
+                conn.Close();
+
+                postGameResultsResponse.playerState = playerState;
+                postGameResultsResponse.playCharacterState = playCharacterState;
+            }
+
+            // FIXME: Actually implement this normally lmao
+
+            postGameResultsResponse.dailyChallengeIncentive = Array.Empty<Incentive>();
+            postGameResultsResponse.messageList = Array.Empty<string>();
+            postGameResultsResponse.operatorMessageList = Array.Empty<string>();
+            postGameResultsResponse.totalMessage = 0;
+            postGameResultsResponse.totalOperatorMessage = 0;
+            postGameResultsResponse.mileageMapState = mileageMapState;
+            postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
+            postGameResultsResponse.wheelOptions = new WheelOptions();
+
+            return new JsonResult(EncryptedResponse.Generate(iv, postGameResultsResponse));
         }
 
         /// <summary>
@@ -854,7 +853,7 @@ namespace spikewall.Controllers
             }
 
             // Now that we have the user ID, we can retrieve the player state
-            PlayerState playerState = new PlayerState();
+            PlayerState playerState = new();
 
             var populateStatus = playerState.Populate(conn, clientReq.userId);
             if (populateStatus != SRStatusCode.Ok)

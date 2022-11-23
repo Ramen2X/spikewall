@@ -1,7 +1,4 @@
-﻿using spikewall.Object;
-using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Response containing red star exchange list (FIXME: Elaborate)
@@ -16,7 +13,7 @@ namespace spikewall.Response
 
         public RedstarExchangeListResponse()
         {
-            itemList = new string[0];
+            itemList = Array.Empty<string>();
             totalItems = 0;
             monthPurchase = 0;
             birthday = "1900-1-1";

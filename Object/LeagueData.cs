@@ -19,8 +19,8 @@
             numUp = "40";
             numDown = "0";
             numGroupMember = "0";
-            highScoreOpe = new string[0];
-            totalScoreOpe = new string[0];
+            highScoreOpe = Array.Empty<string>();
+            totalScoreOpe = Array.Empty<string>();
         }
     }
 }

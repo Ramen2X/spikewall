@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace spikewall.Request
+﻿namespace spikewall.Request
 {
     /// <summary>
     /// Class to store data from a login request.

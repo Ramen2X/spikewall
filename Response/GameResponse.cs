@@ -48,7 +48,7 @@ namespace spikewall.Response
             // are available. While this is a good default,
             // there should be a separate constructor that
             // takes the free item list from the database.
-            freeItemList = new Item[0];
+            freeItemList = Array.Empty<Item>();
         }
     }
 

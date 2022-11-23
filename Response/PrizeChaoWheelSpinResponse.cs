@@ -1,7 +1,4 @@
-﻿using spikewall.Object;
-using System;
-
-namespace spikewall.Response
+﻿namespace spikewall.Response
 {
     /// <summary>
     /// Response containing information about the Chao prize wheel roulette
@@ -12,7 +9,7 @@ namespace spikewall.Response
 
         public PrizeChaoWheelSpinResponse()
         {
-            this.prizeList = new string[0];
+            this.prizeList = Array.Empty<string>();
         }
     }
 }

@@ -17,10 +17,10 @@
         public WheelOptions()
         {
             // FIXME: Set up remaining defaults
-            items = new string[0];
-            item = new long[0];
-            itemWeight = new long[0];
-            itemList = new Item[0];
+            items = Array.Empty<string>();
+            item = Array.Empty<long>();
+            itemWeight = Array.Empty<long>();
+            itemList = Array.Empty<Item>();
         }
     }
 }
