@@ -115,8 +115,7 @@ namespace spikewall.Controllers
             // This should never happen on a vanilla client but we should catch it anyway
             if (clientReq.request.userName.Length > 12)
             {
-                // TODO: Test this on a 2.0.3 client
-                return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.UsernameTooLong));
+                return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.ClientError));
             }
 
             // Set player username as requested
