@@ -255,11 +255,11 @@ namespace spikewall.Controllers
                             break;
                         // Time limit of 12 hours on this incentive
                         case 1:
-                            mileageMapRewardList[i].limitTime = mileageMapState.chapterStartTime + 43200;
+                            mileageMapRewardList[i].limitTime = 43200;
                             break;
                         // Time limit of 24 hours on this incentive
                         case 2:
-                            mileageMapRewardList[i].limitTime = mileageMapState.chapterStartTime + 86400;
+                            mileageMapRewardList[i].limitTime = 86400;
                             break;
                     }
 
@@ -809,7 +809,7 @@ namespace spikewall.Controllers
                     return new JsonResult(EncryptedResponse.Generate(iv, saveMMSStatus));
                 }
 
-                var charSaveStatus = Character.SaveCharacterState(conn, clientReq.userId, characterState);
+                var charSaveStatus = SaveCharacterState(conn, clientReq.userId, characterState);
                 if (charSaveStatus != SRStatusCode.Ok)
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
