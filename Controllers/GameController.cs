@@ -244,24 +244,9 @@ namespace spikewall.Controllers
                         type = reader.GetSByte("type"),
                         itemId = reader.GetInt64("item_id"),
                         numItem = reader.GetUInt64("num_item"),
-                        point = reader.GetSByte("point")
+                        point = reader.GetSByte("point"),
+                        limitTime = reader.GetInt64("limit_time")
                     };
-
-                    switch (reader.GetSByte("limit_time"))
-                    {
-                        // No time limit on this incentive
-                        case 0:
-                            mileageMapRewardList[i].limitTime = -1;
-                            break;
-                        // Time limit of 12 hours on this incentive
-                        case 1:
-                            mileageMapRewardList[i].limitTime = 43200;
-                            break;
-                        // Time limit of 24 hours on this incentive
-                        case 2:
-                            mileageMapRewardList[i].limitTime = 86400;
-                            break;
-                    }
 
                     reader.Read();
                 }
@@ -706,23 +691,8 @@ namespace spikewall.Controllers
                     {
                         incentiveIsValid = false;
 
-                        switch (reader.GetSByte("limit_time"))
-                        {
-                            // No time limit on this incentive, always give it to the player
-                            case 0:
-                                incentiveIsValid = true;
-                                break;
-                            // Time limit of 12 hours on this incentive, check if still valid
-                            case 1:
-                                if ((mileageMapState.chapterStartTime + 43200) > DateTimeOffset.Now.ToUnixTimeSeconds())
-                                    incentiveIsValid = true;
-                                break;
-                            // Time limit of 24 hours on this incentive, check if still valid
-                            case 2:
-                                if ((mileageMapState.chapterStartTime + 86400) > DateTimeOffset.Now.ToUnixTimeSeconds())
-                                    incentiveIsValid = true;
-                                break;
-                        }
+                        if ((mileageMapState.chapterStartTime + reader.GetInt64("limit_time")) > DateTimeOffset.Now.ToUnixTimeSeconds())
+                            incentiveIsValid = true;
 
                         if (incentiveIsValid)
                         {
