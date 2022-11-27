@@ -165,6 +165,12 @@ namespace spikewall.Object
 
                     // We calculate character prices dynamically
                     c.numRings = GenerateTotalCost(conn, c.characterId, c.level);
+
+                    if (c.status != (sbyte)Status.Locked)
+                    {
+                        c.priceNumRings += 100000 * ((ulong)c.star + 1);
+                        c.priceNumRedRings += 10 * ((ulong)c.star + 1);
+                    }
                 }
                 else
                 {

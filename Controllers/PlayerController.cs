@@ -26,7 +26,7 @@ namespace spikewall.Controllers
             }
 
             // Now that we have the user ID, we can retrieve the player state
-            PlayerState playerState = new PlayerState();
+            PlayerState playerState = new();
 
             var populateStatus = playerState.Populate(conn, clientReq.userId);
 

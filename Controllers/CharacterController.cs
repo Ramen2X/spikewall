@@ -170,6 +170,10 @@ namespace spikewall.Controllers
                 else
                 {
                     playerState.numRedRings -= characterState[index].priceNumRedRings;
+
+                    characterState[index].priceNumRedRings += 10;
+                    characterState[index].priceNumRings += 100000;
+
                     switch (characterState[index].status)
                     {
                         // Character not unlocked yet, unlock it
@@ -197,6 +201,10 @@ namespace spikewall.Controllers
                 else
                 {
                     playerState.numRings -= characterState[index].priceNumRings;
+
+                    characterState[index].priceNumRings += 100000;
+                    characterState[index].priceNumRedRings += 10;
+
                     switch (characterState[index].status)
                     {
                         // Character not unlocked yet, unlock it
