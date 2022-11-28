@@ -691,7 +691,7 @@ namespace spikewall.Controllers
                     {
                         incentiveIsValid = false;
 
-                        if ((mileageMapState.chapterStartTime + reader.GetInt64("limit_time")) > DateTimeOffset.Now.ToUnixTimeSeconds())
+                        if (reader.GetInt64("limit_time") == -1 || (mileageMapState.chapterStartTime + reader.GetInt64("limit_time")) > DateTimeOffset.Now.ToUnixTimeSeconds())
                             incentiveIsValid = true;
 
                         if (incentiveIsValid)
