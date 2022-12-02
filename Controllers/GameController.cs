@@ -42,7 +42,7 @@ namespace spikewall.Controllers
                 // We use StringBuilder here rather than concatenation
                 // to prevent mass creation of unnecessary objects.
                 StringBuilder str = new(11);
-                for (int i = 0; i < 7; i++)
+                for (sbyte i = 0; i < 7; i++)
                 {
                     str.Clear();
                     str.Append("item");
@@ -63,12 +63,18 @@ namespace spikewall.Controllers
                 PlayerState playerState = new();
                 playerState.Populate(conn, clientReq.userId);
 
+                DateTimeOffset endOfDay = new DateTime(
+                    DateTime.Now.Year,
+                    DateTime.Now.Month,
+                    DateTime.Now.Day,
+                    23, 59, 59, 999);
+
                 dailyChalDataResponse.incentiveList = incentives;
                 dailyChalDataResponse.incentiveListCont = 7;
                 dailyChalDataResponse.numDilayChalCont = playerState.numDailyChalCont;
                 dailyChalDataResponse.maxDailyChalDay = 7;
                 dailyChalDataResponse.numDailyChalDay = 1; // FIXME: Hardcoded
-                dailyChalDataResponse.chalEndTime = DateTimeOffset.Now.AddDays(1).AddTicks(-1).ToUnixTimeSeconds(); // FIXME: This should be the end of the day
+                dailyChalDataResponse.chalEndTime = endOfDay.ToUnixTimeSeconds();
             }
             else dailyChalDataResponse.incentiveList = Array.Empty<Incentive>();
 
@@ -89,7 +95,7 @@ namespace spikewall.Controllers
                 // to prevent mass creation of unnecessary objects.
                 StringBuilder str = new(11);
 
-                for (int i = 0; i < 15; i++)
+                for (sbyte i = 0; i < 15; i++)
                 {
                     str.Clear();
                     str.Append("item");
