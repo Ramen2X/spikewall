@@ -80,7 +80,7 @@ namespace spikewall.Controllers
                 PlayerState playerState = new();
                 playerState.Populate(conn, clientReq.userId);
 
-                playerState.numRank += (short)(clientReq.request.addRank);
+                playerState.numRank += (short)clientReq.request.addRank;
                 if (playerState.numRank > 998)
                 {
                     playerState.numRank = 998;

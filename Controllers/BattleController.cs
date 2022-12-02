@@ -4,6 +4,12 @@ using spikewall.Response;
 
 namespace spikewall.Controllers
 {
+    /// <summary>
+    /// Controller for endpoints relating to the Daily Battle feature.
+    /// </summary>
+    /// <remarks>
+    /// Just like the Debug endpoints, it seems these are all unencrypted too
+    /// </remarks>
     [ApiController]
     [Route("Battle")]
     public class BattleController : ControllerBase
