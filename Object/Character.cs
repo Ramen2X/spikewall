@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using spikewall.Response;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 
 namespace spikewall.Object
@@ -339,8 +340,6 @@ namespace spikewall.Object
 
                 int abilityIndex;
 
-                Random random = new();
-
                 conn.Open();
 
                 while (characterState[charaIndex].exp >= characterState[charaIndex].numRings && characterState[charaIndex].level < 100)
@@ -349,7 +348,7 @@ namespace spikewall.Object
                     // Strangely, the ability at index 1 seems to be invalid.
                     do
                     {
-                        abilityIndex = random.Next(0, 11);
+                        abilityIndex = RandomNumberGenerator.GetInt32(11);
                     } while (characterState[charaIndex].abilityLevel[abilityIndex] == 10 || abilityIndex == 1);
 
                     characterState[charaIndex].level++;
