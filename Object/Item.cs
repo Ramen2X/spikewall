@@ -29,6 +29,10 @@
             DistanceBonus,
             AnimalBonus,
 
+            SpecialEgg = 220000,
+            PremiumRouletteTicket = 230000,
+            ItemRouletteTicket = 240000,
+
             RedStarRing = 900000,
             Ring = 910000
         }
