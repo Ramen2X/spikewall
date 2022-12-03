@@ -1,4 +1,4 @@
-﻿using spikewall.Object;
+using spikewall.Object;
 
 namespace spikewall.Response
 {
@@ -18,5 +18,15 @@ namespace spikewall.Response
         {
             this.wheelOptions = new WheelOptions();
         }
+    }
+
+    public class CommitWheelSpinResponse : BaseResponse
+    {
+        public PlayerState playerState { get; set; }
+        public Character[] characterState { get; set; }
+
+        // FIXME: ChaoState is also sent here!!
+
+        public WheelOptions wheelOptions { get; set; }
     }
 }

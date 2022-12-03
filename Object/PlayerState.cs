@@ -23,8 +23,8 @@ namespace spikewall.Object
         public long? mumMessages { get; set; }
         public long? rankingLeague { get; set; }
         public long? quickRankingLeague { get; set; }
-        public long? numRouletteTicket { get; set; }
-        public long? numChaoRouletteTicket { get; set; }
+        public long numRouletteTicket { get; set; }
+        public long numChaoRouletteTicket { get; set; }
         public long? chaoEggs { get; set; }
         public ulong? totalHighScore { get; set; }
         public ulong? quickTotalHighScore { get; set; }

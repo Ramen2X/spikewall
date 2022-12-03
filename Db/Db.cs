@@ -110,7 +110,9 @@ namespace spikewall
                                          bool costs = false,
                                          bool itemOwnership = false,
                                          bool information = false,
-                                         bool incentives = false)
+                                         bool incentives = false,
+                                         bool wheelOptions = false,
+                                         bool itemRouletteOptions = false)
         {
             using var conn = Db.Get();
             conn.Open();
@@ -124,7 +126,8 @@ namespace spikewall
                     CREATE TABLE `sw_chao` (
                         id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
                         rarity INTEGER NOT NULL DEFAULT 0,
-                        hidden TINYINT NOT NULL DEFAULT 0
+                        hidden TINYINT NOT NULL DEFAULT 0,
+                        on_item_roulette TINYINT NOT NULL DEFAULT 0
                     );
                     INSERT INTO `sw_chao` (id) VALUES ('400000');
                     CREATE TABLE `sw_chaostates` (
@@ -6012,6 +6015,176 @@ namespace spikewall
                         '10',
                         '5',
                         '-1'
+                    );");
+            }
+
+            if (wheelOptions)
+            {
+                QuickRun(conn,
+                    @"DROP TABLE IF EXISTS `sw_wheeloptions`;
+                    CREATE TABLE `sw_wheeloptions` (
+                        user_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+                        next_free_spin BIGINT NOT NULL DEFAULT 0,
+                        num_free_spins TINYINT NOT NULL DEFAULT 3,
+                        item_won INTEGER NOT NULL,
+                        wheel_rank TINYINT NOT NULL DEFAULT 0
+                    );");
+            }
+
+            if (itemRouletteOptions)
+            {
+                QuickRun(conn,
+                    @"DROP TABLE IF EXISTS `sw_itemroulette`;
+                    CREATE TABLE `sw_itemroulette` (
+                        wheel_rank TINYINT NOT NULL,
+                        item_id BIGINT NOT NULL,
+                        item_num BIGINT NOT NULL,
+                        item_rate SMALLINT NOT NULL
+                    );
+                    INSERT INTO `sw_itemroulette`
+                    VALUES (
+                        '0',
+                        '200000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '120000',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '120001',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '120002',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '200000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '900000',
+                        '3',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '120003',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '0',
+                        '120004',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '200000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '120007',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '400000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '120005',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '200000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '120007',
+                        '2',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '900000',
+                        '5',
+                        '1250'
+                    ),
+                    (
+                        '1',
+                        '120006',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '200000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '400000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '900000',
+                        '5',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '400000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '900000',
+                        '10',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '400000',
+                        '1',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '900000',
+                        '5',
+                        '1250'
+                    ),
+                    (
+                        '2',
+                        '400000',
+                        '1',
+                        '1250'
                     );");
             }
 

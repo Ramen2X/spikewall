@@ -108,7 +108,7 @@ namespace spikewall.Controllers
             }
 
             // Hash our password to match the one sent by the client
-            byte[] theirHashPass = Convert.FromHexString(loginRequest.lineAuth.password);
+            byte[] theirHashedPass = Convert.FromHexString(loginRequest.lineAuth.password);
             byte[] ourHashedPass;
             using (MD5 md5 = MD5.Create())
             {
@@ -116,7 +116,7 @@ namespace spikewall.Controllers
                 ourHashedPass = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(salted));
             }
 
-            if (!theirHashPass.SequenceEqual(ourHashedPass)) {
+            if (!theirHashedPass.SequenceEqual(ourHashedPass)) {
                 // Password is incorrect
                 var errResponse = new BaseResponse(SRStatusCode.PassWordError);
                 return new JsonResult(EncryptedResponse.Generate(iv, errResponse));
@@ -173,7 +173,7 @@ namespace spikewall.Controllers
             loginResponse.sessionId = sid;
             loginResponse.sessionTimeLimit = expiryTime;
             loginResponse.energyRecveryTime = 360;             // FIXME: Hardcoded, 6 minutes
-            loginResponse.energyRecoveryMax = 17171;           // FIXME: Hardcoded
+            loginResponse.energyRecoveryMax = 5;           // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.itemId = 900000; // FIXME: Hardcoded
             loginResponse.inviteBasicIncentiv.numItem = 5;     // FIXME: Hardcoded
 
@@ -328,11 +328,13 @@ namespace spikewall.Controllers
 
                 for (int i = 0; i < count; i++)
                 {
-                    tickers[i] = new Ticker();
-                    tickers[i].id = reader.GetByte("id");
-                    tickers[i].start = reader.GetInt64("start_time");
-                    tickers[i].end = reader.GetInt64("end_time");
-                    tickers[i].param = reader.GetString("message");
+                    tickers[i] = new Ticker
+                    {
+                        id = reader.GetByte("id"),
+                        start = reader.GetInt64("start_time"),
+                        end = reader.GetInt64("end_time"),
+                        param = reader.GetString("message")
+                    };
 
                     reader.Read();
                 }

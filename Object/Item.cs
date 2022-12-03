@@ -29,6 +29,9 @@
             DistanceBonus,
             AnimalBonus,
 
+            // If this is won on rank 3, it is a jackpot
+            ItemRouletteRankUp = 200000,
+
             SpecialEgg = 220000,
             PremiumRouletteTicket = 230000,
             ItemRouletteTicket = 240000,
