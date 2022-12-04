@@ -41,7 +41,7 @@ namespace spikewall.Object
             if (reader.Read())
             {
                 this.itemWon = reader.GetInt32("item_won");
-                this.rouletteRank = reader.GetSByte("wheel_rank");
+                this.rouletteRank = reader.GetSByte("roulette_rank");
                 this.numRouletteToken = playerState.numRouletteTicket;
                 this.numRemainingRoulette = playerState.numRouletteTicket + reader.GetSByte("num_free_spins");
                 this.nextFreeSpin = nextDayStart.ToUnixTimeSeconds();
@@ -60,7 +60,7 @@ namespace spikewall.Object
                 reader.Close();
 
                 sql = Db.GetCommand(@"INSERT INTO `sw_wheeloptions` (
-                                            user_id, next_free_spin, num_free_spins, item_won, wheel_rank
+                                            user_id, next_free_spin, num_free_spins, item_won, roulette_rank
                                         ) VALUES (
                                             '{0}', '{1}', '{2}', '{3}', '{4}'
                                         );", uid, 0, 0, RandomNumberGenerator.GetInt32(8), 0);
@@ -68,26 +68,10 @@ namespace spikewall.Object
                 insertCmd.ExecuteNonQuery();
             }
 
-            long[] items = new long[8];
-            long[] itemNum = new long[8];
-            short[] itemWeight = new short[8];
-
-            sql = Db.GetCommand("SELECT * FROM `sw_itemroulette` WHERE wheel_rank = '{0}'", this.rouletteRank);
-            command = new MySqlCommand(sql, conn);
-            reader = command.ExecuteReader();
-
-            if (reader.Read())
+            var getWheelOptionsStatus = GetItemWheelOptions(conn, this.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
+            if (getWheelOptionsStatus != SRStatusCode.Ok)
             {
-                for (sbyte i = 0; i < 8; i++)
-                {
-                    items[i] = reader.GetInt64("item_id");
-
-                    itemNum[i] = reader.GetInt64("item_num");
-                    itemWeight[i] = reader.GetInt16("item_rate");
-                    reader.Read();
-                }
-
-                reader.Close();
+                return getWheelOptionsStatus;
             }
 
             this.items = items;
@@ -105,7 +89,7 @@ namespace spikewall.Object
                     next_free_spin = '{0}',
                     num_free_spins = '{1}',
                     item_won = '{2}',
-                    wheel_rank = '{3}'
+                    roulette_rank = '{3}'
                   WHERE user_id = '{4}';",
                     this.nextFreeSpin,
                     this.numRemainingRoulette - this.numRouletteToken,
@@ -128,6 +112,35 @@ namespace spikewall.Object
                 // Failed to find row with this user ID
                 return SRStatusCode.MissingPlayer;
             }
+
+            return SRStatusCode.Ok;
+        }
+
+        public static SRStatusCode GetItemWheelOptions(MySqlConnection conn, sbyte rouletteRank, 
+            out long[] items, out long[] itemNum, out short[] itemWeight)
+        {
+            items = new long[8];
+            itemNum = new long[8];
+            itemWeight = new short[8];
+
+            var sql = Db.GetCommand("SELECT * FROM `sw_itemroulette` WHERE roulette_rank = '{0}'", rouletteRank);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                for (sbyte i = 0; i < 8; i++)
+                {
+                    items[i] = reader.GetInt64("item_id");
+
+                    itemNum[i] = reader.GetInt64("item_num");
+                    itemWeight[i] = reader.GetInt16("item_rate");
+                    reader.Read();
+                }
+
+                reader.Close();
+            }
+            else return SRStatusCode.InternalServerError;
 
             return SRStatusCode.Ok;
         }

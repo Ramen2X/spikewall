@@ -23,7 +23,6 @@ namespace spikewall.Response
     public class CommitWheelSpinResponse : BaseResponse
     {
         public PlayerState playerState { get; set; }
-        public Character[] characterState { get; set; }
 
         // FIXME: ChaoState is also sent here!!
 

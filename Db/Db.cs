@@ -6027,7 +6027,7 @@ namespace spikewall
                         next_free_spin BIGINT NOT NULL DEFAULT 0,
                         num_free_spins TINYINT NOT NULL DEFAULT 3,
                         item_won INTEGER NOT NULL,
-                        wheel_rank TINYINT NOT NULL DEFAULT 0
+                        roulette_rank TINYINT NOT NULL DEFAULT 0
                     );");
             }
 
@@ -6036,7 +6036,7 @@ namespace spikewall
                 QuickRun(conn,
                     @"DROP TABLE IF EXISTS `sw_itemroulette`;
                     CREATE TABLE `sw_itemroulette` (
-                        wheel_rank TINYINT NOT NULL,
+                        roulette_rank TINYINT NOT NULL,
                         item_id BIGINT NOT NULL,
                         item_num BIGINT NOT NULL,
                         item_rate SMALLINT NOT NULL

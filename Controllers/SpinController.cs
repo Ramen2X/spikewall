@@ -70,14 +70,6 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, populatePlayerStatus));
             }
 
-            var populateCharacterStatus = Character.PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
-            if (populateCharacterStatus != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, populateCharacterStatus));
-            }
-
-            conn.Open();
-
             WheelOptions wheelOptions = new();
             wheelOptions.Populate(conn, clientReq.userId);
 
@@ -145,27 +137,11 @@ namespace spikewall.Controllers
             wheelOptions.numRemainingRoulette--;
 
             // Regenerate item list so the client's item list
-            // does become desynced from the roulette rank
-            long[] items = new long[8];
-            long[] itemNum = new long[8];
-            short[] itemWeight = new short[8];
-
-            var sql = Db.GetCommand("SELECT * FROM `sw_itemroulette` WHERE wheel_rank = '{0}'", wheelOptions.rouletteRank);
-            var command = new MySqlCommand(sql, conn);
-            var reader = command.ExecuteReader();
-
-            if (reader.Read())
+            // doesn't become desynced from the roulette rank
+            var getWheelOptionsStatus = WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
+            if (getWheelOptionsStatus != SRStatusCode.Ok)
             {
-                for (sbyte i = 0; i < 8; i++)
-                {
-                    items[i] = reader.GetInt64("item_id");
-
-                    itemNum[i] = reader.GetInt64("item_num");
-                    itemWeight[i] = reader.GetInt16("item_rate");
-                    reader.Read();
-                }
-
-                reader.Close();
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
             wheelOptions.items = items;
@@ -187,7 +163,6 @@ namespace spikewall.Controllers
             CommitWheelSpinResponse commitWheelSpinResponse = new()
             {
                 playerState = playerState,
-                characterState = characterState,
 
                 // FIXME: Missing ChaoState!!
 
