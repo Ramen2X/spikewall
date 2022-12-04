@@ -1,37 +1,66 @@
+using Microsoft.AspNetCore.DataProtection;
 using MySql.Data.MySqlClient;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace spikewall
 {
     public class Db
     {
+        static private IDataProtector m_protector;
+
+        static private string GetDbConfigFilename()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "spikewall.db");
+        }
+
         /// <summary>
         /// Initialize database details from locally-stored secrets
         /// </summary>
-        /// MySQL connection details are stored as .NET secrets. To set these on the server (or
-        /// locally), issue the following commands (replacing the second value as necessary):
-        ///
-        ///   dotnet user-secrets set "Db:Host" "localhost"
-        ///   dotnet user-secrets set "Db:Port" "3306"
-        ///   dotnet user-secrets set "Db:Username" "dbuser"
-        ///   dotnet user-secrets set "Db:Password" "dbpass"
-        ///   dotnet user-secrets set "Db:Database" "spikewall"
-        ///
-        public static void Initialize(ref WebApplicationBuilder builder)
+        public static void Initialize()
         {
-            m_dbHost = builder.Configuration["Db:Host"] ?? throw new InvalidOperationException("The \"Db:Host\" secret cannot be null. Did you make sure you set up the secrets properly?");
-            m_dbUser = builder.Configuration["Db:Username"] ?? throw new InvalidOperationException("The \"Db:Username\" secret cannot be null. Did you make sure you set up the secrets properly?");
-            m_dbPass = builder.Configuration["Db:Password"] ?? throw new InvalidOperationException("The \"Db:Password\" secret cannot be null. Did you make sure you set up the secrets properly?");
-            m_dbName = builder.Configuration["Db:Database"] ?? throw new InvalidOperationException("The \"Db:Database\" secret cannot be null. Did you make sure you set up the secrets properly?");
+            // Create
+            var provider = DataProtectionProvider.Create("spikewall");
+            m_protector = provider.CreateProtector("spikewall.db");
 
+            // Decrypt string
+            string protectedPayload = null;
             try
             {
-                m_dbPort = short.Parse(builder.Configuration["Db:Port"] ?? throw new InvalidOperationException("The \"Db:Port\" secret cannot be null. Did you make sure you set up the secrets properly?"));
+                // Read encrypted string from disk
+                protectedPayload = File.ReadAllText(GetDbConfigFilename());
+
+                // Attempt decryption
+                m_connectionString = m_protector.Unprotect(protectedPayload);
+
+                // Attempt connection with MySQL
+                spikewall.Config.RefreshConfig();
             }
-            catch (ArgumentNullException)
+            catch (Exception e)
             {
-                m_dbPort = 0;
+                if (e.GetType() == typeof(FileNotFoundException) || string.IsNullOrEmpty(protectedPayload))
+                {
+                    Console.WriteLine("No database details were found. Please use /Dashboard/setDatabaseDetails to update them.");
+                }
+                else if (e.GetType() == typeof(CryptographicException))
+                {
+                    Console.WriteLine("Failed to decrypt database details. Please use /Dashboard/setDatabaseDetails to update them.");
+                    Console.WriteLine(e);
+                }
+                else if (e.GetType() == typeof(MySqlException))
+                {
+                    Console.WriteLine("Failed to connect to MySQL with stored details. Please use /Dashboard/setDatabaseDetails to update them.");
+                    Console.WriteLine(e);
+                }
             }
+        }
+
+        public static void SetDetails(string host, string port, string username, string password, string database)
+        {
+            m_connectionString =
+                $"server={host};user={username};database={database};port={port};password={password}";
+            File.WriteAllText(GetDbConfigFilename(), m_protector.Protect(m_connectionString));
+            spikewall.Config.RefreshConfig();
         }
 
         /// <summary>
@@ -49,12 +78,8 @@ namespace spikewall
         /// automatically with `using`, but it's probably good practice either way),
         public static MySqlConnection Get()
         {
-            // Build MySQL connection string out of loaded parameters
-            var connectionString =
-                $"server={m_dbHost};user={m_dbUser};database={m_dbName};port={m_dbPort};password={m_dbPass}";
-
             // Return connection
-            return new MySqlConnection(connectionString);
+            return new MySqlConnection(m_connectionString);
         }
 
         public static string EscapeString(string s)
@@ -6191,10 +6216,6 @@ namespace spikewall
             conn.Close();
         }
 
-        private static string m_dbHost = "";
-        private static string m_dbUser = "";
-        private static string m_dbPass = "";
-        private static short m_dbPort = 0;
-        private static string m_dbName = "";
+        private static string m_connectionString;
     }
 }

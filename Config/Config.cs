@@ -33,6 +33,11 @@ namespace spikewall
             }
         }
 
+        public static void RefreshConfig()
+        {
+            SwitchConfig(m_currentConfig);
+        }
+
         public static void SwitchConfig(int newConf)
         {
             m_currentConfig = newConf;

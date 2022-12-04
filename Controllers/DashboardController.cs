@@ -33,5 +33,20 @@ namespace spikewall.Controllers
                 return StatusCode(500, e.ToString());
             }
         }
+
+        [HttpPost]
+        [Route("setDatabaseDetails")]
+        public IActionResult SetDatabaseDetails(string host, string port, string username, string password, string database)
+        {
+            try
+            {
+                Db.SetDetails(host, port, username, password, database);
+                return StatusCode(200, "Database details updated successfully");
+            }
+            catch (MySqlException e)
+            {
+                return StatusCode(400, "Failed to connect to MySQL with provided details: " + e);
+            }
+        }
     }
 }
