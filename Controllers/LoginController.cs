@@ -38,8 +38,8 @@ namespace spikewall.Controllers
             // Determine whether this is a new user or returning user (userId is always '0' for new user)
             if (uid == "0")
             {
-                string pass = GenerateRandomPassword(20);
-                string keypass = GenerateRandomPassword(20);
+                string pass = GenerateRandomPassword(32);
+                string keypass = GenerateRandomPassword(32);
 
                 sql = Db.GetCommand(
                     @"INSERT INTO `sw_players` (
@@ -113,7 +113,7 @@ namespace spikewall.Controllers
             using (MD5 md5 = MD5.Create())
             {
                 string salted = string.Format("{0}:dho5v5yy7n2uswa5iblb:{1}:{2}", serverKey, uid, password);
-                ourHashedPass = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(salted));
+                ourHashedPass = md5.ComputeHash(Encoding.ASCII.GetBytes(salted));
             }
 
             if (!theirHashedPass.SequenceEqual(ourHashedPass)) {
@@ -124,7 +124,7 @@ namespace spikewall.Controllers
 
             // Successful login
             // Generate random session ID
-            var sid = GenerateRandomPassword(48);
+            var sid = "sw_" + GenerateRandomPassword(64);
 
             var expiryTime = loginTime + Convert.ToInt64(Config.Get("session_time"));
 
@@ -185,9 +185,12 @@ namespace spikewall.Controllers
         {
             var builder = new StringBuilder();
             for (int i = 0; i < length; i++) {
-                // Generate a random number that corresponds to a valid character on the ASCII
-                // chart, then append that character
-                builder.Append((char) RandomNumberGenerator.GetInt32(0x61, 0x7F));
+                // Generate a random number that corresponds to a 
+                // valid character, then append that character
+
+                string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+                var index = RandomNumberGenerator.GetInt32(chars.Length);
+                builder.Append(chars[index]);
             }
             return builder.ToString();
         }

@@ -174,8 +174,8 @@ namespace spikewall
                     DROP TABLE IF EXISTS `sw_itemownership`;
                     CREATE TABLE `sw_players` (
                         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                        password VARCHAR(20) NOT NULL,
-                        server_key VARCHAR(20) NOT NULL,
+                        password VARCHAR(32) NOT NULL,
+                        server_key VARCHAR(32) NOT NULL,
 
                         username VARCHAR(12) NOT NULL DEFAULT '',
                         migrate_password VARCHAR(12),
@@ -222,7 +222,7 @@ namespace spikewall
                     );
                     ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
                     CREATE TABLE `sw_sessions` (
-                        sid VARCHAR(48) NOT NULL PRIMARY KEY,
+                        sid VARCHAR(71) NOT NULL PRIMARY KEY,
                         uid BIGINT UNSIGNED NOT NULL,
                         expiry BIGINT NOT NULL
                     );
