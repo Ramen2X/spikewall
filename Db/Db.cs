@@ -222,7 +222,7 @@ namespace spikewall
                     );
                     ALTER TABLE `sw_players` AUTO_INCREMENT=1000000000;
                     CREATE TABLE `sw_sessions` (
-                        sid VARCHAR(71) NOT NULL PRIMARY KEY,
+                        sid VARCHAR(67) NOT NULL PRIMARY KEY,
                         uid BIGINT UNSIGNED NOT NULL,
                         expiry BIGINT NOT NULL
                     );
