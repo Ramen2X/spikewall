@@ -1,4 +1,5 @@
-﻿using spikewall.Object;
+﻿using spikewall.Debug;
+using spikewall.Object;
 using System.Text.Json.Serialization;
 
 namespace spikewall.Request
@@ -41,6 +42,76 @@ namespace spikewall.Request
         public ulong maxCombo { get; set; }
         public sbyte closed { get; set; }
         public string cheatResult { get; set; }
+
+        /// <summary>
+        /// Handle the original client's anti-cheat mechanism "cheatResult", which is
+        /// a set of bit flags that indicate which cheats the player used in a run.
+        /// </summary>
+        public void CheckCheatResult(string uid)
+        {
+            if (!cheatResult.Equals("00000000"))
+            {
+                if (cheatResult[(int)CheatResult.DistanceMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Distance mismatch detected for user " + uid, 1);
+                    distance = 0;
+                }
+
+                if (cheatResult[(int)CheatResult.RingMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Ring mismatch detected for user " + uid, 1);
+                    numRings = 0;
+                    numFailureRings = 0;
+                }
+
+                if (cheatResult[(int)CheatResult.StageScoreMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Stage score mismatch detected for user " + uid, 1);
+                    score = 0;
+                }
+
+                if (cheatResult[(int)CheatResult.UnknownMismatch].Equals('1'))
+                {
+                    // We don't know what this flag is for yet, so just penalize all values
+                    DebugHelper.Log("Unknown mismatch detected for user " + uid, 1);
+                    score = 0;
+                    numAnimals = 0;
+                    distance = 0;
+                    numRings = 0;
+                    numFailureRings = 0;
+                    numRedStarRings = 0;
+                }
+
+                if (cheatResult[(int)CheatResult.EventObjectMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Event object mismatch detected for user " + uid, 1);
+                    // FIXME: Figure out how to penalize event objects
+                }
+
+                if (cheatResult[(int)CheatResult.TotalScoreMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Total score mismatch detected for user " + uid, 1);
+                    score = 0;
+                }
+
+                if (cheatResult[(int)CheatResult.RedStarRingMismatch].Equals('1'))
+                {
+                    DebugHelper.Log("Red Star Ring mismatch detected for user " + uid, 1);
+                    numRedStarRings = 0;
+                }
+            }
+        }
+        
+        private enum CheatResult
+        {
+            DistanceMismatch,
+            RingMismatch,
+            StageScoreMismatch,
+            UnknownMismatch,
+            EventObjectMismatch,
+            TotalScoreMismatch,
+            RedStarRingMismatch
+        }
     }
 
     /// <summary>

@@ -435,6 +435,8 @@ namespace spikewall.Controllers
                     return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
                 }
 
+                request.CheckCheatResult(clientReq.userId);
+
                 if (playerState.quickTotalHighScore < request.score)
                 {
                     playerState.quickTotalHighScore = request.score;
@@ -572,6 +574,8 @@ namespace spikewall.Controllers
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
                 }
+
+                request.CheckCheatResult(clientReq.userId);
 
                 if (playerState.totalHighScore < request.score)
                 {
