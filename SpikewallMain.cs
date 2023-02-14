@@ -29,6 +29,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+// for uptime monitoring
+app.MapGet("/generate204", async context =>
+{
+    context.Response.StatusCode = 204;
+    await context.Response.WriteAsync("");
+});
+
 app.MapControllers();
 
 app.Run();
