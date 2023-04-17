@@ -44,7 +44,7 @@ namespace spikewall.Controllers
             }
 
             // Now we need to find the index of the provided character in the CharacterState
-            int index = Character.FindCharacterInCharacterState(characterID, characterState);
+            var index = Character.FindCharacterInCharacterState(characterID, characterState);
 
             if (index == -1)
             {
@@ -59,8 +59,8 @@ namespace spikewall.Controllers
 
             if (characterState[index].level < 100)
             {
-                // Honestly unsure of the signifiance of 120000 here, but it works
-                int abilityIndex = abilityID - 120000;
+                // Honestly unsure of the significance of 120000 here, but it works
+                var abilityIndex = abilityID - 120000;
 
                 characterState[index].level++;
 
@@ -77,7 +77,7 @@ namespace spikewall.Controllers
                 var sql = Db.GetCommand("SELECT multiple FROM `sw_characterupgrades` WHERE character_id = '{0}' AND min_level <= '{1}' AND max_level >= '{1}';", characterID, characterState[index].level);
                 var upgrdCmd = new MySqlCommand(sql, conn);
 
-                ulong multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
+                var multiple = Convert.ToUInt64(upgrdCmd.ExecuteScalar());
                 characterState[index].numRings += multiple;
 
                 PlayerState playerState = new();
@@ -146,14 +146,12 @@ namespace spikewall.Controllers
             }
 
             // Now we need to find the index of the provided character in the CharacterState
-            int index = -1;
-            for (int i = 0; i < characterState.Length; i++)
+            var index = -1;
+            for (var i = 0; i < characterState.Length; i++)
             {
-                if (characterState[i].characterId == characterID)
-                {
-                    index = i;
-                    break;
-                }
+                if (characterState[i].characterId != characterID) continue;
+                index = i;
+                break;
             }
 
             if (index == -1)
@@ -168,30 +166,27 @@ namespace spikewall.Controllers
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.NotEnoughRedStarRings));
                 }
-                else
+                playerState.numRedRings -= characterState[index].priceNumRedRings;
+
+                characterState[index].priceNumRedRings += 10;
+                characterState[index].priceNumRings += 100000;
+
+                switch (characterState[index].status)
                 {
-                    playerState.numRedRings -= characterState[index].priceNumRedRings;
-
-                    characterState[index].priceNumRedRings += 10;
-                    characterState[index].priceNumRings += 100000;
-
-                    switch (characterState[index].status)
-                    {
-                        // Character not unlocked yet, unlock it
-                        case (sbyte)Character.Status.Locked:
-                            characterState[index].status = (sbyte)Character.Status.Unlocked;
+                    // Character not unlocked yet, unlock it
+                    case (sbyte)Character.Status.Locked:
+                        characterState[index].status = (sbyte)Character.Status.Unlocked;
+                        break;
+                    // Character already unlocked, limit smash
+                    case (sbyte)Character.Status.Unlocked:
+                        if (characterState[index].star < characterState[index].starMax)
+                        {
+                            characterState[index].star++;
                             break;
-                        // Character already unlocked, limit smash
-                        case (sbyte)Character.Status.Unlocked:
-                            if (characterState[index].star < characterState[index].starMax)
-                            {
-                                characterState[index].star++;
-                                break;
-                            }
-                            // Character is already fully limit smashed, this should never happen
-                            DebugHelper.Log("!!!!!!! BUG !!!!!!! user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars!", 2);
-                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
-                    }
+                        }
+                        // Character is already fully limit smashed, this should never happen
+                        DebugHelper.Log("user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars! this could indicate bad CharacterState data or a desync!", 3);
+                        return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                 }
             }
             else if (currency == (int)Item.ItemID.Ring)
@@ -200,30 +195,27 @@ namespace spikewall.Controllers
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.NotEnoughRings));
                 }
-                else
+                playerState.numRings -= characterState[index].priceNumRings;
+
+                characterState[index].priceNumRings += 100000;
+                characterState[index].priceNumRedRings += 10;
+
+                switch (characterState[index].status)
                 {
-                    playerState.numRings -= characterState[index].priceNumRings;
-
-                    characterState[index].priceNumRings += 100000;
-                    characterState[index].priceNumRedRings += 10;
-
-                    switch (characterState[index].status)
-                    {
-                        // Character not unlocked yet, unlock it
-                        case (sbyte)Character.Status.Locked:
-                            characterState[index].status = (sbyte)Character.Status.Unlocked;
+                    // Character not unlocked yet, unlock it
+                    case (sbyte)Character.Status.Locked:
+                        characterState[index].status = (sbyte)Character.Status.Unlocked;
+                        break;
+                    // Character already unlocked, limit smash
+                    case (sbyte)Character.Status.Unlocked:
+                        if (characterState[index].star < characterState[index].starMax)
+                        {
+                            characterState[index].star++;
                             break;
-                        // Character already unlocked, limit smash
-                        case (sbyte)Character.Status.Unlocked:
-                            if (characterState[index].star < characterState[index].starMax)
-                            {
-                                characterState[index].star++;
-                                break;
-                            }
-                            // Character is already fully limit smashed, this should never happen
-                            DebugHelper.Log("!!!!!!! BUG !!!!!!! user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars!", 2);
-                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
-                    }
+                        }
+                        // Character is already fully limit smashed, this should never happen
+                        DebugHelper.Log("user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars! this could indicate bad CharacterState data or a desync!", 3);
+                        return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                 }
             }
 

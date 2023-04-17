@@ -243,7 +243,7 @@ namespace spikewall.Controllers
 
                 MileageReward[] mileageMapRewardList = new MileageReward[count];
 
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     mileageMapRewardList[i] = new()
                     {
@@ -335,10 +335,8 @@ namespace spikewall.Controllers
                 string sql;
                 MySqlCommand command;
 
-                for (int i = 0; i < clientReq.request.modifire.Length; i++)
+                foreach (var item in clientReq.request.modifire)
                 {
-                    long item = clientReq.request.modifire[i];
-
                     sql = Db.GetCommand("DELETE FROM `sw_itemownership` WHERE user_id = '{0}' AND item_id = '{1}' LIMIT 1;", clientReq.userId, item);
                     command = new MySqlCommand(sql, conn);
                     var rowsAffected = command.ExecuteNonQuery();
@@ -392,11 +390,8 @@ namespace spikewall.Controllers
                 actStartResponse.playerState = playerState;
                 return new JsonResult(EncryptedResponse.Generate(iv, actStartResponse));
             }
-            else
-            {
-                // Return error code from Populate() to client
-                return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
-            }
+            // Return error code from Populate() to client
+            return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse(populateStatus)));
         }
 
         /// <summary>
@@ -494,7 +489,7 @@ namespace spikewall.Controllers
                 if (charactersInRun > 0)
                 {
                     playCharacterState[0] = characterState[mainCharaIndex];
-                    for (int i = 1; i < charactersInRun; i++)
+                    for (var i = 1; i < charactersInRun; i++)
                     {
                         playCharacterState[i] = characterState[subCharaIndex];
                     }
@@ -633,7 +628,7 @@ namespace spikewall.Controllers
                 if (charactersInRun > 0)
                 {
                     playCharacterState[0] = characterState[mainCharaIndex];
-                    for (int i = 1; i < charactersInRun; i++)
+                    for (var i = 1; i < charactersInRun; i++)
                     {
                         playCharacterState[i] = characterState[subCharaIndex];
                     }
@@ -693,11 +688,11 @@ namespace spikewall.Controllers
                 if (reader.Read())
                 {
                     var count = reader.GetInt32("row_count");
-                    bool incentiveIsValid = false;
+                    bool incentiveIsValid;
 
                     List<MileageIncentive> mileageIncentiveList = new();
 
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         incentiveIsValid = false;
 
@@ -722,10 +717,10 @@ namespace spikewall.Controllers
                     }
                     reader.Close();
 
-                    for (int i = 0; i < mileageIncentiveList.Count; i++)
+                    foreach (var t in mileageIncentiveList)
                     {
-                        long itemID = mileageIncentiveList[i].itemId;
-                        ulong itemCount = mileageIncentiveList[i].numItem;
+                        long itemID = t.itemId;
+                        ulong itemCount = t.numItem;
 
                         // Only add valid incentives to the item list (120000 - 120007)
                         if (itemID > (long)ItemID.SubCharacter && itemID < (long)ItemID.RingBonus)

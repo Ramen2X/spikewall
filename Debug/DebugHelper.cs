@@ -29,6 +29,10 @@ namespace spikewall.Debug
                     ColorfulWrite(new ColorfulString(ConsoleColor.Yellow, ConsoleColor.Black, "warn [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");
                     break;
+                case (3):
+                    ColorfulWrite(new ColorfulString(ConsoleColor.White, ConsoleColor.DarkRed, "BUG [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
+                    Console.Write(": " + text + "\n");
+                    break;
                 default:
                     ColorfulWrite(new ColorfulString(ConsoleColor.Green, ConsoleColor.Black, "server [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");

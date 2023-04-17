@@ -29,6 +29,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.MapGet("/robots.txt", async context =>
+{
+    await context.Response.WriteAsync("User-agent: *\nDisallow: /");
+});
+
 app.MapGet("/generate204", async context =>
 {
     // for uptime monitoring
