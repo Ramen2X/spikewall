@@ -104,16 +104,15 @@ namespace spikewall.Controllers
                     playerState.numRings += wonItemCount;
                     wheelOptions.rouletteRank = 0;
                     break;
-                case (long)ItemID.ItemRouletteRankUp when wheelOptions.rouletteRank != 2:
+                case (long)ItemID.ItemRouletteRankUp when wheelOptions.rouletteRank != 2: // BIG or SUPER
                     wheelOptions.rouletteRank++;
                     wheelOptions.numRemainingRoulette++;
                     break;
-                case (long)ItemID.ItemRouletteRankUp:
-                    // Jackpot won
+                case (long)ItemID.ItemRouletteRankUp: // JACKPOT
                     playerState.numRings += (ulong)wheelOptions.numJackpotRing;
                     wheelOptions.rouletteRank = 0;
                     break;
-                case 400000:
+                case 400000: // normal buddy
                     // FIXME: Stub
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;

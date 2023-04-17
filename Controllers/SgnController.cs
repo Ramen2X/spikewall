@@ -26,7 +26,7 @@ namespace spikewall.Controllers
         /// </remarks>
         [HttpPost]
         [Route("sendApollo")]
-        public JsonResult sendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        public JsonResult SendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
         {
             var iv = (string)Config.Get("encryption_iv");
 
