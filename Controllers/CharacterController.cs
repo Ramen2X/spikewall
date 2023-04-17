@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using spikewall.Debug;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
@@ -188,7 +189,8 @@ namespace spikewall.Controllers
                                 break;
                             }
                             // Character is already fully limit smashed, this should never happen
-                            else return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                            DebugHelper.Log("!!!!!!! BUG !!!!!!! user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars!", 2);
+                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                     }
                 }
             }
@@ -219,7 +221,8 @@ namespace spikewall.Controllers
                                 break;
                             }
                             // Character is already fully limit smashed, this should never happen
-                            else return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
+                            DebugHelper.Log("!!!!!!! BUG !!!!!!! user " + clientReq.userId + " tried to limit smash character ID " + characterState[index].characterId + " even though it's at max stars!", 2);
+                            return new JsonResult(EncryptedResponse.Generate(iv, SRStatusCode.CharacterLevelLimit));
                     }
                 }
             }

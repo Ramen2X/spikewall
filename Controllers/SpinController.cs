@@ -77,55 +77,47 @@ namespace spikewall.Controllers
             var wonItemID = wheelOptions.items[wonItemIndex];
             var wonItemCount = (ulong)wheelOptions.item[wonItemIndex];
 
-            // Only add valid items to the item list (120000 - 120007)
-            if (wonItemID > (long)ItemID.SubCharacter && wonItemID < (long)ItemID.RingBonus)
+            switch (wonItemID)
             {
-                var itemSQL = Db.GetCommand(@"INSERT INTO `sw_itemownership` (
+                // Only add valid items to the item list (120000 - 120007)
+                case > (long)ItemID.SubCharacter and < (long)ItemID.RingBonus:
+                {
+                    var itemSQL = Db.GetCommand(@"INSERT INTO `sw_itemownership` (
                                                                 user_id, item_id
                                                             ) VALUES (
                                                                 '{0}', '{1}'
                                                             );", clientReq.userId, wonItemID);
-                var insertCmd = new MySqlCommand(itemSQL, conn);
+                    var insertCmd = new MySqlCommand(itemSQL, conn);
 
-                for (ulong i = 0; i < wonItemCount; i++)
-                {
-                    insertCmd.ExecuteNonQuery();
+                    for (ulong i = 0; i < wonItemCount; i++)
+                    {
+                        insertCmd.ExecuteNonQuery();
+                    }
+                    wheelOptions.rouletteRank = 0;
+                    break;
                 }
-                wheelOptions.rouletteRank = 0;
-            }
-
-            else if (wonItemID == (long)ItemID.RedStarRing)
-            {
-                playerState.numRedRings += wonItemCount;
-                wheelOptions.rouletteRank = 0;
-            }
-
-            else if (wonItemID == (long)ItemID.Ring)
-            {
-                playerState.numRings += wonItemCount;
-                wheelOptions.rouletteRank = 0;
-            }
-
-            else if (wonItemID == (long)ItemID.ItemRouletteRankUp)
-            {
-                if (wheelOptions.rouletteRank != 2)
-                {
+                case (long)ItemID.RedStarRing:
+                    playerState.numRedRings += wonItemCount;
+                    wheelOptions.rouletteRank = 0;
+                    break;
+                case (long)ItemID.Ring:
+                    playerState.numRings += wonItemCount;
+                    wheelOptions.rouletteRank = 0;
+                    break;
+                case (long)ItemID.ItemRouletteRankUp when wheelOptions.rouletteRank != 2:
                     wheelOptions.rouletteRank++;
                     wheelOptions.numRemainingRoulette++;
-                }
-                else
-                {
+                    break;
+                case (long)ItemID.ItemRouletteRankUp:
                     // Jackpot won
                     playerState.numRings += (ulong)wheelOptions.numJackpotRing;
                     wheelOptions.rouletteRank = 0;
-                }
-            }
-
-            else if (wonItemID == 400000)
-            {
-                // FIXME: Stub
-                wheelOptions.numRemainingRoulette++;
-                wheelOptions.rouletteRank = 0;
+                    break;
+                case 400000:
+                    // FIXME: Stub
+                    wheelOptions.numRemainingRoulette++;
+                    wheelOptions.rouletteRank = 0;
+                    break;
             }
 
             if (wheelOptions.numRemainingRoulette == playerState.numRouletteTicket)

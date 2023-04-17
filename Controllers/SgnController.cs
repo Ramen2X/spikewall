@@ -4,11 +4,26 @@ using spikewall.Response;
 
 namespace spikewall.Controllers
 {
+    /// <summary>
+    /// Controller for SEGA Networks endpoints.
+    ///
+    /// Most of these endpoints are not used by Sonic
+    /// Runners Revival, but they'll be implemented
+    /// here for completeness.
+    /// </summary>
+
     [ApiController]
     [Route("sgn")]
     [Produces("text/json")]
     public class SgnController : ControllerBase
     {
+        /// <summary>
+        /// An endpoint originally used to send
+        /// data to an internal telemetry system.
+        /// </summary>
+        /// <remarks>
+        /// In Spikewall, this is implemented as a stub.
+        /// </remarks>
         [HttpPost]
         [Route("sendApollo")]
         public JsonResult sendApollo([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
@@ -34,4 +49,6 @@ namespace spikewall.Controllers
             return new JsonResult(EncryptedResponse.Generate(iv, new BaseResponse()));
         }
     }
+
+    // TODO: implement stub setAtomSerial and setNoahId endpoints
 }

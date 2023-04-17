@@ -452,11 +452,11 @@ namespace spikewall.Controllers
 
                 bool subCharacterPresent = false;
 
-                for (int i = 0; i < playerState.equipItemList.Length; i++)
+                foreach (var t in playerState.equipItemList)
                 {
                     // Detect if the player equipped a sub character for this
                     // run so we know if we need to level it up after the run
-                    if (playerState.equipItemList[i] == (long)Item.ItemID.SubCharacter)
+                    if (t == (long)Item.ItemID.SubCharacter)
                     {
                         subCharacterPresent = true;
                         break;
@@ -591,11 +591,11 @@ namespace spikewall.Controllers
 
                 bool subCharacterPresent = false;
 
-                for (int i = 0; i < playerState.equipItemList.Length; i++)
+                foreach (var t in playerState.equipItemList)
                 {
                     // Detect if the player equipped a sub character for this
                     // run so we know if we need to level it up after the run
-                    if (playerState.equipItemList[i] == (long)Item.ItemID.SubCharacter)
+                    if (t == (long)Item.ItemID.SubCharacter)
                     {
                         subCharacterPresent = true;
                         break;
@@ -751,7 +751,7 @@ namespace spikewall.Controllers
                         // This incentive is a character, unlock it
                         // FIXME: Although you never get multiple characters as incentives in
                         // the original game, it probably wouldn't hurt to handle itemCount here
-                        else if (itemID >= 300000 && itemID <= 399999)
+                        else if (itemID is >= 300000 and <= 399999)
                         {
                             var incentiveIndex = FindCharacterInCharacterState((int)itemID, characterState);
 

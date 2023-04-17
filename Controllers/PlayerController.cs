@@ -88,7 +88,7 @@ namespace spikewall.Controllers
             }
 
             Chao[] chaoState;
-            SRStatusCode chaoStateStatus = Chao.PopulateChaoState(conn, clientReq.userId, out chaoState);
+            var chaoStateStatus = Chao.PopulateChaoState(conn, clientReq.userId, out chaoState);
             if (chaoStateStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, chaoStateStatus));
