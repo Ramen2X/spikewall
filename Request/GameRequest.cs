@@ -70,16 +70,10 @@ namespace spikewall.Request
                     score = 0;
                 }
 
-                if (cheatResult[(int)CheatResult.UnknownMismatch].Equals('1'))
+                if (cheatResult[(int)CheatResult.AnimalMismatch].Equals('1'))
                 {
-                    // We don't know what this flag is for yet, so just penalize all values
-                    DebugHelper.Log("Unknown mismatch detected for user " + uid, 1);
-                    score = 0;
+                    DebugHelper.Log("Animal mismatch detected for user " + uid, 1);
                     numAnimals = 0;
-                    distance = 0;
-                    numRings = 0;
-                    numFailureRings = 0;
-                    numRedStarRings = 0;
                 }
 
                 if (cheatResult[(int)CheatResult.EventObjectMismatch].Equals('1'))
@@ -107,7 +101,7 @@ namespace spikewall.Request
             DistanceMismatch,
             RingMismatch,
             StageScoreMismatch,
-            UnknownMismatch,
+            AnimalMismatch,
             EventObjectMismatch,
             TotalScoreMismatch,
             RedStarRingMismatch
