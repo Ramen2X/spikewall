@@ -790,11 +790,21 @@ namespace spikewall.Controllers
                     return new JsonResult(EncryptedResponse.Generate(iv, charSaveStatus));
                 }
 
-                conn.Close();
-
                 postGameResultsResponse.playerState = playerState;
                 postGameResultsResponse.playCharacterState = playCharacterState;
             }
+            
+            WheelOptions wheelOptions = new();
+            
+            var populateWheelStatus = wheelOptions.Populate(conn, clientReq.userId);
+            if (populateWheelStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateWheelStatus));
+            }
+            
+            conn.Close();
+            
+            postGameResultsResponse.wheelOptions = wheelOptions;
 
             // FIXME: Actually implement this normally lmao
 
@@ -805,7 +815,6 @@ namespace spikewall.Controllers
             postGameResultsResponse.totalOperatorMessage = 0;
             postGameResultsResponse.mileageMapState = mileageMapState;
             postGameResultsResponse.eventIncentiveList = Array.Empty<Item>();
-            postGameResultsResponse.wheelOptions = new WheelOptions();
 
             return new JsonResult(EncryptedResponse.Generate(iv, postGameResultsResponse));
         }
