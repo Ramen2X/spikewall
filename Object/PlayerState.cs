@@ -185,28 +185,26 @@ namespace spikewall.Object
         public SRStatusCode PopulateItems(MySqlConnection conn, string uid)
         {
             // Populate item list
-            List<Item> items = new List<Item>();
+            var items = new List<Item>();
+
+            for (var i = 0; i < 8; i++)
+            {
+                items.Add(new Item(120000 + i, 0));
+            }
+            
             var sql = Db.GetCommand(@"SELECT item_id FROM `sw_itemownership` WHERE user_id = '{0}';", uid);
             var command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                long itemId = reader.GetInt64("item_id");
-                bool found = false;
+                var itemId = reader.GetInt64("item_id");
 
-                for (int i = 0; i < items.Count; i++)
+                for (var i = 0; i < items.Count; i++)
                 {
                     if (items[i].itemId == itemId)
                     {
                         items[i].numItem++;
-                        found = true;
-                        break;
                     }
-                }
-
-                if (!found)
-                {
-                    items.Add(new Item(itemId, 1));
                 }
             }
             reader.Close();
