@@ -241,7 +241,7 @@ namespace spikewall.Controllers
             var language = command.ExecuteScalar();
 
             // Get appropriate information
-            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_information`) AS row_count FROM `sw_information` WHERE language = '{0}' OR language = -1", language);
+            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_information` WHERE language = '{0}' OR language = -1) AS row_count FROM `sw_information` WHERE language = '{0}' OR language = -1", language);
             command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
@@ -317,7 +317,7 @@ namespace spikewall.Controllers
             var language = command.ExecuteScalar();
 
             // Get appropriate tickers
-            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers`) AS row_count FROM `sw_tickers` WHERE language = '{0}'", language);
+            sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_tickers` WHERE language = '{0}') AS row_count FROM `sw_tickers` WHERE language = '{0}'", language);
             command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 

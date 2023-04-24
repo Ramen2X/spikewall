@@ -233,7 +233,7 @@ namespace spikewall.Controllers
 
             MileageRewardResponse mileageRewardResponse = new();
 
-            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives`) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}'", mileageMapState.episode, mileageMapState.chapter);
+            var sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}'", mileageMapState.episode, mileageMapState.chapter);
             var command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
