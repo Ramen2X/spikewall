@@ -666,18 +666,18 @@ namespace spikewall.Controllers
                 {
                     if (mileageMapState.point == 5)
                         // Boss point, prevent awarding incentives until boss is defeated
-                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point <= 4) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point <= 4", mileageMapState.episode, mileageMapState.chapter);
+                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}' AND point <= 4) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}' AND point <= 4", mileageMapState.episode, mileageMapState.chapter, previousPoint);
 
                     else if (previousPoint >= mileageMapState.point && (previousChapter != mileageMapState.chapter || previousEpisode != mileageMapState.episode))
                         // Chapter with no boss point completed, get incentives from previous chapter/episode
-                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}'", previousEpisode, previousChapter, previousPoint);
+                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}'", previousEpisode, previousChapter, previousPoint);
 
                     else if (previousPoint == mileageMapState.point)
                         // The player hasn't moved; no incentives to award
                         goto endOfIncentiveCode;
 
                     // Boss has not been defeated, get all possible incentives up to this point
-                    else sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}' AND point <= '{3}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}' AND point <= '{3}'", mileageMapState.episode, mileageMapState.chapter, previousPoint, request.reachPoint);
+                    else sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}' AND point <= '{3}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}' AND point <= '{3}'", mileageMapState.episode, mileageMapState.chapter, previousPoint, request.reachPoint);
                 }
                 // Boss was just defeated, get incentives from previous chapter/episode
                 else sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point = 5) AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point = 5", previousEpisode, previousChapter);
