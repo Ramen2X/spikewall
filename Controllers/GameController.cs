@@ -335,9 +335,12 @@ namespace spikewall.Controllers
                 string sql;
                 MySqlCommand command;
 
-                foreach (var item in clientReq.request.modifire)
+                for (var i = 0; i < clientReq.request.modifire.Length; i++)
                 {
-                    sql = Db.GetCommand("DELETE FROM `sw_itemownership` WHERE user_id = '{0}' AND item_id = '{1}' LIMIT 1;", clientReq.userId, item);
+                    var item = clientReq.request.modifire[i];
+                    sql = Db.GetCommand(
+                        "DELETE FROM `sw_itemownership` WHERE user_id = '{0}' AND item_id = '{1}' LIMIT 1;",
+                        clientReq.userId, item);
                     command = new MySqlCommand(sql, conn);
                     var rowsAffected = command.ExecuteNonQuery();
 
@@ -352,8 +355,9 @@ namespace spikewall.Controllers
                         // Determine cost of item
                         ConsumedItem[] costs = GetCostListData(conn);
                         long cost = 0;
-                        foreach (ConsumedItem itemData in costs)
+                        for (var i2 = 0; i2 < costs.Length; i2++)
                         {
+                            var itemData = costs[i2];
                             if (itemData.consumedItemId == item)
                             {
                                 cost = (long)itemData.numItem;
@@ -362,7 +366,8 @@ namespace spikewall.Controllers
                         }
 
                         // Decrement cost from ring count
-                        sql = Db.GetCommand("UPDATE `sw_players` SET num_rings = num_rings - '{0}' WHERE id = '{1}';", cost, clientReq.userId);
+                        sql = Db.GetCommand("UPDATE `sw_players` SET num_rings = num_rings - '{0}' WHERE id = '{1}';",
+                            cost, clientReq.userId);
                         command = new MySqlCommand(sql, conn);
                         command.ExecuteNonQuery();
                     }
@@ -442,13 +447,13 @@ namespace spikewall.Controllers
                 playerState.numRedRings += request.numRedStarRings;
                 playerState.totalDistance += request.distance;
 
-                Character[] characterState;
-                Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
+                PopulateCharacterState(conn, clientReq.userId, out var characterState);
 
                 var subCharacterPresent = false;
 
-                foreach (var t in playerState.equipItemList)
+                for (var i = 0; i < playerState.equipItemList.Length; i++)
                 {
+                    var t = playerState.equipItemList[i];
                     // Detect if the player equipped a sub character for this
                     // run so we know if we need to level it up after the run
                     if (t == (long)Item.ItemID.SubCharacter)
@@ -463,8 +468,7 @@ namespace spikewall.Controllers
 
                 sbyte charactersInRun = 1;
 
-                int mainCharaIndex = -1;
-                int subCharaIndex = -1;
+                var subCharaIndex = -1;
 
                 if (subCharacterPresent)
                 {
@@ -477,7 +481,7 @@ namespace spikewall.Controllers
                     }
                 }
 
-                var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
+                var mainLevelUpStatus = Character.LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out var mainCharaIndex);
 
                 if (mainLevelUpStatus != SRStatusCode.Ok)
                 {
@@ -582,12 +586,13 @@ namespace spikewall.Controllers
                 playerState.numRedRings += request.numRedStarRings;
                 playerState.totalDistance += request.distance;
 
-                Character.PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
+                PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
 
                 var subCharacterPresent = false;
 
-                foreach (var t in playerState.equipItemList)
+                for (var i = 0; i < playerState.equipItemList.Length; i++)
                 {
+                    var t = playerState.equipItemList[i];
                     // Detect if the player equipped a sub character for this
                     // run so we know if we need to level it up after the run
                     if (t == (long)Item.ItemID.SubCharacter)
@@ -602,8 +607,7 @@ namespace spikewall.Controllers
 
                 sbyte charactersInRun = 1;
 
-                int mainCharaIndex = -1;
-                int subCharaIndex = -1;
+                var subCharaIndex = -1;
 
                 if (subCharacterPresent)
                 {
@@ -616,7 +620,7 @@ namespace spikewall.Controllers
                     }
                 }
 
-                var mainLevelUpStatus = LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out mainCharaIndex);
+                var mainLevelUpStatus = LevelUpCharacterWithExp(conn, playerState.mainCharaID, exp, ref characterState, out var mainCharaIndex);
 
                 if (mainLevelUpStatus != SRStatusCode.Ok)
                 {
@@ -712,8 +716,9 @@ namespace spikewall.Controllers
                     }
                     reader.Close();
 
-                    foreach (var t in mileageIncentiveList)
+                    for (var i = 0; i < mileageIncentiveList.Count; i++)
                     {
+                        var t = mileageIncentiveList[i];
                         long itemID = t.itemId;
                         ulong itemCount = t.numItem;
 
