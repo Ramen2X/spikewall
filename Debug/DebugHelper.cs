@@ -30,7 +30,7 @@ namespace spikewall.Debug
                     Console.Write(": " + text + "\n");
                     break;
                 case (3):
-                    ColorfulWrite(new ColorfulString(ConsoleColor.White, ConsoleColor.DarkRed, "BUG [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
+                    ColorfulWrite(new ColorfulString(ConsoleColor.White, ConsoleColor.DarkRed, "bug [" + stackTrace.GetFrame(1).GetMethod().Name + "]"));
                     Console.Write(": " + text + "\n");
                     break;
                 default:

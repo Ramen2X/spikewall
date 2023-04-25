@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using spikewall.Response;
 
 namespace spikewall.Object
@@ -52,7 +52,7 @@ namespace spikewall.Object
                 while (chaoRdr.Read()) {
                     Chao c = new();
 
-                    c.chaoID = chaoRdr.GetString("id");
+                    c.chaoID = Convert.ToString(chaoRdr["id"]);
                     c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
                     c.hidden = Convert.ToInt64(chaoRdr["hidden"]);
 

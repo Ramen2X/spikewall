@@ -1,5 +1,4 @@
-using MySql.Data;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using spikewall;
 using spikewall.Debug;
 

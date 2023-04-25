@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using spikewall.Debug;
 using spikewall.Object;
 using spikewall.Request;

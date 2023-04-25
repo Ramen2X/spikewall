@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,9 +7,9 @@ namespace spikewall
 {
     public class Db
     {
-        static private IDataProtector m_protector;
+        private static IDataProtector m_protector;
 
-        static private string GetDbConfigFilename()
+        private static string GetDbConfigFilename()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "spikewall.db");
         }
@@ -82,13 +82,13 @@ namespace spikewall
             return new MySqlConnection(m_connectionString);
         }
 
-        public static string EscapeString(string s)
+        private static string EscapeString(string s)
         {
             return s.Replace("'", "\\'");
         }
 
         /// <summary>
-        /// Generate an SQL string where all paramters are escaped (assumes single quotes are used for values)
+        /// Generate an SQL string where all parameters are escaped (assumes single quotes are used for values)
         /// </summary>
         public static string GetCommand(string format, params object[] arg)
         {

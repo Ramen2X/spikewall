@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using spikewall.Response;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
