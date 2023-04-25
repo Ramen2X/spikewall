@@ -557,6 +557,8 @@ namespace spikewall.Controllers
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, populateMileageStatus));
             }
+            
+            postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
 
             // If the run wasn't exited out of
             if (request.closed != 1)
@@ -656,10 +658,7 @@ namespace spikewall.Controllers
 
                 conn.Open();
 
-                postGameResultsResponse.mileageIncentiveList = Array.Empty<MileageIncentive>();
-
                 // Award the player any incentives that they hit
-
                 string sql;
 
                 if (request.bossDestroyed == 0)
