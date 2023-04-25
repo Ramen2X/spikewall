@@ -445,7 +445,7 @@ namespace spikewall.Controllers
                 Character[] characterState;
                 Character.PopulateCharacterState(conn, clientReq.userId, out characterState);
 
-                bool subCharacterPresent = false;
+                var subCharacterPresent = false;
 
                 foreach (var t in playerState.equipItemList)
                 {
@@ -485,14 +485,12 @@ namespace spikewall.Controllers
                 }
 
                 Character[] playCharacterState = new Character[charactersInRun];
+                
+                playCharacterState[0] = characterState[mainCharaIndex];
 
-                if (charactersInRun > 0)
+                if (subCharacterPresent)
                 {
-                    playCharacterState[0] = characterState[mainCharaIndex];
-                    for (var i = 1; i < charactersInRun; i++)
-                    {
-                        playCharacterState[i] = characterState[subCharaIndex];
-                    }
+                    playCharacterState[1] = characterState[subCharaIndex];
                 }
 
                 conn.Open();
@@ -586,7 +584,7 @@ namespace spikewall.Controllers
 
                 Character.PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
 
-                bool subCharacterPresent = false;
+                var subCharacterPresent = false;
 
                 foreach (var t in playerState.equipItemList)
                 {
@@ -626,14 +624,12 @@ namespace spikewall.Controllers
                 }
 
                 Character[] playCharacterState = new Character[charactersInRun];
+                
+                playCharacterState[0] = characterState[mainCharaIndex];
 
-                if (charactersInRun > 0)
+                if (subCharacterPresent)
                 {
-                    playCharacterState[0] = characterState[mainCharaIndex];
-                    for (var i = 1; i < charactersInRun; i++)
-                    {
-                        playCharacterState[i] = characterState[subCharaIndex];
-                    }
+                    playCharacterState[1] = characterState[subCharaIndex];
                 }
 
                 var previousPoint = mileageMapState.point;
