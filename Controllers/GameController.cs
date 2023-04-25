@@ -669,7 +669,7 @@ namespace spikewall.Controllers
 
                     else if (previousPoint >= mileageMapState.point && (previousChapter != mileageMapState.chapter || previousEpisode != mileageMapState.episode))
                         // Chapter with no boss point completed, get incentives from previous chapter/episode
-                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point >= '{2}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}'", previousEpisode, previousChapter, previousPoint);
+                        sql = Db.GetCommand("SELECT *, (SELECT COUNT(*) FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}') AS row_count FROM `sw_incentives` WHERE episode = '{0}' AND chapter = '{1}' AND point > '{2}'", previousEpisode, previousChapter, previousPoint);
 
                     else if (previousPoint == mileageMapState.point)
                         // The player hasn't moved; no incentives to award
@@ -693,10 +693,10 @@ namespace spikewall.Controllers
 
                     for (var i = 0; i < count; i++)
                     {
-                        incentiveIsValid = false;
-
-                        if (reader.GetInt64("limit_time") == -1 || (mileageMapState.chapterStartTime + reader.GetInt64("limit_time")) > DateTimeOffset.Now.ToUnixTimeSeconds())
-                            incentiveIsValid = true;
+                        incentiveIsValid = false || 
+                                           (reader.GetInt64("limit_time") == -1 || 
+                                            (mileageMapState.chapterStartTime + reader.GetInt64("limit_time")) > 
+                                            DateTimeOffset.Now.ToUnixTimeSeconds());
 
                         if (incentiveIsValid)
                         {
