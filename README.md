@@ -1,5 +1,5 @@
 
-# spikewall
+# spikewall <img src="https://img.shields.io/github/actions/workflow/status/Ramen2X/spikewall/dotnet.yml">
 An open source server for the defunct 2015 mobile game Sonic Runners.
 
 ## Introduction
