@@ -29,23 +29,29 @@ namespace spikewall.Request
                 var sql = Db.GetCommand("SELECT expiry FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
                 var command = new MySqlCommand(sql, conn);
 
-                var expiry = Convert.ToInt64(command.ExecuteScalar());
+                var expiryObj = command.ExecuteScalar();
+                if (expiryObj != null) {
+                    var expiry = Convert.ToInt64(expiryObj);
 
-                if (expiry < DateTimeOffset.Now.ToUnixTimeSeconds()) {
-                    // Session has expired, remove it from the table
-                    sql = Db.GetCommand("DELETE FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
+                    if (expiry < DateTimeOffset.Now.ToUnixTimeSeconds()) {
+                        // Session has expired, remove it from the table
+                        sql = Db.GetCommand("DELETE FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
 
-                    this.error = SRStatusCode.ExpirationSession;
-                } else {
-                    sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
-                    command = new MySqlCommand(sql, conn);
-
-                    object uidObj = command.ExecuteScalar();
-                    if (uidObj == null) {
-                        this.error = SRStatusCode.MissingPlayer;
+                        this.error = SRStatusCode.ExpirationSession;
                     } else {
-                        this.userId = uidObj.ToString();
+                        sql = Db.GetCommand("SELECT uid FROM `sw_sessions` WHERE sid = '{0}';", deserial.sessionId);
+                        command = new MySqlCommand(sql, conn);
+
+                        object uidObj = command.ExecuteScalar();
+                        if (uidObj == null) {
+                            this.error = SRStatusCode.MissingPlayer;
+                        } else {
+                            this.userId = uidObj.ToString();
+                        }
                     }
+                } else {
+                    // Session doesn't exist in the table
+                    this.error = SRStatusCode.ExpirationSession;
                 }
             }
         }
