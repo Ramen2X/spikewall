@@ -9,7 +9,7 @@ It is designed to be as accurate as possible to the original server with little 
 ## Working Features
 
 - Account creation
-- Logging in
+- Login
 - Tutorial
 - Ticker system
 - Information system
@@ -20,7 +20,7 @@ It is designed to be as accurate as possible to the original server with little 
 ## To Do
 
 - Login Bonus
-- High score saving
+- High Score saving\*
 - Event support
 - Leaderboards
 - Runners League
@@ -30,6 +30,7 @@ It is designed to be as accurate as possible to the original server with little 
 - Support for older clients
 - Web interface for configuration
 
+ <sup>\*Works, but Leaderboard support is required for the client to retrieve saved High Scores</sup>
 
 ## Building and Setup
 
