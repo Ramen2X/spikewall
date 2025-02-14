@@ -92,7 +92,12 @@ namespace spikewall.Object
             {
                 if (numJackpotRing >= jackpotMinValue && numJackpotRing < jackpotMaxValue)
                 {
-                    return numJackpotRing += random.Next(1000, 9999);
+                    numJackpotRing = numJackpotRing + random.Next(1000, 9999);
+                    if(numJackpotRing >= jackpotMaxValue)
+                    {
+                        return jackpotMaxValue;
+                    }
+                    return numJackpotRing;
                 }
                 return jackpotMaxValue;
             }
