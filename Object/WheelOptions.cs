@@ -14,6 +14,7 @@ namespace spikewall.Object
         public int spinCost { get; set; }
         public sbyte rouletteRank { get; set; }
         public long numRouletteToken { get; set; }
+        public bool isJackpotGainedSuccessful { get; set; }
         public long numJackpotRing { get; set; }
         public long numRemainingRoulette { get; set; }
         public Item[]? itemList { get; set; }
@@ -77,9 +78,30 @@ namespace spikewall.Object
             this.items = items;
             this.item = itemNum;
             this.itemWeight = itemWeight;
-            this.numJackpotRing = 50000; // FIXME: Hardcoded!!
+            GetJackpotValue(isJackpotGainedSuccessful, this.numJackpotRing);
 
             return SRStatusCode.Ok;
+        }
+
+        public long GetJackpotValue(bool isJackpotGainedSuccessful, long numJackpotRing)
+        {
+            Random random = new Random();
+            const long jackpotMinValue = 50_000;
+            const long jackpotMaxValue = 99_999;
+            if (!isJackpotGainedSuccessful)
+            {
+                if (numJackpotRing >= jackpotMinValue && numJackpotRing < jackpotMaxValue)
+                {
+                    numJackpotRing = numJackpotRing + random.Next(1000, 9999);
+                    if(numJackpotRing >= jackpotMaxValue)
+                    {
+                        return jackpotMaxValue;
+                    }
+                    return numJackpotRing;
+                }
+                return jackpotMaxValue;
+            }
+            return jackpotMinValue;
         }
 
         public SRStatusCode Save(MySqlConnection conn, string uid)
