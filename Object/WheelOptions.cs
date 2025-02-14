@@ -86,8 +86,8 @@ namespace spikewall.Object
         public long GetJackpotValue(bool isJackpotGainedSuccessful, long numJackpotRing)
         {
             Random random = new Random();
-            const int jackpotMinValue = 50_000;
-            const int jackpotMaxValue = 99_999;
+            const long jackpotMinValue = 50_000;
+            const long jackpotMaxValue = 99_999;
             if (!isJackpotGainedSuccessful)
             {
                 if (numJackpotRing >= jackpotMinValue && numJackpotRing < jackpotMaxValue)
