@@ -3,7 +3,7 @@
 An open source server for the defunct 2015 mobile game Sonic Runners.
 
 ## Introduction
-spikewall is a Sonic Runners server built on .NET 7 using ASP.NET. 
+spikewall is a Sonic Runners server built on .NET 9 using ASP.NET. 
 It is designed to be as accurate as possible to the original server with little to no compromise, and is built for small and large scale deployment, flexibility, and ease of use. While spikewall is primarily being developed for use on the [Sonic Runners Revival](https://sonicrunners.com) project, it is still designed with local hosting in mind.
 
 ## Working Features
