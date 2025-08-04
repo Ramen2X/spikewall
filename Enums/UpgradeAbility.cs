@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Enums
+namespace spikewall.Enums
 {
     public enum UpgradeAbility
     {
