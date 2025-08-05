@@ -71,6 +71,43 @@ namespace spikewall.Object
         public ulong[]? abilityLevelupExp { get; set; }
 
         /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all characters.
+        /// </summary>
+        public enum CharacterId
+        {
+            Sonic,
+            Tails,
+            Knuckles,
+            Amy,
+            Shadow,
+            Blaze,
+            Rouge,
+            Omega,
+            Big,
+            Cream,
+            Espio,
+            Charmy,
+            Vector,
+            Silver,
+            MetalSonic,
+            AmitieAmy,
+            ClassicSonic,
+            Tikal,
+            GothicAmy,
+            HalloweenShadow,
+            HalloweenRouge,
+            HalloweenOmega,
+            Mephiles,
+            PSISilver,
+            ChristmasSonic,
+            ChristmasTails,
+            ChristmasKnuckles,
+            Werehog,
+            Sticks
+        }
+
+        /// <summary>
         /// Enum that contains all of the
         /// possible states of a character.
         /// </summary>
@@ -91,6 +128,20 @@ namespace spikewall.Object
             UnlockedAsMileageIncentive,
             UnlockedByPurchasing,
             UnlockedByRoulette
+        }
+
+        public enum UpgradeAbility
+        {
+            Invincible,
+            Magnet,
+            Trampoline,
+            Combo,
+            Laser,
+            Drill,
+            Asteroid,
+            RingBonus,
+            DistanceBonus,
+            AnimalBonus
         }
 
         public static ulong GenerateTotalCost(MySqlConnection conn, int characterId, sbyte level)

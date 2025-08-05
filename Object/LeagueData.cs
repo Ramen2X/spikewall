@@ -12,6 +12,45 @@
         public string[]? highScoreOpe { get; set; }
         public string[]? totalScoreOpe { get; set; }
 
+        /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all Runners League Ranks.
+        /// </summary>
+        public enum LeagueID
+        {
+            F_M,
+            F,
+            F_P,
+            E_M,
+            E,
+            E_P,
+            D_M,
+            D,
+            D_P,
+            C_M,
+            C,
+            C_P,
+            B_M,
+            B,
+            B_P,
+            A_M,
+            A,
+            A_P,
+            S_M,
+            S,
+            S_P
+        }
+
+        /// <summary>
+        /// Enum that contains the the mode types
+        /// and IDs of the Runners League Ranks.
+        /// </summary>
+        public enum RankingMode
+        {
+            Endless,
+            Quick
+        }
+
         public LeagueData()
         {
             leagueId = "0";

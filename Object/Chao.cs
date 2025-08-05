@@ -14,6 +14,120 @@ namespace spikewall.Object
 
         // Apparently unused?
         public long? hidden { get; set; }
+
+        /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all buddies.
+        /// </summary>
+        public enum ChaoID
+        {
+            HeroChao,
+            GoldChao,
+            DarkChao,
+            JewelChao,
+            NormalChao,
+            Omochao,
+            RCSpring,
+            BabyCyanWisp,
+            BabyIndigoWisp,
+            BabyYellowWisp,
+            RCPinwheel,
+            RCPiggyBank,
+            RCBalloon,
+            EggChao,
+            PumpkinChao,
+            SkullChao,
+            Yacker,
+            RCGoldenPiggyBank,
+            WizardChao,
+            HeroChaos,
+            Chip,
+            Caliburn,
+            RCMonkey,
+            RCMagnet,
+            RCUFO,
+            RCBattleCrusier,
+            EasterChao,
+            EasterBunny,
+            Merlina,
+            Shahra,
+            MagLv1,
+            Rappy,
+            Kuna,
+            PurplePapurisu,
+            Suketoudara,
+            Carbuncle,
+            Cartridge,
+            Genesis,
+            DeathEgg,
+            DesertChao,
+            MagicLamp,
+            ErazorDjinn,
+            RCGoldenAngel,
+            RCTornado,
+            Nightopian,
+            NiGHTS,
+            Reala,
+            BlowfishTransporter,
+            MarineChao,
+            MotherWisp,
+            Orca,
+            Chaos,
+            RCTornado2,
+            GreenCrystalMonsterS,
+            GreenCrystalMonsterL,
+            LightChaos,
+            RCTurtle,
+            DarkChaos,
+            RCPirateSpaceship,
+            RCSatellite,
+            StarShapedMissiles,
+            RCMoonMech,
+            GoldenGoose,
+            RedCrystalMonsterS,
+            RedCrystalMonsterL,
+            Boo,
+            HalloweenChao,
+            KingBoomBoo,
+            SonicOmochao,
+            TailsOmochao,
+            KnucklesOmochao,
+            RCAirship,
+            KingAuthursGhost,
+            HeavyBomb,
+            OPapa,
+            OpaOpa,
+            DarkQueen,
+            ChaoWalker,
+            Ideya,
+            ChristmasNightopian,
+            ChristmasNiGHTS,
+            SnowChao,
+            Yeti,
+            ChristmasYeti,
+            RCBomber,
+            RCFighter,
+            RCHelicopter,
+            RCHovercraft,
+            Orbot,
+            Cubot,
+            DarkChaoWalker,
+            HunkofMeat,
+            BlockBomb,
+            RCBlockFace
+        }
+
+        /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all rarities.
+        /// </summary>
+        public enum Rarity
+        {
+            Normal,
+            Rare,
+            SRare,
+            None
+        }
     }
 
     public class Chao : ChaoBase
@@ -110,6 +224,16 @@ namespace spikewall.Object
         public long? numChaoRoulette { get; set; }
         public long? startTime { get; set; }
         public long? endTime { get; set; }
+
+        /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all Chao Roulette Types.
+        /// </summary>
+        public enum ChaoRouletteType
+        {
+            Normal,
+            Special
+        }
 
         public ChaoWheelOptions()
         {

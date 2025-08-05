@@ -18,6 +18,17 @@ namespace spikewall.Object
         public long numRemainingRoulette { get; set; }
         public Item[]? itemList { get; set; }
 
+        /// <summary>
+        /// Enum that contains the names 
+        /// and IDs of all Item Roulette Ranks.
+        /// </summary>
+        public enum RouletteRank
+        {
+            Normal,
+            Big,
+            Super
+        }
+
         public SRStatusCode Populate(MySqlConnection conn, string uid)
         {
             PlayerState playerState = new();
