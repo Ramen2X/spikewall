@@ -76,7 +76,7 @@ namespace spikewall.Object
         /// </summary>
         public enum CharacterId
         {
-            Sonic,
+            Sonic = 300000,
             Tails,
             Knuckles,
             Amy,
@@ -91,20 +91,20 @@ namespace spikewall.Object
             Vector,
             Silver,
             MetalSonic,
-            AmitieAmy,
             ClassicSonic,
+            Werehog,
+            Sticks,
             Tikal,
+            Mephiles,
+            PSISilver,
+            AmitieAmy = 301000,
             GothicAmy,
             HalloweenShadow,
             HalloweenRouge,
             HalloweenOmega,
-            Mephiles,
-            PSISilver,
             ChristmasSonic,
             ChristmasTails,
-            ChristmasKnuckles,
-            Werehog,
-            Sticks
+            ChristmasKnuckles
         }
 
         /// <summary>
