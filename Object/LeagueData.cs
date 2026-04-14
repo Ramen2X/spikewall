@@ -15,30 +15,31 @@
         /// <summary>
         /// Enum that contains the names 
         /// and IDs of all Runners League Ranks.
+        /// The number at the end signifies the number of stars in each League.
         /// </summary>
         public enum LeagueID
         {
-            F_M,
-            F,
-            F_P,
-            E_M,
-            E,
-            E_P,
-            D_M,
-            D,
-            D_P,
-            C_M,
-            C,
-            C_P,
-            B_M,
-            B,
-            B_P,
-            A_M,
-            A,
-            A_P,
-            S_M,
-            S,
-            S_P
+            F1,
+            F2,
+            F3,
+            E1,
+            E2,
+            E3,
+            D1,
+            D2,
+            D3,
+            C1,
+            C2,
+            C3,
+            B1,
+            B2,
+            B3,
+            A1,
+            A2,
+            A3,
+            S1,
+            S2,
+            S3
         }
 
         /// <summary>
