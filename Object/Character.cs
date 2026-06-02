@@ -130,6 +130,10 @@ namespace spikewall.Object
             UnlockedByRoulette
         }
 
+        /// <summary>
+        /// Enum containing possible upgrades 
+        /// for each character level up
+        /// </summary>
         public enum UpgradeAbility
         {
             Invincible,
