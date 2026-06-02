@@ -139,13 +139,36 @@ namespace spikewall.Object
         // The level of this chao.
         public sbyte? level { get; set; }
 
-        // Unsure of this right now.
+        // Whether the chao is equipped as a primary or secondary buddy or not at all.
         public long? setStatus { get; set; }
 
         // Unsure about this. Whether or not
         // the chao is unlocked is already noted
         // with "status", so it cannot be that?
         public long? acquired { get; set; }
+
+        /// <summary>
+        /// Enum that contains the status of whether a chao 
+        /// is locked, unlocked, or max level
+        /// </summary>
+        public enum Status
+        {
+            NotOwned,
+            Owned,
+            MaxLevel
+        }
+
+        /// <summary>
+        /// Enum that contains the SetStatus of a chao being 
+        /// equipped as a primary or secondary buddy or not at all
+        /// </summary>
+
+        public enum SetStatus
+        {
+            None,
+            Primary,
+            Secondary
+        }
 
         public Chao()
         {
