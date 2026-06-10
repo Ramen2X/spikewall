@@ -38,7 +38,7 @@
 
             RedStarRing = 900000,
             Ring = 910000,
-            PowerRing= 960000
+            PowerRing = 960000
         }
 
         public Item(long itemId, long numItem)
