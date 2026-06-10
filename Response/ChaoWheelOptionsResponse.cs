@@ -3,7 +3,7 @@
 namespace spikewall.Response
 {
     /// <summary>
-    /// Response containing player-specific information about the game chao
+    /// Response containing player-specific information about the Chao Wheel
     /// </summary>
     public class ChaoWheelOptionsResponse : BaseResponse
     {
