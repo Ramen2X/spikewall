@@ -37,7 +37,8 @@
             ItemRouletteTicket = 240000,
 
             RedStarRing = 900000,
-            Ring = 910000
+            Ring = 910000,
+            PowerRing= 960000
         }
 
         public Item(long itemId, long numItem)
