@@ -285,7 +285,7 @@ namespace spikewall.Object
                     setStatus = Convert.ToInt64(chaoRdr["setStatus"]),
                     acquired = Convert.ToInt64(chaoRdr["acquired"]),
                 };
-                c.status = (sbyte)((c.status != (sbyte)Status.NotOwned) ? 0 : 1);
+                c.status = (sbyte)((c.status == (sbyte)Status.NotOwned) ? 0 : 1);
 
                 chaoRdr.Close();
 
