@@ -286,6 +286,10 @@ namespace spikewall.Object
                     acquired = Convert.ToInt64(chaoRdr["acquired"]),
                 };
                 c.status = (sbyte)((c.status == (sbyte)Status.NotOwned) ? 0 : 1);
+                if (c.level == 10)
+                {
+                    c.status = (sbyte)Status.MaxLevel;
+                }
 
                 chaoRdr.Close();
 
