@@ -6,7 +6,7 @@ namespace spikewall.Object
     public class ChaoBase
     {
         // The ID of this chao.
-        public int? chaoID { get; set; }
+        public string? chaoID { get; set; }
 
         // The rarity of this chao.
         // Rarities range from N to SR.
@@ -190,7 +190,7 @@ namespace spikewall.Object
                 while (chaoRdr.Read()) {
                     Chao c = new();
 
-                    c.chaoID = Convert.ToInt32(chaoRdr["id"]);
+                    c.chaoID = Convert.ToString(chaoRdr["id"]);
                     c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
                     c.hidden = Convert.ToInt64(chaoRdr["hidden"]);
 
@@ -278,7 +278,7 @@ namespace spikewall.Object
 
                 Chao c = new()
                 {
-                    chaoID = Convert.ToInt32(chaoId),
+                    chaoID = Convert.ToString(chaoId),
 
                     status = Convert.ToSByte(chaoRdr["status"]),
                     level = Convert.ToSByte(chaoRdr["level"]),
@@ -321,7 +321,7 @@ namespace spikewall.Object
             int index = -1;
             for (int i = 0; i < chaoState.Length; i++)
             {
-                if (chaoState[i].chaoID == chaoId)
+                if (Convert.ToInt32(chaoState[i].chaoID) == chaoId)
                 {
                     index = i;
                     break;
