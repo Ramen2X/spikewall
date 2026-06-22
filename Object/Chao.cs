@@ -12,7 +12,7 @@ namespace spikewall.Object
         // Rarities range from N to SR.
         public long? rarity { get; set; }
 
-        // Apparently unused?
+        // Hides the chao in case they're not ready to be showcased to the public
         public long? hidden { get; set; }
 
         /// <summary>
