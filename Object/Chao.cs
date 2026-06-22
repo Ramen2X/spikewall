@@ -260,6 +260,57 @@ namespace spikewall.Object
 
             return SRStatusCode.Ok;
         }
+
+        public static SRStatusCode AddChaoToChaoState(MySqlConnection conn, int chaoId, ref Chao[] chaoState, string uid, ref int chaoIndex)
+        {
+            // Get info about provided character
+            var sql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}';", chaoId);
+            var chaoCmd = new MySqlCommand(sql, conn);
+            var chaoRdr = chaoCmd.ExecuteReader();
+
+            if (chaoRdr.HasRows)
+            {
+                // Convert CharacterState to list so we can append to it
+                List<Chao> chaoStateList = new(chaoState);
+
+                // Read row
+                chaoRdr.Read();
+
+                Chao c = new()
+                {
+                    chaoID = Convert.ToString(chaoId),
+
+                    status = Convert.ToSByte(chaoRdr["status"]),
+                    level = Convert.ToSByte(chaoRdr["level"]),
+                    setStatus = Convert.ToInt64(chaoRdr["setStatus"]),
+                    acquired = Convert.ToInt64(chaoRdr["acquired"]),
+                };
+                c.status = (sbyte)((c.status != (sbyte)Status.NotOwned) ? 0 : 1);
+
+                chaoRdr.Close();
+
+                // Insert our newly crafted chao into the ChaoState
+                sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (
+                                              user_id, chao_id, status, level, set_status, acquired
+                                          ) VALUES (
+                                              '{0}', '{1}', '{2}', '{3}'
+                                          );", uid, c.chaoID, c.status, c.level, c.setStatus, c.acquired);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+
+                chaoStateList.Add(c);
+
+                // Convert ChaoState back to array to return it
+                chaoState = chaoStateList.ToArray();
+
+                // Return the index of the newly added chao
+                chaoIndex = chaoStateList.Count - 1;
+
+                return SRStatusCode.Ok;
+            }
+            // The chao we're being requested to add does not exist
+            else return SRStatusCode.InternalServerError;
+        }
     }
 
     public class ChaoWheelOptions
