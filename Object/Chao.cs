@@ -311,6 +311,20 @@ namespace spikewall.Object
             // The chao we're being requested to add does not exist
             else return SRStatusCode.InternalServerError;
         }
+
+        public static int FindChaoInChaoState(int chaoId, Chao[] chaoState)
+        {
+            int index = -1;
+            for (int i = 0; i < chaoState.Length; i++)
+            {
+                if (Convert.ToInt32(chaoState[i].chaoID) == chaoId)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
     }
 
     public class ChaoWheelOptions
