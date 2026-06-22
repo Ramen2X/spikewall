@@ -233,6 +233,33 @@ namespace spikewall.Object
 
             return SRStatusCode.Ok;
         }
+        public static SRStatusCode SaveChaoState(MySqlConnection conn, string uid, Chao[] chaoState)
+        {
+            for (int i = 0; i < chaoState.Length; i++)
+            {
+                var sql = Db.GetCommand(
+                  @"UPDATE `sw_chaostates` SET
+                    status = '{0}',
+                    level = '{1}',
+                    set_status = '{2}',
+                    acquired = '{3}'",
+                        chaoState[i].status,
+                        chaoState[i].level,
+                        chaoState[i].setStatus,
+                        chaoState[i].acquired);
+                var command = new MySqlCommand(sql, conn);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    // Failed to find row with this user ID
+                    return SRStatusCode.MissingPlayer;
+                }
+            }
+
+            return SRStatusCode.Ok;
+        }
     }
 
     public class ChaoWheelOptions
