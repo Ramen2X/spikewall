@@ -465,8 +465,9 @@ namespace spikewall.Controllers
 
                 // Character experience is based on how many rings were collected in the entire run
                 //var exp = request.numRings + request.numFailureRings;
+
                 // In the original game, character experience is based on 
-                var exp = (ulong)playerState.quickTotalHighScore / 5000;
+                var exp = request.score / 5000;
 
                 sbyte charactersInRun = 1;
 
@@ -606,9 +607,10 @@ namespace spikewall.Controllers
 
                 // Character experience is based on how many rings were collected in the entire run
                 //var exp = request.numRings + request.numFailureRings;
-                // In the original game, character experience is based on totalHighScore / 5000;
+
+                // In the original game, character experience is based on total final score / 5000;
                 // Character experience in boss showdowns is All-Or-Nothing (2000 for successful EXP, 0 for Failure)
-                var exp = (ulong)playerState.totalHighScore / 5000;
+                var exp = request.score / 5000;
                 if (request.bossDestroyed != 0)
                 {
                     exp = 2000;
