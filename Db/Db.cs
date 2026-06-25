@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using MySqlConnector;
+using spikewall.Object;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -137,7 +138,9 @@ namespace spikewall
                                          bool information = false,
                                          bool incentives = false,
                                          bool wheelOptions = false,
-                                         bool itemRouletteOptions = false)
+                                         bool itemRouletteOptions = false,
+                                         bool chaoWheelOptions = false,
+                                         bool chaoRouletteOptions = false)
         {
             using var conn = Db.Get();
             conn.Open();
@@ -210,6 +213,16 @@ namespace spikewall
             if (itemRouletteOptions)
             {
                 QuickRun(conn, @"..\sqlfiles\itemrouletteoptions.sql");
+            }
+
+            if (chaoWheelOptions)
+            {
+                QuickRun(conn, @"..\sqlfiles\chaoWheelOptions.sql");
+            }
+
+            if (chaoRouletteOptions)
+            {
+                QuickRun(conn, @"..\sqlfiles\chaoRouletteOptions.sql");
             }
 
             conn.Close();
