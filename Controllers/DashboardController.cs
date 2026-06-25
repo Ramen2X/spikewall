@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using spikewall.Object;
 
 namespace spikewall.Controllers
 {
@@ -21,13 +22,15 @@ namespace spikewall.Controllers
                                            bool information = false,
                                            bool incentives = false,
                                            bool wheelOptions = false,
-                                           bool itemRouletteOptions = false)
+                                           bool itemRouletteOptions = false,
+                                           bool chaoWheelOptions = false,
+                                           bool chaoRouletteOptions = false)
         {
             // FIXME: this endpoint needs to be privileged
 
             try
             {
-                Db.ResetDatabase(chao, players, characters, mileageMapStates, config, tickers, dailyChallenge, costs, itemOwnership, information, incentives, wheelOptions, itemRouletteOptions);
+                Db.ResetDatabase(chao, players, characters, mileageMapStates, config, tickers, dailyChallenge, costs, itemOwnership, information, incentives, wheelOptions, itemRouletteOptions, chaoWheelOptions, chaoRouletteOptions);
                 return StatusCode(200, "Database reset successfully");
             }
             catch (MySqlException e)
