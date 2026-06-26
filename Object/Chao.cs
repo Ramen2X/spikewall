@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
 using spikewall.Response;
+using System.Security.Cryptography;
 
 namespace spikewall.Object
 {
@@ -402,6 +403,31 @@ namespace spikewall.Object
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return getChaoWheelOptionsStatus;
+            }
+
+            return SRStatusCode.Ok;
+        }
+
+        public SRStatusCode Save(MySqlConnection conn, string uid)
+        {
+            var sql = Db.GetCommand(
+                @"UPDATE `sw_chaowheeloptions` SET
+                    num_special_egg = '{0}',
+                    chao_roulette_tickets = '{1}',
+                    chao_roulette_rank = '{2}'
+                  WHERE user_id = '{3}';",
+                    this.numSpecialEgg,
+                    this.numChaoRouletteToken,
+                    this.chaoRouletteType,
+                    uid);
+            var command = new MySqlCommand(sql, conn);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected == 0)
+            {
+                // Failed to find row with this user ID
+                return SRStatusCode.MissingPlayer;
             }
 
             return SRStatusCode.Ok;
