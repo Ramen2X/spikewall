@@ -355,6 +355,86 @@ namespace spikewall.Object
             Special
         }
 
+        public SRStatusCode PopulateChaoWheel(MySqlConnection conn, string uid)
+        {
+            PlayerState playerState = new();
+            var populateStatus = playerState.Populate(conn, uid);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return populateStatus;
+            }
+
+            var sql = Db.GetCommand("SELECT * FROM `sw_chaowheeloptions WHERE user_id = '{0}'", uid);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            DateTimeOffset nextDayStart = new DateTime(
+                DateTime.Now.Year,
+                DateTime.Now.Month,
+                DateTime.Now.Day,
+                0, 0, 0, 0).AddDays(1);
+
+            if (reader.Read())
+            {
+                this.chaoRouletteType = reader.GetInt64("chao_roulette_rank");
+                this.spinCost = reader.GetInt64("chao_roulette_cost");
+                this.numSpecialEgg = reader.GetInt64("num_special_egg");
+                this.numChaoRouletteToken = reader.GetInt64("chao_roulette_ticket");
+                this.startTime = nextDayStart.ToUnixTimeSeconds();
+                this.endTime = nextDayStart.ToUnixTimeSeconds();
+                reader.Close();
+            }
+            else
+            {
+                // No ChaoWheelOptions for this player, create one
+                reader.Close();
+
+                sql = Db.GetCommand(@"INSERT INTO `sw_chaowheeloptions` (
+                                            user_id, num_special_egg, chao_roulette_ticket, chao_roulette_cost, chao_roulette_rank
+                                        ) VALUES (
+                                            '{0}', '{1}', '{2}', '{3}', '{4}'
+                                        );", uid, 0, 0, 50, 0);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+            }
+
+            var getChaoWheelOptionsStatus = GetChaoWheelOptions(conn, this.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
+            if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
+            {
+                return getChaoWheelOptionsStatus;
+            }
+
+            return SRStatusCode.Ok;
+        }
+
+        public static SRStatusCode GetChaoWheelOptions(MySqlConnection conn, long? chaoRouletteRank, out long[] chaoRarity, out short[] chaoWeight)
+        {
+            chaoRarity = new long[8];
+            chaoWeight = new short[8];
+
+            var sql = Db.GetCommand("SELECT * FROM `sw_chaoroulette` WHERE chao_roulette_rank = '{0}'", chaoRouletteRank);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                for (sbyte i = 0; i < 8; i++)
+                {
+
+                    chaoRarity[i] = reader.GetInt64("chao_rarity");
+                    chaoWeight[i] = reader.GetInt16("chao_rate");
+                    reader.Read();
+                }
+
+                reader.Close();
+            }
+            else return SRStatusCode.InternalServerError;
+
+            return SRStatusCode.Ok;
+        }
+
+
+
         public ChaoWheelOptions()
         {
             // FIXME: Dummy data
