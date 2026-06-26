@@ -459,22 +459,20 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
-
-
-        public ChaoWheelOptions()
-        {
-            // FIXME: Dummy data
-            rarity = Array.Empty<long>();
-            itemWeight = Array.Empty<long>();
-            campaignList = Array.Empty<Campaign>();
-            spinCost = 0;
-            chaoRouletteType = 0;
-            numSpecialEgg = 0;
-            rouletteAvailable = 0;
-            numChaoRouletteToken = 0;
-            numChaoRoulette = 0;
-            startTime = 0;
-            endTime = 0;
-        }
+        //public ChaoWheelOptions()
+        //{
+        //    // FIXME: Dummy data
+        //    rarity = Array.Empty<long>();
+        //    itemWeight = Array.Empty<long>();
+        //    campaignList = Array.Empty<Campaign>();
+        //    spinCost = 0;
+        //    chaoRouletteType = 0;
+        //    numSpecialEgg = 0;
+        //    rouletteAvailable = 0;
+        //    numChaoRouletteToken = 0;
+        //    numChaoRoulette = 0;
+        //    startTime = 0;
+        //    endTime = 0;
+        //}
     }
 }
