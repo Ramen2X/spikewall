@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
 
@@ -23,7 +24,21 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // FIXME: Stub
+            PlayerState playerState = new();
+
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
+
+            ChaoWheelOptions chaoWheelOptions = new();
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+
+            ChaoWheelOptionsResponse chaoWheelOptionsResponse = new()
+            {
+                chaoWheelOptions = chaoWheelOptions
+            };
 
             return new JsonResult(EncryptedResponse.Generate(iv, new ChaoWheelOptionsResponse()));
         }

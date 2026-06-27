@@ -459,6 +459,19 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
+        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn)
+        {
+            // Add the buddies and characters into the Chao Roulette
+            // on_chao_roulette = 0 means not in Chao Roulette, on_chao_roulette = 1 means in Chao Roulette
+            var sqlChao = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{0}'", 1);
+            var commandChao = new MySqlCommand(sqlChao, conn);
+            var sqlCharacter = Db.GetCommand("SELECT * FROM `sw_characters` WHERE on_chao_roulette = '{0}'", 1);
+            var commandCharacter = new MySqlCommand(sqlCharacter, conn);
+            commandChao.ExecuteNonQuery();
+            commandCharacter.ExecuteNonQuery();
+            return SRStatusCode.Ok;
+        }
+
         //public ChaoWheelOptions()
         //{
         //    // FIXME: Dummy data
