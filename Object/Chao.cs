@@ -460,7 +460,7 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
-        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn, string uid, int chaoId, int characterId, ref int chaoIndex, ref int characterIndex, ref Chao[] chaoState, ref Character[] characterState)
+        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn, string uid, ref int chaoId, ref int characterId, ref int chaoIndex, ref int characterIndex, ref Chao[] chaoState, ref Character[] characterState)
         {
 
             PlayerState playerState = new();
@@ -507,9 +507,6 @@ namespace spikewall.Object
                 // Convert prizeList back to array to return it
                 chaoState = prizeList.ToArray();
 
-                // Return the index of the newly added chao
-                chaoIndex = prizeList.Count - 1;
-
                 return SRStatusCode.Ok;
             }
             
@@ -544,14 +541,10 @@ namespace spikewall.Object
                 // Convert prizeList back to array to return it
                 characterState = prizeList.ToArray();
 
-                // Return the index of the newly added character
-                characterIndex = prizeList.Count - 1;
-
                 return SRStatusCode.Ok;
             }
 
-
-            // The chao we're being requested to add does not exist
+            // The chao or character we're being requested to add does not exist
             else return SRStatusCode.InternalServerError;
         }
 
