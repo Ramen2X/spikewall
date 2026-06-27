@@ -14,6 +14,4 @@ namespace spikewall.Request
     {
         public int count { get; set; }
     }
-
-
 }
