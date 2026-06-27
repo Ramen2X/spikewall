@@ -7,9 +7,9 @@
     {
         public string[]? prizeList { get; set; }
 
-        public PrizeChaoWheelSpinResponse()
+        public PrizeChaoWheelSpinResponse(string[] prizeList)
         {
-            this.prizeList = Array.Empty<string>();
+            this.prizeList = prizeList;
         }
     }
 }
