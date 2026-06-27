@@ -519,7 +519,7 @@ namespace spikewall.Object
             var characterRdr = characterCmd.ExecuteReader();
             if (characterRdr.HasRows)
             {
-                List<Character> prizeList = new();
+                List<Character> prizeList = new(characterState);
 
                 // Read row
                 characterRdr.Read();
