@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS `sw_chaoroulette`;
 
+DROP TABLE IF EXISTS `sw_chaorouletteprizelist`
+
 CREATE TABLE
   `sw_chaoroulette` (
     chao_roulette_rank TINYINT NOT NULL,
@@ -26,3 +28,8 @@ VALUES
   ('1', '2', '1467'),
   ('1', '100', '1000'),
   ('1', '1', '1200');
+
+CREATE TABLE 
+    `sw_chaorouletteprizelist`  (
+    chao_id INT MEDIUMINT UNSIGNED NOT NULL
+);

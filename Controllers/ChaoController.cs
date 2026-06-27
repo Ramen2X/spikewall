@@ -40,7 +40,7 @@ namespace spikewall.Controllers
                 chaoWheelOptions = chaoWheelOptions
             };
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new ChaoWheelOptionsResponse()));
+            return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelOptionsResponse));
         }
 
         [HttpPost]
@@ -58,7 +58,16 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            // FIXME: Stub
+            PlayerState playerState = new();
+
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
+
+            ChaoWheelOptions chaoWheelOptions = new();
+
 
             return new JsonResult(EncryptedResponse.Generate(iv, new PrizeChaoWheelSpinResponse()));
         }

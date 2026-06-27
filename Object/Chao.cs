@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using spikewall.Response;
 using System.Security.Cryptography;
+using static spikewall.Object.ChaoBase;
 
 namespace spikewall.Object
 {
@@ -264,7 +265,7 @@ namespace spikewall.Object
 
         public static SRStatusCode AddChaoToChaoState(MySqlConnection conn, int chaoId, ref Chao[] chaoState, string uid, ref int chaoIndex)
         {
-            // Get info about provided character
+            // Get info about provided chao
             var sql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}';", chaoId);
             var chaoCmd = new MySqlCommand(sql, conn);
             var chaoRdr = chaoCmd.ExecuteReader();
@@ -459,17 +460,99 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
-        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn)
+        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn, string uid, int chaoId, int characterId, ref int chaoIndex, ref int characterIndex, ref Chao[] chaoState, ref Character[] characterState)
         {
-            // Add the buddies and characters into the Chao Roulette
-            // on_chao_roulette = 0 means not in Chao Roulette, on_chao_roulette = 1 means in Chao Roulette
-            var sqlChao = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{0}'", 1);
-            var commandChao = new MySqlCommand(sqlChao, conn);
-            var sqlCharacter = Db.GetCommand("SELECT * FROM `sw_characters` WHERE on_chao_roulette = '{0}'", 1);
-            var commandCharacter = new MySqlCommand(sqlCharacter, conn);
-            commandChao.ExecuteNonQuery();
-            commandCharacter.ExecuteNonQuery();
-            return SRStatusCode.Ok;
+
+            PlayerState playerState = new();
+            var populateStatus = playerState.Populate(conn, uid);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return populateStatus;
+            }
+
+            var sql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", uid);
+            var command = new MySqlCommand(sql, conn);
+            var reader = command.ExecuteReader();
+
+            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}', on_chao_roulette = '{1}'", chaoId, 1);
+            var chaoCmd = new MySqlCommand(chaosql, conn);
+            var chaoRdr = chaoCmd.ExecuteReader();
+            if (chaoRdr.HasRows)
+            {
+                // Convert ChaoState to list so we can append to it
+                List<Chao> prizeList = new(chaoState);
+
+                // Read row
+                chaoRdr.Read();
+
+                Chao c = new()
+                {
+                    chaoID = Convert.ToString(chaoId),
+                };
+
+
+                chaoRdr.Close();
+
+                // Insert our chao into the Prize List
+                sql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
+                                              chao_id
+                                          ) VALUES (
+                                              '{0}'
+                                          );", c.chaoID);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+
+                prizeList.Add(c);
+
+                // Convert prizeList back to array to return it
+                chaoState = prizeList.ToArray();
+
+                // Return the index of the newly added chao
+                chaoIndex = prizeList.Count - 1;
+
+                return SRStatusCode.Ok;
+            }
+            
+
+            var charactersql = Db.GetCommand("SELECT * FROM `sw_character` WHERE id = '{0}', on_chao_roulette = '{1}'", characterId, 1);
+            var characterCmd = new MySqlCommand(chaosql, conn);
+            var characterRdr = characterCmd.ExecuteReader();
+            if (characterRdr.HasRows)
+            {
+                List<Character> prizeList = new();
+
+                // Read row
+                characterRdr.Read();
+
+                Character c = new()
+                {
+                    characterId = Convert.ToInt32(characterId),
+                };
+                chaoRdr.Close();
+
+                // Insert our chao into the Prize List
+                sql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
+                                              chao_id
+                                          ) VALUES (
+                                              '{0}'
+                                          );", c.characterId);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+
+                prizeList.Add(c);
+
+                // Convert prizeList back to array to return it
+                characterState = prizeList.ToArray();
+
+                // Return the index of the newly added character
+                characterIndex = prizeList.Count - 1;
+
+                return SRStatusCode.Ok;
+            }
+
+
+            // The chao we're being requested to add does not exist
+            else return SRStatusCode.InternalServerError;
         }
 
         //public ChaoWheelOptions()
