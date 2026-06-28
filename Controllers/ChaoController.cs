@@ -294,11 +294,11 @@ namespace spikewall.Controllers
             {
                 if (playerState.numChaoRouletteTicket > 0)
                 {
-                    playerState.numChaoRouletteTicket -= 1 * commitChaoWheelSpinRequest.count;
+                    playerState.numChaoRouletteTicket -= 1 * requestCount;
                 }
                 else
                 {
-                    playerState.numRedRings -= 50 * (ulong)commitChaoWheelSpinRequest.count;
+                    playerState.numRedRings -= 50 * (ulong)requestCount;
                 }
             }
             else
@@ -308,7 +308,7 @@ namespace spikewall.Controllers
 
             int[] chaoPrizeWinIndex = new int[5];
             int[] characterPrizeWinIndex = new int[5];
-            for (int i = 0; i < commitChaoWheelSpinRequest.count; i++)
+            for (int i = 0; i < requestCount; i++)
             {
                 switch (wonItemID)
                 {
