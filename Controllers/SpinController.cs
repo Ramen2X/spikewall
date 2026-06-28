@@ -91,6 +91,46 @@ namespace spikewall.Controllers
             var wonItemID = wheelOptions.items[wonItemIndex];
             var wonItemCount = (ulong)wheelOptions.item[wonItemIndex];
 
+            var chaostatesql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", clientReq.userId);
+            var chaostatecommand = new MySqlCommand(chaostatesql, conn);
+            var chaostatereader = chaostatecommand.ExecuteReader();
+
+            var itemchaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_item_roulette = '{1}'", 1);
+            var chaoCmd = new MySqlCommand(itemchaosql, conn);
+            var chaoRdr = chaoCmd.ExecuteReader();
+            List<Chao> chaoItemRoulettePrizeList;
+            if (chaoRdr.HasRows)
+            {
+                // Convert ChaoState to list so we can append to it
+                chaoItemRoulettePrizeList = new(chaoState);
+
+                // Read row
+                chaoRdr.Read();
+
+                Chao c = new()
+                {
+                    chaoID = Convert.ToString(chaoRdr["id"])
+                };
+
+
+                chaoRdr.Close();
+
+                // Insert our chao into the Prize List
+                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
+                                              chao_id
+                                          ) VALUES (
+                                              '{0}'
+                                          );", c.chaoID);
+                var insertCmd = new MySqlCommand(chaostatesql, conn);
+                insertCmd.ExecuteNonQuery();
+
+                chaoItemRoulettePrizeList.Add(c);
+
+                // Convert prizeList back to array to return it
+                chaoState = chaoItemRoulettePrizeList.ToArray();
+            }
+
+
             switch (wonItemID)
             {
                 // Only add valid items to the item list (120000 - 120007)
@@ -127,9 +167,7 @@ namespace spikewall.Controllers
                     wheelOptions.rouletteRank = 0;
                     break;
                 case (long)ItemID.NormalEgg: // normal buddy
-                    var chaosql = Db.GetCommand("SELECT id FROM `sw_chao` WHERE on_item_roulette = '{0}'", 1);
-                    var chaoCmd = new MySqlCommand(chaosql, conn);
-                    var chaoRdr = chaoCmd.ExecuteReader();
+
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;
                     break;
