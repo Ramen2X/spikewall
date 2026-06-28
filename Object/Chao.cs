@@ -564,4 +564,21 @@ namespace spikewall.Object
         //    endTime = 0;
         //}
     }
+
+    public class ChaoPrize : ChaoBase
+    {
+
+    }
+
+    public class ChaoSpinPrize : ChaoBase
+    {
+        public sbyte? level { get; set; }
+    }
+
+    public class ChaoSpinResult
+    {
+        public ChaoSpinPrize PrizeWon { get; set; }
+        public Item[] ItemList { get; set; }
+        public int ItemWon { get; set;  }
+    }
 }
