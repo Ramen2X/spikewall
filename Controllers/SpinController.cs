@@ -3,6 +3,7 @@ using MySqlConnector;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
+using System.Security.Cryptography;
 using static spikewall.Object.Chao;
 using static spikewall.Object.ChaoBase;
 using static spikewall.Object.Item;
@@ -109,14 +110,12 @@ namespace spikewall.Controllers
 
                 Chao c = new()
                 {
-                    chaoID = Convert.ToString(chaoRdr["id"])
+                    chaoID = Convert.ToString(chaoRdr["id"]),
                 };
-
-
                 chaoRdr.Close();
 
                 // Insert our chao into the Prize List
-                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
+                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_chaoitemrouletteprizelist` (
                                               chao_id
                                           ) VALUES (
                                               '{0}'
@@ -167,7 +166,29 @@ namespace spikewall.Controllers
                     wheelOptions.rouletteRank = 0;
                     break;
                 case (long)ItemID.NormalEgg: // normal buddy
-
+                    int chaoPrizeWin = RandomNumberGenerator.GetInt32(0, chaoState.Length);
+                    for (int i = 0; i < chaoState.Length; i++)
+                    {
+                        if (chaoPrizeWin == i)
+                        {
+                            if (chaoState[chaoPrizeWin].status == (sbyte)Chao.Status.NotOwned)
+                            {
+                                chaoState[chaoPrizeWin].status = (sbyte)Chao.Status.Owned;
+                            }
+                            else if (chaoState[chaoPrizeWin].status == (sbyte)Chao.Status.Owned && chaoState[chaoPrizeWin].level < 10)
+                            {
+                                chaoState[chaoPrizeWin].level += 1;
+                            }
+                            else if (chaoState[chaoPrizeWin].level == 10)
+                            {
+                                chaoState[chaoPrizeWin].status = (sbyte)Chao.Status.MaxLevel;
+                            }
+                            else
+                            {
+                                playerState.chaoEggs += 1;
+                            }
+                        }
+                    }
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;
                     break;

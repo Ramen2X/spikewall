@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS `sw_itemroulette`;
 
+DROP TABLE IF EXISTS `sw_chaoitemrouletteprizelist`;
+
 CREATE TABLE
     `sw_itemroulette` (
         roulette_rank TINYINT NOT NULL,
@@ -35,3 +37,8 @@ VALUES
     ('2', '0', '1', '1250'),
     ('2', '900000', '5', '1250'),
     ('2', '0', '1', '1250');
+
+CREATE TABLE 
+    `sw_chaoitemrouletteprizelist` (
+        chao_id INT MEDIUMINT UNSIGNED NOT NULL
+    );
