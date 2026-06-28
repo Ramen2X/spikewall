@@ -3,6 +3,8 @@ using MySqlConnector;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
+using static spikewall.Object.Chao;
+using static spikewall.Object.ChaoBase;
 using static spikewall.Object.Item;
 
 namespace spikewall.Controllers
@@ -33,6 +35,12 @@ namespace spikewall.Controllers
             if (populateStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
+
+            var populateChaoState = PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
+            if (populateChaoState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
             }
 
             WheelOptions wheelOptions = new();
@@ -68,6 +76,12 @@ namespace spikewall.Controllers
             if (populatePlayerStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, populatePlayerStatus));
+            }
+
+            var populateChaoState = PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
+            if (populateChaoState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
             }
 
             WheelOptions wheelOptions = new();
@@ -112,8 +126,10 @@ namespace spikewall.Controllers
                     playerState.numRings += (ulong)wheelOptions.numJackpotRing;
                     wheelOptions.rouletteRank = 0;
                     break;
-                case 400000: // normal buddy
-                    // FIXME: Stub
+                case (long)ItemID.NormalEgg: // normal buddy
+                    var chaosql = Db.GetCommand("SELECT id FROM `sw_chao` WHERE on_item_roulette = '{0}'", 1);
+                    var chaoCmd = new MySqlCommand(chaosql, conn);
+                    var chaoRdr = chaoCmd.ExecuteReader();
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;
                     break;
@@ -155,7 +171,7 @@ namespace spikewall.Controllers
             {
                 playerState = playerState,
 
-                // FIXME: Missing ChaoState!!
+                chaoState = chaoState,
 
                 wheelOptions = wheelOptions
             };

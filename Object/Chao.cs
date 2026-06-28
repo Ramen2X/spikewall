@@ -477,7 +477,7 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
-        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn, string uid, ref int chaoId, ref int characterId, ref int chaoIndex, ref int characterIndex, ref Chao[] chaoState, ref Character[] characterState)
+        public static SRStatusCode GetPrizeChaoWheelOptions(MySqlConnection conn, string uid, ref Chao[] chaoState, ref Character[] characterState)
         {
 
             PlayerState playerState = new();
@@ -491,7 +491,7 @@ namespace spikewall.Object
             var command = new MySqlCommand(sql, conn);
             var reader = command.ExecuteReader();
 
-            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}', on_chao_roulette = '{1}'", chaoId, 1);
+            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{1}'", 1);
             var chaoCmd = new MySqlCommand(chaosql, conn);
             var chaoRdr = chaoCmd.ExecuteReader();
             if (chaoRdr.HasRows)
@@ -504,7 +504,7 @@ namespace spikewall.Object
 
                 Chao c = new()
                 {
-                    chaoID = Convert.ToString(chaoId),
+                    chaoID = Convert.ToString(chaoRdr["id"])
                 };
 
 
@@ -528,11 +528,12 @@ namespace spikewall.Object
             }
             
 
-            var charactersql = Db.GetCommand("SELECT * FROM `sw_character` WHERE id = '{0}', on_chao_roulette = '{1}'", characterId, 1);
+            var charactersql = Db.GetCommand("SELECT * FROM `sw_character` WHERE on_chao_roulette = '{0}'", 1);
             var characterCmd = new MySqlCommand(chaosql, conn);
             var characterRdr = characterCmd.ExecuteReader();
             if (characterRdr.HasRows)
             {
+                // Convert CharacterState to list so we can append to it
                 List<Character> prizeList = new(characterState);
 
                 // Read row
@@ -540,11 +541,11 @@ namespace spikewall.Object
 
                 Character c = new()
                 {
-                    characterId = Convert.ToInt32(characterId),
+                    characterId = Convert.ToInt32(characterRdr["id"])
                 };
-                chaoRdr.Close();
+                characterRdr.Close();
 
-                // Insert our chao into the Prize List
+                // Insert our character into the Prize List
                 sql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
                                               chao_id
                                           ) VALUES (

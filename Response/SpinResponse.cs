@@ -24,7 +24,7 @@ namespace spikewall.Response
     {
         public PlayerState playerState { get; set; }
 
-        // FIXME: ChaoState is also sent here!!
+        public Chao[] chaoState { get; set; }
 
         public WheelOptions wheelOptions { get; set; }
     }
