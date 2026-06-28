@@ -335,17 +335,18 @@ namespace spikewall.Controllers
                         break;
                     case (ulong)Item.ItemID.CharacterEgg:
                         var characterPrizeWinIndex = RandomNumberGenerator.GetInt32(0, characterState.Length);
-                        if (characterState[characterPrizeWinIndex].status == (sbyte)Character.Status.Locked)
+                        var wonCharacterPrize = characterState[characterPrizeWinIndex];
+                        if (wonCharacterPrize.status == (sbyte)Character.Status.Locked)
                         {
-                            chaoState[characterPrizeWinIndex].status = (sbyte)Character.Status.Unlocked;
+                            wonCharacterPrize.status = (sbyte)Character.Status.Unlocked;
                         }
-                        else if (characterState[characterPrizeWinIndex].status == (sbyte)Character.Status.Unlocked && characterState[characterPrizeWinIndex].star < 10)
+                        else if (wonCharacterPrize.status == (sbyte)Character.Status.Unlocked && wonCharacterPrize.star < 10)
                         {
-                            characterState[characterPrizeWinIndex].star += 1;
+                            wonCharacterPrize.star += 1;
                         }
-                        else if (characterState[characterPrizeWinIndex].star == 10)
+                        else if (wonCharacterPrize.star == 10)
                         {
-                            characterState[characterPrizeWinIndex].status = (sbyte)Character.Status.MaxLevel;
+                            wonCharacterPrize.status = (sbyte)Character.Status.MaxLevel;
                         }
                         else
                         {
@@ -353,7 +354,7 @@ namespace spikewall.Controllers
                             playerState.numRings += 10_000;
                             playerState.chaoEggs += 1;
                         }
-                        AddCharacterToCharacterState(conn, Convert.ToInt32(characterState[characterPrizeWinIndex]), ref characterState, clientReq.userId, ref characterPrizeWinIndex);
+                        AddCharacterToCharacterState(conn, wonCharacterPrize.characterId, ref characterState, clientReq.userId, ref characterPrizeWinIndex);
                         SaveCharacterState(conn, clientReq.userId, characterState);
                         break;
                 }
