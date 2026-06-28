@@ -12,4 +12,9 @@ namespace spikewall.Response
     {
         public PlayerState playerState { get; set; }
     }
+
+    public class EquipChaoResponse : BaseResponse
+    {
+        public PlayerState playerState { get; set; }
+    }
 }
