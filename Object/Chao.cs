@@ -353,7 +353,7 @@ namespace spikewall.Object
     public class ChaoWheelOptions
     {
         public long[]? rarity { get; set; }
-        public long[]? itemWeight { get; set; }
+        public short[]? itemWeight { get; set; }
         public Campaign[]? campaignList { get; set; }
         public long? spinCost { get; set; }
         public long? chaoRouletteType { get; set; }

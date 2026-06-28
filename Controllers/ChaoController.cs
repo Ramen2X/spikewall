@@ -203,6 +203,7 @@ namespace spikewall.Controllers
 
             ChaoWheelOptions chaoWheelOptions = new();
             chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+            chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
             ChaoSpinResult chaoSpinResult = new();
             WheelOptions wheelOptions = new();
@@ -299,6 +300,8 @@ namespace spikewall.Controllers
             }
             else
             {
+                chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
+                requestCount = 1;
                 playerState.chaoEggs -= 10;
             }
 
@@ -359,7 +362,41 @@ namespace spikewall.Controllers
                         break;
                 }
             }
-            return new JsonResult(EncryptedResponse.Generate(iv, new ChaoWheelSpinResponse()));
+
+            // Regenerate chao item list so the client's chao item list
+            // doesn't become desynced from the current premium roulette rank
+            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
+            if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            chaoWheelOptions.rarity = chaoRarity;
+            chaoWheelOptions.itemWeight = chaoWeight;
+
+            var savePlayerStatus = playerState.Save(conn, clientReq.userId);
+            if (savePlayerStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, savePlayerStatus));
+            }
+
+            var saveChaoWheelStatus = chaoWheelOptions.Save(conn, clientReq.userId);
+            if (saveChaoWheelStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, saveChaoWheelStatus));
+            }
+
+            ChaoWheelSpinResponse chaoWheelSpinResponse = new()
+            {
+                playerState = playerState,
+
+                characterState = characterState,
+
+                chaoState = chaoState,
+
+                ChaoWheelOptions = chaoWheelOptions
+            };
+            return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }
 
     }
