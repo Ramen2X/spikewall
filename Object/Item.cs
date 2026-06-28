@@ -13,6 +13,11 @@
         {
             None = -1,
 
+            NormalEgg,
+            RareEgg,
+            SuperRareEgg,
+            CharacterEgg = 100,
+
             ScoreBoost = 110000,
             SupportSpring,
             SubCharacter,
