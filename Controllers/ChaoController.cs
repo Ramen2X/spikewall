@@ -304,13 +304,12 @@ namespace spikewall.Controllers
                 requestCount = 1;
                 playerState.chaoEggs -= 10;
             }
-
-            var wonChaoIndex = chaoSpinResult.ItemWon;
-            var wonItemID = (ulong)wheelOptions.items[wonChaoIndex];
             
 
             for (int i = 0; i < requestCount; i++)
             {
+                var wonChaoIndex = chaoSpinResult.ItemWon;
+                var wonItemID = (ulong)wheelOptions.items[wonChaoIndex];
                 switch (wonItemID)
                 {
                     case (ulong)Item.ItemID.RareEgg:
