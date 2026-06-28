@@ -338,9 +338,9 @@ namespace spikewall.Object
 
     }
 
-    public class ChaoSpinPrize : ChaoBase
+    public class ChaoSpinPrize : Chao
     {
-        public sbyte? level { get; set; }
+
     }
 
     public class ChaoSpinResult
