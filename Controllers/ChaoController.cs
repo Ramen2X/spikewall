@@ -207,10 +207,6 @@ namespace spikewall.Controllers
             ChaoSpinResult chaoSpinResult = new();
             WheelOptions wheelOptions = new();
 
-            var wonChaoIndex = chaoSpinResult.ItemWon;
-            var wonItemID = (ulong)wheelOptions.items[wonChaoIndex];
-            var wonChaoPrize = chaoSpinResult.PrizeWon[wonItemID];
-
             var chaostatesql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", clientReq.userId);
             var chaostatecommand = new MySqlCommand(chaostatesql, conn);
             var chaostatereader = chaostatecommand.ExecuteReader();
@@ -306,60 +302,58 @@ namespace spikewall.Controllers
                 playerState.chaoEggs -= 10;
             }
 
-            int[] chaoPrizeWinIndex = new int[5];
-            int[] characterPrizeWinIndex = new int[5];
+            var wonChaoIndex = chaoSpinResult.ItemWon;
+            var wonItemID = (ulong)wheelOptions.items[wonChaoIndex];
+            
+
             for (int i = 0; i < requestCount; i++)
             {
                 switch (wonItemID)
                 {
                     case (ulong)Item.ItemID.RareEgg:
-                    case (ulong)Item.ItemID.SuperRareEgg:
-                        chaoPrizeWinIndex[i] = RandomNumberGenerator.GetInt32(0, chaoState.Length);
-                        for (int j = 0; j < chaoPrizeWinIndex.Length; j++)
+                    case (ulong)Item.ItemID.SuperRareEgg: 
+                        var chaoPrizeWinIndex = RandomNumberGenerator.GetInt32(0, chaoState.Length);
+                        var wonChaoPrize = chaoState[chaoPrizeWinIndex];
+                        if (wonChaoPrize.status == (sbyte)Chao.Status.NotOwned)
                         {
-                            if (chaoState[chaoPrizeWinIndex[j]].status == (sbyte)Chao.Status.NotOwned)
-                            {
-                                chaoState[chaoPrizeWinIndex[j]].status = (sbyte)Chao.Status.Owned;
-                            }
-
-                            else if (chaoState[chaoPrizeWinIndex[j]].status == (sbyte)Chao.Status.Owned && chaoState[chaoPrizeWinIndex[j]].level < 10)
-                            {
-                                chaoState[chaoPrizeWinIndex[j]].level += 1;
-                            }
-                             else if (chaoState[chaoPrizeWinIndex[j]].level == 10)
-                            {
-                                chaoState[chaoPrizeWinIndex[j]].status = (sbyte)Chao.Status.MaxLevel;
-                            }
-                            else
-                            {
-                                playerState.chaoEggs += 1;
-                            }
+                            wonChaoPrize.status = (sbyte)Chao.Status.Owned;
                         }
+                        else if (wonChaoPrize.status == (sbyte)Chao.Status.Owned && wonChaoPrize.level < 10)
+                        {
+                            wonChaoPrize.level += 1;
+                        }
+                        else if (wonChaoPrize.level == 10)
+                        {
+                            wonChaoPrize.status = (sbyte)Chao.Status.MaxLevel;
+                        }
+                        else
+                        {
+                            playerState.chaoEggs += 1;
+                        }
+                        AddChaoToChaoState(conn, Convert.ToInt32(wonChaoPrize.chaoID), ref chaoState, clientReq.userId, ref chaoPrizeWinIndex);
                         SaveChaoState(conn, clientReq.userId, chaoState);
                         break;
                     case (ulong)Item.ItemID.CharacterEgg:
-                        characterPrizeWinIndex[i] = RandomNumberGenerator.GetInt32(0, chaoState.Length);
-                        for (int j = 0; j < characterPrizeWinIndex.Length; j++)
+                        var characterPrizeWinIndex = RandomNumberGenerator.GetInt32(0, characterState.Length);
+                        if (characterState[characterPrizeWinIndex].status == (sbyte)Character.Status.Locked)
                         {
-                            if (characterState[characterPrizeWinIndex[j]].status == (sbyte)Character.Status.Locked)
-                            {
-                                chaoState[characterPrizeWinIndex[j]].status = (sbyte)Character.Status.Unlocked;
-                            }
-                            else if (characterState[characterPrizeWinIndex[j]].status == (sbyte)Character.Status.Unlocked && characterState[characterPrizeWinIndex[j]].star < 10)
-                            {
-                                characterState[characterPrizeWinIndex[j]].star += 1;
-                            }
-                            else if (characterState[characterPrizeWinIndex[j]].star == 10)
-                            {
-                                characterState[characterPrizeWinIndex[j]].status = (sbyte)Character.Status.MaxLevel;
-                            }
-                            else
-                            {
-                                playerState.numRedRings += 50;
-                                playerState.numRings += 10_000;
-                                playerState.chaoEggs += 1;
-                            }
+                            chaoState[characterPrizeWinIndex].status = (sbyte)Character.Status.Unlocked;
                         }
+                        else if (characterState[characterPrizeWinIndex].status == (sbyte)Character.Status.Unlocked && characterState[characterPrizeWinIndex].star < 10)
+                        {
+                            characterState[characterPrizeWinIndex].star += 1;
+                        }
+                        else if (characterState[characterPrizeWinIndex].star == 10)
+                        {
+                            characterState[characterPrizeWinIndex].status = (sbyte)Character.Status.MaxLevel;
+                        }
+                        else
+                        {
+                            playerState.numRedRings += 50;
+                            playerState.numRings += 10_000;
+                            playerState.chaoEggs += 1;
+                        }
+                        AddCharacterToCharacterState(conn, Convert.ToInt32(characterState[characterPrizeWinIndex]), ref characterState, clientReq.userId, ref characterPrizeWinIndex);
                         SaveCharacterState(conn, clientReq.userId, characterState);
                         break;
                 }
