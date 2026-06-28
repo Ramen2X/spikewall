@@ -364,7 +364,6 @@ namespace spikewall.Controllers
                         break;
                 }
             }
-
             return new JsonResult(EncryptedResponse.Generate(iv, new ChaoWheelSpinResponse()));
         }
 
