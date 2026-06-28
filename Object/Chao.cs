@@ -345,9 +345,9 @@ namespace spikewall.Object
 
     public class ChaoSpinResult
     {
-        public ChaoSpinPrize PrizeWon { get; set; }
+        public ChaoSpinPrize[] PrizeWon { get; set; }
         public Item[] ItemList { get; set; }
-        public int ItemWon { get; set; }
+        public long ItemWon { get; set; }
     }
 
     public class ChaoWheelOptions

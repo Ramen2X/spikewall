@@ -189,6 +189,7 @@ namespace spikewall.Controllers
                             }
                         }
                     }
+                    SaveChaoState(conn, clientReq.userId, chaoState);
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;
                     break;
