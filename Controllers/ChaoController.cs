@@ -212,7 +212,7 @@ namespace spikewall.Controllers
             var chaostatecommand = new MySqlCommand(chaostatesql, conn);
             var chaostatereader = chaostatecommand.ExecuteReader();
 
-            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{1}'", 1);
+            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{0}'", 1);
             var chaoCmd = new MySqlCommand(chaosql, conn);
             var chaoRdr = chaoCmd.ExecuteReader();
             List<Chao> chaoPrizeList;
@@ -282,6 +282,10 @@ namespace spikewall.Controllers
 
                 // Convert prizeList back to array to return it
                 characterState = characterPrizeList.ToArray();
+
+                //increase odds for certain buddies
+
+                var increasedOddsSql = Db.GetCommand("SELECT * FROM `sw_character` WHERE has_odds_increased = '{0}'", 1);
             }
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
