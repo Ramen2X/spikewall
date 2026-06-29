@@ -36,8 +36,19 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
             }
 
+            var populateChaoState = PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
+            if (populateChaoState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
+            }
+            var populateCharacterState = PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
+            if (populateCharacterState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
+            }
+
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
 
             ChaoWheelOptionsResponse chaoWheelOptionsResponse = new()
             {
@@ -202,92 +213,11 @@ namespace spikewall.Controllers
             }
 
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
             chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
             ChaoSpinResult chaoSpinResult = new();
             WheelOptions wheelOptions = new();
-
-            var chaostatesql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", clientReq.userId);
-            var chaostatecommand = new MySqlCommand(chaostatesql, conn);
-            var chaostatereader = chaostatecommand.ExecuteReader();
-
-            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{0}'", 1);
-            var chaoCmd = new MySqlCommand(chaosql, conn);
-            var chaoRdr = chaoCmd.ExecuteReader();
-            List<Chao> chaoPrizeList;
-            if (chaoRdr.HasRows)
-            {
-                // Convert ChaoState to list so we can append to it
-                chaoPrizeList = new(chaoState);
-
-                // Read row
-                chaoRdr.Read();
-
-                Chao c = new()
-                {
-                    chaoID = Convert.ToString(chaoRdr["id"]),
-                    rarity = Convert.ToInt64(chaoRdr["rarity"])
-                };
-
-
-                chaoRdr.Close();
-
-                // Insert our chao into the Prize List
-                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id, rarity
-                                          ) VALUES (
-                                              '{0}'
-                                          );", c.chaoID, c.rarity);
-                var insertCmd = new MySqlCommand(chaostatesql, conn);
-                insertCmd.ExecuteNonQuery();
-
-                chaoPrizeList.Add(c);
-
-                // Convert prizeList back to array to return it
-                chaoState = chaoPrizeList.ToArray();
-            }
-
-            var characterstatesql = Db.GetCommand("SELECT * FROM `sw_characterstates WHERE user_id = '{0}'", clientReq.userId);
-            var characterstatecommand = new MySqlCommand(characterstatesql, conn);
-            var characterstatereader = characterstatecommand.ExecuteReader();
-
-            var charactersql = Db.GetCommand("SELECT * FROM `sw_character` WHERE on_chao_roulette = '{0}'", 1);
-            var characterCmd = new MySqlCommand(chaosql, conn);
-            var characterRdr = characterCmd.ExecuteReader();
-            List<Character> characterPrizeList;
-            if (characterRdr.HasRows)
-            {
-                // Convert CharacterState to list so we can append to it
-                characterPrizeList = new(characterState);
-
-                // Read row
-                characterRdr.Read();
-
-                Character c = new()
-                {
-                    characterId = Convert.ToInt32(characterRdr["id"])
-                };
-                characterRdr.Close();
-
-                // Insert our character into the Prize List
-                characterstatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id, rarity
-                                          ) VALUES (
-                                              '{0}'
-                                          );", c.characterId, (ulong)Item.ItemID.CharacterEgg);
-                var insertCmd = new MySqlCommand(characterstatesql, conn);
-                insertCmd.ExecuteNonQuery();
-
-                characterPrizeList.Add(c);
-
-                // Convert prizeList back to array to return it
-                characterState = characterPrizeList.ToArray();
-
-                //increase odds for certain buddies
-
-                var increasedOddsSql = Db.GetCommand("SELECT * FROM `sw_character` WHERE has_odds_increased = '{0}'", 1);
-            }
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
             var requestCount = commitChaoWheelSpinRequest.count;
@@ -369,7 +299,7 @@ namespace spikewall.Controllers
 
             // Regenerate chao item list so the client's chao item list
             // doesn't become desynced from the current premium roulette rank
-            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
+            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, clientReq.userId, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight, ref chaoState, ref characterState);
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
