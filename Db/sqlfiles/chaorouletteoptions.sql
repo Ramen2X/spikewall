@@ -31,5 +31,7 @@ VALUES
 
 CREATE TABLE 
     `sw_chaorouletteprizelist`  (
-    chao_id INT MEDIUMINT UNSIGNED NOT NULL
+    chao_id INT MEDIUMINT UNSIGNED NOT NULL,
+    rarity INT UNSIGNED NOT NULL,
+    chao_weight SMALLINT NOT NULL
 );

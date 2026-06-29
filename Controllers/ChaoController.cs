@@ -226,7 +226,8 @@ namespace spikewall.Controllers
 
                 Chao c = new()
                 {
-                    chaoID = Convert.ToString(chaoRdr["id"])
+                    chaoID = Convert.ToString(chaoRdr["id"]),
+                    rarity = Convert.ToInt64(chaoRdr["rarity"])
                 };
 
 
@@ -234,10 +235,10 @@ namespace spikewall.Controllers
 
                 // Insert our chao into the Prize List
                 chaostatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id
+                                              chao_id, rarity
                                           ) VALUES (
                                               '{0}'
-                                          );", c.chaoID);
+                                          );", c.chaoID, c.rarity);
                 var insertCmd = new MySqlCommand(chaostatesql, conn);
                 insertCmd.ExecuteNonQuery();
 
@@ -271,10 +272,10 @@ namespace spikewall.Controllers
 
                 // Insert our character into the Prize List
                 characterstatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id
+                                              chao_id, rarity
                                           ) VALUES (
                                               '{0}'
-                                          );", c.characterId);
+                                          );", c.characterId, (ulong)Item.ItemID.CharacterEgg);
                 var insertCmd = new MySqlCommand(characterstatesql, conn);
                 insertCmd.ExecuteNonQuery();
 
