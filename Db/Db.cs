@@ -183,7 +183,7 @@ namespace spikewall
 
             if (dailyChallenge)
             {
-                QuickRun(conn, @"dailychallenge.sql");
+                QuickRun(conn, "dailychallenge.sql");
             }
 
             if (costs)
