@@ -120,9 +120,11 @@ namespace spikewall
             return dbList.ToString();
         }
 
-        private static void QuickRun(MySqlConnection conn, string filePath)
+        private static void QuickRun(MySqlConnection conn, string fileName)
         {
-            var command = new MySqlCommand(File.ReadAllText(filePath), conn);
+
+            var basePath = @"spikewall\Db\sqlfiles";
+            var command = new MySqlCommand(File.ReadAllText($@"..\{basePath}\{fileName}"), conn);
             command.ExecuteNonQuery();
         }
 
@@ -148,81 +150,81 @@ namespace spikewall
             // Drop and recreate chao and chaostates
             if (chao)
             {
-                QuickRun(conn, @"..\sqlfiles\chao.sql");
+                QuickRun(conn, "chao.sql");
             }
 
             // Drop and recreate players and sessions
             if (players)
             {
-                QuickRun(conn, @"..\sqlfiles\players.sql");
+                QuickRun(conn, "players.sql");
             }
 
             // Drop and recreate characters, characterstates, and characterupgrades
             if (characters)
             {
-                QuickRun(conn, @"..\sqlfiles\characters.sql");
+                QuickRun(conn, "characters.sql");
             }
 
             // Drop and recreate mileagemapstates
             if (mileageMapStates)
             {
-                QuickRun(conn, @"..\sqlfiles\mileagemapstates.sql");
+                QuickRun(conn, "mileagemapstates.sql");
             }
 
             if (config)
             {
-                QuickRun(conn, @"..\sqlfiles\config.sql");
+                QuickRun(conn, "config.sql");
             }
 
             if (tickers)
             {
-                QuickRun(conn, @"..\sqlfiles\tickers.sql");
+                QuickRun(conn, "tickers.sql");
             }
 
             if (dailyChallenge)
             {
-                QuickRun(conn, @"..\sqlfiles\dailychallenge.sql");
+                QuickRun(conn, @"dailychallenge.sql");
             }
 
             if (costs)
             {
-                QuickRun(conn, @"..\sqlfiles\costs.sql");
+                QuickRun(conn, "costs.sql");
             }
 
             // Drop and recreate itemownership
             if (itemOwnership)
             {
-                QuickRun(conn, @"..\sqlfiles\itemownership.sql;");
+                QuickRun(conn, "itemownership.sql;");
             }
 
             if (information)
             {
-                QuickRun(conn, @"..\sqlfiles\information.sql");
+                QuickRun(conn, "information.sql");
             }
 
             if (incentives)
             {
-                QuickRun(conn, @"..\sqlfiles\incentives.sql");
+                QuickRun(conn, "incentives.sql");
             }
 
             if (wheelOptions)
             {
-                QuickRun(conn, @"..\sqlfiles\wheeloptions.sql");
+                QuickRun(conn, "wheeloptions.sql");
             }
 
             if (itemRouletteOptions)
             {
-                QuickRun(conn, @"..\sqlfiles\itemrouletteoptions.sql");
+                QuickRun(conn, "itemrouletteoptions.sql");
             }
 
             if (chaoWheelOptions)
             {
-                QuickRun(conn, @"..\sqlfiles\chaoWheelOptions.sql");
+                QuickRun(conn, "chaoWheelOptions.sql");
             }
 
             if (chaoRouletteOptions)
             {
-                QuickRun(conn, @"..\sqlfiles\chaoRouletteOptions.sql");
+                QuickRun(conn, "chaoRouletteOptions.sql");
             }
 
             conn.Close();
