@@ -236,7 +236,7 @@ namespace spikewall.Controllers
                                 {
                                     characterState[getCharacterIndex].star += 1;
                                 }
-                                else if (characterState[getCharacterIndex].star == 10)
+                                else if (characterState[getCharacterIndex].status != (sbyte)Character.Status.MaxLevel)
                                 {
                                     characterState[getCharacterIndex].status = (sbyte)Character.Status.MaxLevel;
                                 }
@@ -256,10 +256,17 @@ namespace spikewall.Controllers
                 prizeRdr.Close();
             }
 
-            // Regenerate chao roulette so the client's chao roulette
+            // Regenerate chao roulette and chao weights so the client's chao roulette and weights
             // doesn't become desynced from the current premium roulette rank
             var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out chaoRarity, out chaoWeight);
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            var getChaoWeightsStatus = ChaoWheelOptions.AdjustChaoWeights(conn, ref chaoRarity, ref chaoWeight, ref chaoState, ref characterState);
+
+            if (getChaoWeightsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
