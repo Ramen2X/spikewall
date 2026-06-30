@@ -553,6 +553,7 @@ namespace spikewall.Object
 
         public static SRStatusCode AdjustChaoWeights(MySqlConnection conn, ref long[] chaoRarity, ref short[] chaoWeight, ref Chao[] chaoState, ref Character[] characterState)
         {
+            //Extracting the weights from the chaoWeight array and calculating the overall odds
             short overallRareOdds = 0;
             short overallSuperRareOdds = 0;
             short overallCharacterOdds = 0;
