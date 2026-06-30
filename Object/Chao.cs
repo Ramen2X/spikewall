@@ -577,9 +577,6 @@ namespace spikewall.Object
             var increasedRareOdds = 0.1 * overallRareOdds;
             var increasedSuperRareOdds = 0.1 * overallRareOdds;
 
-            var chaoSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '1'");
-            var chaoCommand = new MySqlCommand(chaoSql, conn);
-
             var rareChaoWithIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_chao` WHERE (rarity = '1' AND on_chao_roulette = '1' AND is_odds_increased = '1')");
             var rareChaoIncreasedOddsCount = Convert.ToInt32(rareChaoWithIncreasedOdds);
             var rareChaoWithoutIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_chao` WHERE (rarity = '1' AND on_chao_roulette = '1' AND is_odds_increased = '0')");
@@ -593,106 +590,70 @@ namespace spikewall.Object
             var adjustedNormalizedRareOdds = (overallRareOdds - (increasedRareOdds * rareChaoIncreasedOddsCount)) / rareChaoNonIncreasedOddsCount;
             var adjustedNormalizedSRareOdds = (overallRareOdds - (increasedRareOdds * sRareChaoIncreasedOddsCount)) / sRareChaoNonIncreasedOddsCount;
 
-            var nomralizedRareOdds = overallSuperRareOdds / rareChaoNonIncreasedOddsCount;
-            var nomralizedSRareOdds = overallSuperRareOdds / sRareChaoNonIncreasedOddsCount;
+            var rareChaoWithIncreasedOddsCmd = new MySqlCommand(rareChaoWithIncreasedOdds, conn);
+            var rareChaoWithIncreasedOddsRdr = rareChaoWithIncreasedOddsCmd.ExecuteReader();
 
-            var chaoRdr = chaoCommand.ExecuteReader();
-
-            while(chaoRdr.Read())
+            while (rareChaoWithIncreasedOddsRdr.Read())
             {
                 Chao c = new();
 
-                c.rarity = chaoRdr.GetInt64("rarity");
+                c.chaoID = Convert.ToString(rareChaoWithIncreasedOddsRdr["id"]);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, increasedRareOdds);
+                var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
+                insertIncreasedOddsCmd.ExecuteNonQuery();
+                availableChao.Add(c);
+                rareChaoWithIncreasedOddsRdr.Read();
+            }
 
-                if (c.rarity == (long)Chao.Rarity.Rare)
-                {
-                    if (Convert.ToInt64(chaoRdr["is_odds_increased"]) == 1) 
-                    {
-                        var rareChaoWithIncreasedOddsCmd = new MySqlCommand(rareChaoWithIncreasedOdds, conn);
-                        var rareChaoWithIncreasedOddsRdr = rareChaoWithIncreasedOddsCmd.ExecuteReader();
+            rareChaoWithIncreasedOddsRdr.Close();
 
-                        while (rareChaoWithIncreasedOddsRdr.Read())
-                        {
-                            c.chaoID = Convert.ToString(rareChaoWithIncreasedOddsRdr["id"]);
-                            var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, increasedRareOdds);
-                            var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
-                            insertIncreasedOddsCmd.ExecuteNonQuery();
-                            availableChao.Add(c);
-                            rareChaoWithIncreasedOddsRdr.Read();
-                        }
+            var rareChaoWithoutIncreasedOddsCmd = new MySqlCommand(rareChaoWithoutIncreasedOdds, conn);
+            var rareChaoWithoutIncreasedOddsRdr = rareChaoWithoutIncreasedOddsCmd.ExecuteReader();
 
-                        rareChaoWithIncreasedOddsRdr.Close();
+            while (rareChaoWithIncreasedOddsRdr.Read())
+            {
+                Chao c = new();
+                c.chaoID = Convert.ToString(rareChaoWithoutIncreasedOddsRdr["id"]);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, adjustedNormalizedRareOdds);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+                availableChao.Add(c);
+                rareChaoWithoutIncreasedOddsRdr.Read();
+            }
 
-                        var rareChaoWithoutIncreasedOddsCmd = new MySqlCommand(rareChaoWithoutIncreasedOdds, conn);
-                        var rareChaoWithoutIncreasedOddsRdr = rareChaoWithoutIncreasedOddsCmd.ExecuteReader();
+            rareChaoWithoutIncreasedOddsRdr.Close();
 
-                        while (rareChaoWithIncreasedOddsRdr.Read())
-                        {
-                            c.chaoID = Convert.ToString(rareChaoWithoutIncreasedOddsRdr["id"]);
-                            var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, adjustedNormalizedRareOdds);
-                            var insertCmd = new MySqlCommand(sql, conn);
-                            insertCmd.ExecuteNonQuery();
-                            availableChao.Add(c);
-                        }
-                    }
-                    else
-                    {
-                        c.chaoID = Convert.ToString(chaoRdr["id"]);
-                        var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, nomralizedRareOdds);
-                        var insertCmd = new MySqlCommand(sql, conn);
-                        insertCmd.ExecuteNonQuery();
-                        availableChao.Add(c);
-                    }
-                }
+            var sRareChaoWithIncreasedOddsCmd = new MySqlCommand(sRareChaoWithIncreasedOdds, conn);
+            var sRareChaoWithIncreasedOddsRdr = sRareChaoWithIncreasedOddsCmd.ExecuteReader();
 
-                else if (c.rarity == (long)Chao.Rarity.SRare)
-                {
-                    if (Convert.ToInt64(chaoRdr["is_odds_increased"]) == 1)
-                    {
-                        var sRareChaoWithIncreasedOddsCmd = new MySqlCommand(sRareChaoWithIncreasedOdds, conn);
-                        var sRareChaoWithIncreasedOddsRdr = sRareChaoWithIncreasedOddsCmd.ExecuteReader();
+            while (sRareChaoWithIncreasedOddsRdr.Read())
+            {
+                Chao c = new();
+                c.chaoID = Convert.ToString(sRareChaoWithIncreasedOddsRdr["id"]);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, increasedSuperRareOdds);
+                var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
+                insertIncreasedOddsCmd.ExecuteNonQuery();
+                availableChao.Add(c);
+                sRareChaoWithIncreasedOddsRdr.Read();
+            }
 
-                        while (sRareChaoWithIncreasedOddsRdr.Read())
-                        {
-                            c.chaoID = Convert.ToString(sRareChaoWithIncreasedOddsRdr["id"]);
-                            var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, increasedSuperRareOdds);
-                            var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
-                            insertIncreasedOddsCmd.ExecuteNonQuery();
-                            availableChao.Add(c);
-                            sRareChaoWithIncreasedOddsRdr.Read();
-                        }
+            sRareChaoWithIncreasedOddsRdr.Close();
 
-                        sRareChaoWithIncreasedOddsRdr.Close();
+            var sRareChaoWithoutIncreasedOddsCmd = new MySqlCommand(sRareChaoWithoutIncreasedOdds, conn);
+            var sRareChaoWithoutIncreasedOddsRdr = sRareChaoWithoutIncreasedOddsCmd.ExecuteReader();
 
-                        var sRareChaoWithoutIncreasedOddsCmd = new MySqlCommand(sRareChaoWithoutIncreasedOdds, conn);
-                        var sRareChaoWithoutIncreasedOddsRdr = sRareChaoWithoutIncreasedOddsCmd.ExecuteReader();
-
-                        while (sRareChaoWithoutIncreasedOddsRdr.Read())
-                        {
-                            c.chaoID = Convert.ToString(sRareChaoWithoutIncreasedOddsRdr["id"]);
-                            var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, adjustedNormalizedSRareOdds);
-                            var insertCmd = new MySqlCommand(sql, conn);
-                            insertCmd.ExecuteNonQuery();
-                            availableChao.Add(c);
-                            sRareChaoWithoutIncreasedOddsRdr.Read();
-                        }
-
-                        sRareChaoWithoutIncreasedOddsRdr.Close();
-                    }
-                    else
-                    {
-                        c.chaoID = Convert.ToString(chaoRdr["id"]);
-                        var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, nomralizedSRareOdds);
-                        var insertCmd = new MySqlCommand(sql, conn);
-                        insertCmd.ExecuteNonQuery();
-                        availableChao.Add(c);
-                    }
-                }
+            while (sRareChaoWithoutIncreasedOddsRdr.Read())
+            {
+                Chao c = new();
+                c.chaoID = Convert.ToString(sRareChaoWithoutIncreasedOddsRdr["id"]);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, adjustedNormalizedSRareOdds);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+                availableChao.Add(c);
+                sRareChaoWithoutIncreasedOddsRdr.Read();
             }
 
             chaoState = availableChao.ToArray();
-
-            chaoRdr.Close();
 
             List<Character> availableCharacters = new List<Character>();
 
@@ -709,58 +670,38 @@ namespace spikewall.Object
 
             var adjustedNormalizedCharacterOdds = (overallCharacterOdds - (increasedCharacterOdds * characterIncreasedOddsCount)) / characterNonIncreasedOddsCount;
 
-            var nomralizedCharacterOdds = overallCharacterOdds / characterNonIncreasedOddsCount;
+            var charactersWithIncreasedOddsCmd = new MySqlCommand(charactersWithIncreasedOdds, conn);
+            var charactersWithIncreasedOddsRdr = charactersWithIncreasedOddsCmd.ExecuteReader();
 
-            var characterRdr = chaoCommand.ExecuteReader();
-
-            while (characterRdr.Read())
+            while (charactersWithIncreasedOddsRdr.Read())
             {
                 Character c = new();
-
-                if (Convert.ToInt64(characterRdr["is_odds_increased"]) == 1)
-                {
-                    var charactersWithIncreasedOddsCmd = new MySqlCommand(charactersWithIncreasedOdds, conn);
-                    var charactersWithIncreasedOddsRdr = charactersWithIncreasedOddsCmd.ExecuteReader();
-
-                    while (charactersWithIncreasedOddsRdr.Read())
-                    {
-                        c.characterId = Convert.ToInt32(charactersWithIncreasedOddsRdr["id"]);
-                        var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, increasedCharacterOdds);
-                        var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
-                        insertIncreasedOddsCmd.ExecuteNonQuery();
-                        availableCharacters.Add(c);
-                        charactersWithIncreasedOddsRdr.Read();
-                    }
-
-                    charactersWithIncreasedOddsRdr.Close();
-
-                    var charactersWithoutIncreasedOddsCmd = new MySqlCommand(charactersWithoutIncreasedOdds, conn);
-                    var charactersWithoutIncreasedOddsRdr = charactersWithoutIncreasedOddsCmd.ExecuteReader();
-
-                    while (charactersWithoutIncreasedOddsRdr.Read())
-                    {
-                        c.characterId = Convert.ToInt32(charactersWithoutIncreasedOddsRdr["id"]);
-                        var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, adjustedNormalizedCharacterOdds);
-                        var insertCmd = new MySqlCommand(sql, conn);
-                        insertCmd.ExecuteNonQuery();
-                        availableCharacters.Add(c);
-                        charactersWithoutIncreasedOddsRdr.Read();
-                    }
-                    charactersWithoutIncreasedOddsRdr.Close();
-                }
-                else
-                {
-                    c.characterId = Convert.ToInt32(characterRdr["id"]);
-                    var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, nomralizedCharacterOdds);
-                    var insertCmd = new MySqlCommand(sql, conn);
-                    insertCmd.ExecuteNonQuery();
-                    availableCharacters.Add(c);
-                }
+                c.characterId = Convert.ToInt32(charactersWithIncreasedOddsRdr["id"]);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, increasedCharacterOdds);
+                var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
+                insertIncreasedOddsCmd.ExecuteNonQuery();
+                availableCharacters.Add(c);
+                charactersWithIncreasedOddsRdr.Read();
             }
 
-            characterState = availableCharacters.ToArray();
+            charactersWithIncreasedOddsRdr.Close();
 
-            characterRdr.Close();
+            var charactersWithoutIncreasedOddsCmd = new MySqlCommand(charactersWithoutIncreasedOdds, conn);
+            var charactersWithoutIncreasedOddsRdr = charactersWithoutIncreasedOddsCmd.ExecuteReader();
+
+            while (charactersWithoutIncreasedOddsRdr.Read())
+            {
+                Character c = new();
+                c.characterId = Convert.ToInt32(charactersWithoutIncreasedOddsRdr["id"]);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, adjustedNormalizedCharacterOdds);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+                availableCharacters.Add(c);
+                charactersWithoutIncreasedOddsRdr.Read();
+            }
+            charactersWithoutIncreasedOddsRdr.Close();
+
+            characterState = availableCharacters.ToArray();
 
             return SRStatusCode.Ok;
         }
