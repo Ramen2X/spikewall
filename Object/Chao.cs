@@ -557,7 +557,7 @@ namespace spikewall.Object
             short overallRareOdds = 0;
             short overallSuperRareOdds = 0;
             short overallCharacterOdds = 0;
-            for (int i = 0; i < chaoWeight.Length; i++)
+            for (int i = 0; i < chaoRarity.Length; i++)
             {
                 if (chaoRarity[i] == (long)Chao.Rarity.Rare)
                 {
