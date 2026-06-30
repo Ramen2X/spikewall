@@ -559,20 +559,17 @@ namespace spikewall.Object
             short overallCharacterOdds = 0;
             for (int i = 0; i < chaoWeight.Length; i++)
             {
-                for (int j = 0; j < chaoRarity.Length; j++)
+                if (chaoRarity[i] == (long)Chao.Rarity.Rare)
                 {
-                    if (chaoRarity[j] == (long)Chao.Rarity.Rare)
-                    {
-                        overallRareOdds += chaoWeight[i];
-                    }
-                    else if (chaoRarity[j] == (long)Chao.Rarity.SRare)
-                    {
-                        overallSuperRareOdds += chaoWeight[i];
-                    }
-                    else
-                    {
-                        overallCharacterOdds += chaoWeight[i];
-                    }
+                    overallRareOdds += chaoWeight[i];
+                }
+                else if (chaoRarity[i] == (long)Chao.Rarity.SRare)
+                {
+                    overallSuperRareOdds += chaoWeight[i];
+                }
+                else
+                {
+                    overallCharacterOdds += chaoWeight[i];
                 }
             }
 
