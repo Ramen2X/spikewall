@@ -595,6 +595,8 @@ namespace spikewall.Object
             var rareChaoWithIncreasedOddsRdr = rareChaoWithIncreasedOddsCmd.ExecuteReader();
 
             Chao chao = new();
+
+            //This while loop will not run if there are no rare chao with increased odds
             while (rareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(rareChaoWithIncreasedOddsRdr["id"]);
@@ -610,6 +612,7 @@ namespace spikewall.Object
             var rareChaoWithoutIncreasedOddsCmd = new MySqlCommand(rareChaoWithoutIncreasedOdds, conn);
             var rareChaoWithoutIncreasedOddsRdr = rareChaoWithoutIncreasedOddsCmd.ExecuteReader();
 
+            //This while loop will run regardless if there are rare chao with increased odds or not
             while (rareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(rareChaoWithoutIncreasedOddsRdr["id"]);
@@ -625,6 +628,7 @@ namespace spikewall.Object
             var sRareChaoWithIncreasedOddsCmd = new MySqlCommand(sRareChaoWithIncreasedOdds, conn);
             var sRareChaoWithIncreasedOddsRdr = sRareChaoWithIncreasedOddsCmd.ExecuteReader();
 
+            //This while loop will not run if there are no S Rare chao with increased odds
             while (sRareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(sRareChaoWithIncreasedOddsRdr["id"]);
@@ -640,6 +644,7 @@ namespace spikewall.Object
             var sRareChaoWithoutIncreasedOddsCmd = new MySqlCommand(sRareChaoWithoutIncreasedOdds, conn);
             var sRareChaoWithoutIncreasedOddsRdr = sRareChaoWithoutIncreasedOddsCmd.ExecuteReader();
 
+            //This while loop will run regardless if there are S Rare chao with increased odds or not
             while (sRareChaoWithoutIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(sRareChaoWithoutIncreasedOddsRdr["id"]);
@@ -672,6 +677,8 @@ namespace spikewall.Object
             var charactersWithIncreasedOddsRdr = charactersWithIncreasedOddsCmd.ExecuteReader();
 
             Character character = new();
+
+            //This while loop will not run if there are no characters with increased odds
             while (charactersWithIncreasedOddsRdr.Read())
             {
                 character.characterId = Convert.ToInt32(charactersWithIncreasedOddsRdr["id"]);
@@ -687,6 +694,7 @@ namespace spikewall.Object
             var charactersWithoutIncreasedOddsCmd = new MySqlCommand(charactersWithoutIncreasedOdds, conn);
             var charactersWithoutIncreasedOddsRdr = charactersWithoutIncreasedOddsCmd.ExecuteReader();
 
+            //This while loop will run regardless if there are characters with increased odds or not
             while (charactersWithoutIncreasedOddsRdr.Read())
             {
                 character.characterId = Convert.ToInt32(charactersWithoutIncreasedOddsRdr["id"]);
