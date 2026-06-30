@@ -588,7 +588,7 @@ namespace spikewall.Object
             var sRareChaoWithoutIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_chao` WHERE (rarity = '2' AND on_chao_roulette = '1' AND is_odds_increased = '0')");
             var sRareChaoNonIncreasedOddsCount = Convert.ToInt32(sRareChaoWithoutIncreasedOdds);
 
-            //If the product(s) in the parenthesis become(s) 0, odds would be normalized with all Rare and S Rare Chao available respectively
+            //If the product(s) in the parenthesis become(s) 0, odds would be normalized with all Rare and S Rare Chao available in the Premium Roulette respectively
             var adjustedNormalizedRareOdds = (overallRareOdds - (increasedRareOdds * rareChaoIncreasedOddsCount)) / rareChaoNonIncreasedOddsCount;
             var adjustedNormalizedSRareOdds = (overallRareOdds - (increasedRareOdds * sRareChaoIncreasedOddsCount)) / sRareChaoNonIncreasedOddsCount;
 
@@ -671,7 +671,7 @@ namespace spikewall.Object
             var charactersWithoutIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_character` WHERE (on_chao_roulette = '1' AND is_odds_increased = '0')");
             var characterNonIncreasedOddsCount = Convert.ToInt32(charactersWithoutIncreasedOdds);
 
-            //If the product in the parenthesis is 0, odds would be normalized with all characters available
+            //If the product in the parenthesis is 0, odds would be normalized with all characters in the Premium Roulette
             var adjustedNormalizedCharacterOdds = (overallCharacterOdds - (increasedCharacterOdds * characterIncreasedOddsCount)) / characterNonIncreasedOddsCount;
 
             var charactersWithIncreasedOddsCmd = new MySqlCommand(charactersWithIncreasedOdds, conn);
