@@ -597,10 +597,10 @@ namespace spikewall.Object
             while (rareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(rareChaoWithIncreasedOddsRdr["id"]);
-                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, increasedRareOdds);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", chao.chaoID, (long)Item.ItemID.RareEgg, increasedRareOdds);
                 var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
                 insertIncreasedOddsCmd.ExecuteNonQuery();
-                availableChao.Add(c);
+                availableChao.Add(chao);
                 rareChaoWithIncreasedOddsRdr.Read();
             }
 
@@ -612,10 +612,10 @@ namespace spikewall.Object
             while (rareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(rareChaoWithoutIncreasedOddsRdr["id"]);
-                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.RareEgg, adjustedNormalizedRareOdds);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", chao.chaoID, (long)Item.ItemID.RareEgg, adjustedNormalizedRareOdds);
                 var insertCmd = new MySqlCommand(sql, conn);
                 insertCmd.ExecuteNonQuery();
-                availableChao.Add(c);
+                availableChao.Add(chao);
                 rareChaoWithoutIncreasedOddsRdr.Read();
             }
 
@@ -627,10 +627,10 @@ namespace spikewall.Object
             while (sRareChaoWithIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(sRareChaoWithIncreasedOddsRdr["id"]);
-                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, increasedSuperRareOdds);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", chao.chaoID, (long)Item.ItemID.SuperRareEgg, increasedSuperRareOdds);
                 var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
                 insertIncreasedOddsCmd.ExecuteNonQuery();
-                availableChao.Add(c);
+                availableChao.Add(chao);
                 sRareChaoWithIncreasedOddsRdr.Read();
             }
 
@@ -642,10 +642,10 @@ namespace spikewall.Object
             while (sRareChaoWithoutIncreasedOddsRdr.Read())
             {
                 chao.chaoID = Convert.ToString(sRareChaoWithoutIncreasedOddsRdr["id"]);
-                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.chaoID, (long)Item.ItemID.SuperRareEgg, adjustedNormalizedSRareOdds);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", chao.chaoID, (long)Item.ItemID.SuperRareEgg, adjustedNormalizedSRareOdds);
                 var insertCmd = new MySqlCommand(sql, conn);
                 insertCmd.ExecuteNonQuery();
-                availableChao.Add(c);
+                availableChao.Add(chao);
                 sRareChaoWithoutIncreasedOddsRdr.Read();
             }
 
@@ -673,10 +673,10 @@ namespace spikewall.Object
             while (charactersWithIncreasedOddsRdr.Read())
             {
                 character.characterId = Convert.ToInt32(charactersWithIncreasedOddsRdr["id"]);
-                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, increasedCharacterOdds);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", character.characterId, (long)Item.ItemID.CharacterEgg, increasedCharacterOdds);
                 var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
                 insertIncreasedOddsCmd.ExecuteNonQuery();
-                availableCharacters.Add(c);
+                availableCharacters.Add(character);
                 charactersWithIncreasedOddsRdr.Read();
             }
 
@@ -688,10 +688,10 @@ namespace spikewall.Object
             while (charactersWithoutIncreasedOddsRdr.Read())
             {
                 character.characterId = Convert.ToInt32(charactersWithoutIncreasedOddsRdr["id"]);
-                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", c.characterId, (long)Item.ItemID.CharacterEgg, adjustedNormalizedCharacterOdds);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaorouletteprizelist` (chao_id, chao_rarity, chao_weight) VALUES ('{0}', '{1}', '{2}')", character.characterId, (long)Item.ItemID.CharacterEgg, adjustedNormalizedCharacterOdds);
                 var insertCmd = new MySqlCommand(sql, conn);
                 insertCmd.ExecuteNonQuery();
-                availableCharacters.Add(c);
+                availableCharacters.Add(character);
                 charactersWithoutIncreasedOddsRdr.Read();
             }
             charactersWithoutIncreasedOddsRdr.Close();
