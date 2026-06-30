@@ -590,7 +590,7 @@ namespace spikewall.Object
 
             //If the product(s) in the parenthesis become(s) 0, odds would be normalized with all Rare and S Rare Chao available in the Premium Roulette respectively
             var adjustedNormalizedRareOdds = (overallRareOdds - (increasedRareOdds * rareChaoIncreasedOddsCount)) / rareChaoNonIncreasedOddsCount;
-            var adjustedNormalizedSRareOdds = (overallRareOdds - (increasedRareOdds * sRareChaoIncreasedOddsCount)) / sRareChaoNonIncreasedOddsCount;
+            var adjustedNormalizedSRareOdds = (overallSuperRareOdds - (increasedRareOdds * sRareChaoIncreasedOddsCount)) / sRareChaoNonIncreasedOddsCount;
 
             var rareChaoWithIncreasedOddsCmd = new MySqlCommand(rareChaoWithIncreasedOdds, conn);
             var rareChaoWithIncreasedOddsRdr = rareChaoWithIncreasedOddsCmd.ExecuteReader();
