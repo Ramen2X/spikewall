@@ -5,6 +5,7 @@ using spikewall.Request;
 using spikewall.Response;
 using System.Security.Cryptography;
 using static spikewall.Object.Chao;
+using static spikewall.Object.ChaoBase;
 using static spikewall.Object.Character;
 
 namespace spikewall.Controllers
@@ -48,7 +49,7 @@ namespace spikewall.Controllers
             }
 
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
 
             ChaoWheelOptionsResponse chaoWheelOptionsResponse = new()
             {
@@ -81,94 +82,10 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
             }
 
-            var populateChaoState = PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
-            if (populateChaoState != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
-            }
-            var populateCharacterState = PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
-            if (populateCharacterState != SRStatusCode.Ok)
-            {
-                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
-            }
+            ChaoWheelOptions.GetPrizeChaoWheelOptions(conn, out Chao[] rareChaoPrizeList, out Chao[] superRareChaoPrizeList, out Character[] characterPrizeList);
 
-            var chaostatesql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", clientReq.userId);
-            var chaostatecommand = new MySqlCommand(chaostatesql, conn);
-            var chaostatereader = chaostatecommand.ExecuteReader();
+            var prizeList = new Chao[rareChaoPrizeList.Length + superRareChaoPrizeList.Length + characterPrizeList.Length];
 
-            var chaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_chao_roulette = '{1}'", 1);
-            var chaoCmd = new MySqlCommand(chaosql, conn);
-            var chaoRdr = chaoCmd.ExecuteReader();
-            List<Chao> chaoPrizeList;
-            if (chaoRdr.HasRows)
-            {
-                // Convert ChaoState to list so we can append to it
-                chaoPrizeList = new(chaoState);
-
-                // Read row
-                chaoRdr.Read();
-
-                Chao c = new()
-                {
-                    chaoID = Convert.ToString(chaoRdr["id"])
-                };
-
-
-                chaoRdr.Close();
-
-                // Insert our chao into the Prize List
-                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id
-                                          ) VALUES (
-                                              '{0}'
-                                          );", c.chaoID);
-                var insertCmd = new MySqlCommand(chaostatesql, conn);
-                insertCmd.ExecuteNonQuery();
-
-                chaoPrizeList.Add(c);
-
-                // Convert prizeList back to array to return it
-                chaoState = chaoPrizeList.ToArray();
-            }
-
-            var characterstatesql = Db.GetCommand("SELECT * FROM `sw_characterstates WHERE user_id = '{0}'", clientReq.userId);
-            var characterstatecommand = new MySqlCommand(characterstatesql, conn);
-            var characterstatereader = characterstatecommand.ExecuteReader();
-
-            var charactersql = Db.GetCommand("SELECT * FROM `sw_character` WHERE on_chao_roulette = '{0}'", 1);
-            var characterCmd = new MySqlCommand(chaosql, conn);
-            var characterRdr = characterCmd.ExecuteReader();
-            List<Character> characterPrizeList;
-            if (characterRdr.HasRows)
-            {
-                // Convert CharacterState to list so we can append to it
-                characterPrizeList = new(characterState);
-
-                // Read row
-                characterRdr.Read();
-
-                Character c = new()
-                {
-                    characterId = Convert.ToInt32(characterRdr["id"])
-                };
-                characterRdr.Close();
-
-                // Insert our character into the Prize List
-                characterstatesql = Db.GetCommand(@"INSERT INTO `sw_rouletteprizelist` (
-                                              chao_id
-                                          ) VALUES (
-                                              '{0}'
-                                          );", c.characterId);
-                var insertCmd = new MySqlCommand(characterstatesql, conn);
-                insertCmd.ExecuteNonQuery();
-
-                characterPrizeList.Add(c);
-
-                // Convert prizeList back to array to return it
-                characterState = characterPrizeList.ToArray();
-            }
-
-            var prizeList = new Chao[chaoState.Length + characterState.Length];
             PrizeChaoWheelSpinResponse chaoWheelSpinResponse = new(prizeList)
             {
                 prizeList = prizeList
@@ -213,11 +130,14 @@ namespace spikewall.Controllers
             }
 
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
             chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
             ChaoSpinResult chaoSpinResult = new();
             WheelOptions wheelOptions = new();
+
+            ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
+            ChaoWheelOptions.AdjustChaoWeights(conn, ref chaoRarity, ref chaoWeight, ref chaoState, ref characterState);
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
             var requestCount = commitChaoWheelSpinRequest.count;
@@ -240,66 +160,105 @@ namespace spikewall.Controllers
                 playerState.chaoEggs -= 10;
             }
             
-
             for (int i = 0; i < requestCount; i++)
             {
                 var wonChaoIndex = chaoSpinResult.ItemWon;
                 var wonItemID = (ulong)wheelOptions.items[wonChaoIndex];
-                switch (wonItemID)
+
+                var sql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist`");
+                var command = new MySqlCommand(sql, conn);
+
+                var prizeRdr = command.ExecuteReader();
+
+                while (prizeRdr.Read())
                 {
-                    case (ulong)Item.ItemID.RareEgg:
-                    case (ulong)Item.ItemID.SuperRareEgg: 
-                        var chaoPrizeWinIndex = RandomNumberGenerator.GetInt32(0, chaoState.Length);
-                        var wonChaoPrize = chaoState[chaoPrizeWinIndex];
-                        if (wonChaoPrize.status == (sbyte)Chao.Status.NotOwned)
-                        {
-                            wonChaoPrize.status = (sbyte)Chao.Status.Owned;
-                        }
-                        else if (wonChaoPrize.status == (sbyte)Chao.Status.Owned && wonChaoPrize.level < 10)
-                        {
-                            wonChaoPrize.level += 1;
-                        }
-                        else if (wonChaoPrize.level == 10)
-                        {
-                            wonChaoPrize.status = (sbyte)Chao.Status.MaxLevel;
-                        }
-                        else
-                        {
-                            playerState.chaoEggs += 1;
-                        }
-                        AddChaoToChaoState(conn, Convert.ToInt32(wonChaoPrize.chaoID), ref chaoState, clientReq.userId, ref chaoPrizeWinIndex);
-                        SaveChaoState(conn, clientReq.userId, chaoState);
-                        break;
-                    case (ulong)Item.ItemID.CharacterEgg:
-                        var characterPrizeWinIndex = RandomNumberGenerator.GetInt32(0, characterState.Length);
-                        var wonCharacterPrize = characterState[characterPrizeWinIndex];
-                        if (wonCharacterPrize.status == (sbyte)Character.Status.Locked)
-                        {
-                            wonCharacterPrize.status = (sbyte)Character.Status.Unlocked;
-                        }
-                        else if (wonCharacterPrize.status == (sbyte)Character.Status.Unlocked && wonCharacterPrize.star < 10)
-                        {
-                            wonCharacterPrize.star += 1;
-                        }
-                        else if (wonCharacterPrize.star == 10)
-                        {
-                            wonCharacterPrize.status = (sbyte)Character.Status.MaxLevel;
-                        }
-                        else
-                        {
-                            playerState.numRedRings += 50;
-                            playerState.numRings += 10_000;
-                            playerState.chaoEggs += 1;
-                        }
-                        AddCharacterToCharacterState(conn, wonCharacterPrize.characterId, ref characterState, clientReq.userId, ref characterPrizeWinIndex);
-                        SaveCharacterState(conn, clientReq.userId, characterState);
-                        break;
+                    switch (wonItemID)
+                    {
+                        case (ulong)Item.ItemID.RareEgg:
+                            var getRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY RAND() LIMIT 1", (ulong)Item.ItemID.RareEgg);
+                            var getRareChaoPrizeCommand = new MySqlCommand(getRareChaoPrizeSql, conn);
+                            var rareChaoPrizeRdr = command.ExecuteReader();
+
+                            if (rareChaoPrizeRdr.HasRows)
+                            {
+                                Chao c = new();
+
+                                c.chaoID = Convert.ToString(rareChaoPrizeRdr["chao_id"]);
+                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(c.chaoID), chaoState);
+                                if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
+                                {
+                                    playerState.chaoEggs += 1;
+                                }
+                                else LevelUpChao(conn, Convert.ToInt32(c.chaoID), ref chaoState, out getChaoIndex);
+
+                                AddChaoToChaoState(conn, Convert.ToInt32(c.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                                SaveChaoState(conn, clientReq.userId, chaoState);
+                                rareChaoPrizeRdr.Close();
+                            }
+                            
+                            break;
+                        case (ulong)Item.ItemID.SuperRareEgg:
+                            var getSRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY RAND() LIMIT 1", (ulong)Item.ItemID.SuperRareEgg);
+                            var getSRareChaoPrizeCommand = new MySqlCommand(getSRareChaoPrizeSql, conn);
+                            var sRareChaoPrizeRdr = getSRareChaoPrizeCommand.ExecuteReader();
+                            if (sRareChaoPrizeRdr.HasRows)
+                            {
+                                Chao c = new();
+
+                                c.chaoID = Convert.ToString(sRareChaoPrizeRdr["chao_id"]);
+                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(c.chaoID), chaoState);
+                                if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
+                                {
+                                    playerState.chaoEggs += 1;
+                                }
+                                else LevelUpChao(conn, Convert.ToInt32(c.chaoID), ref chaoState, out getChaoIndex);
+
+                                AddChaoToChaoState(conn, Convert.ToInt32(c.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                                SaveChaoState(conn, clientReq.userId, chaoState);
+                                sRareChaoPrizeRdr.Close();
+                            }
+                            break;
+                        case (ulong)Item.ItemID.CharacterEgg:
+                            var characterPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY RAND() LIMIT 1", (ulong)Item.ItemID.CharacterEgg);
+                            var characterPrizeCommand = new MySqlCommand(characterPrizeSql, conn);
+                            var characterPrizeRdr = characterPrizeCommand.ExecuteReader();
+                            if (characterPrizeRdr.HasRows)
+                            {
+                                Character c = new();
+
+                                c.characterId = Convert.ToInt32(characterPrizeRdr["chao_id"]);
+                                var getCharacterIndex = FindCharacterInCharacterState(c.characterId, characterState);
+                                if (characterState[getCharacterIndex].status == (sbyte)Character.Status.Locked)
+                                {
+                                    characterState[getCharacterIndex].status = (sbyte)Character.Status.Unlocked;
+                                }
+                                else if (characterState[getCharacterIndex].star < 10)
+                                {
+                                    characterState[getCharacterIndex].star += 1;
+                                }
+                                else if (characterState[getCharacterIndex].star == 10)
+                                {
+                                    characterState[getCharacterIndex].status = (sbyte)Character.Status.MaxLevel;
+                                }
+                                else
+                                {
+                                    playerState.numRedRings += 50;
+                                    playerState.numRings += 10_000;
+                                    playerState.chaoEggs += 1;
+                                }
+                                characterPrizeRdr.Close();
+                                AddCharacterToCharacterState(conn, c.characterId, ref characterState, clientReq.userId, ref getCharacterIndex);
+                                SaveCharacterState(conn, clientReq.userId, characterState);
+                            }
+                            break;
+                    }
                 }
+                prizeRdr.Close();
             }
 
             // Regenerate chao item list so the client's chao item list
             // doesn't become desynced from the current premium roulette rank
-            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, clientReq.userId, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight, ref chaoState, ref characterState);
+            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out chaoRarity, out chaoWeight);
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
@@ -332,6 +291,5 @@ namespace spikewall.Controllers
             };
             return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }
-
     }
 }
