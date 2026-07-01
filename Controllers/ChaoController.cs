@@ -312,7 +312,91 @@ namespace spikewall.Controllers
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
             }
 
-            return new JsonResult(EncryptedResponse.Generate(iv, new EquipChaoResponse()));
+            PlayerState playerState = new();
+
+            var populateStatus = playerState.Populate(conn, clientReq.userId);
+            if (populateStatus != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateStatus));
+            }
+
+            var populateChaoState = PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
+            if (populateChaoState != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, populateChaoState));
+            }
+
+            EquipChaoRequest equipChaoRequest = new();
+
+            if (equipChaoRequest.mainChaoId == -1 && equipChaoRequest.subChaoId == playerState.mainChaoID)
+            {
+                playerState.mainChaoID = playerState.subChaoID;
+                playerState.subChaoID = equipChaoRequest.subChaoId;
+            }
+
+            if (equipChaoRequest.mainChaoId == playerState.subChaoID && equipChaoRequest.subChaoId == -1)
+            {
+                playerState.subChaoID = playerState.mainChaoID;
+                playerState.mainChaoID = equipChaoRequest.mainChaoId;
+            }
+
+            var getChaoStatesSql = Db.GetCommand(@"SELECT * FROM `sw_chaostates`");
+            var getChaoStatesCmd = new MySqlCommand(getChaoStatesSql, conn);
+            var getChaoStatesRdr = getChaoStatesCmd.ExecuteReader();
+
+            if (equipChaoRequest.mainChaoId == -1)
+            {
+                // The chao we want to equip isn't available to the player, abort
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            while (getChaoStatesRdr.Read())
+            {
+                Chao chao = new();
+                chao.chaoID = Convert.ToString(getChaoStatesRdr["chao_id"]);
+                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
+                if (getChaoIndex == -1)
+                {
+                    // The chao we want to equip isn't available to the player, abort
+                    return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+                }
+                if (chaoState[getChaoIndex].acquired != 0 && chaoState[getChaoIndex].status != (sbyte)Chao.Status.NotOwned)
+                {
+                    playerState.mainChaoID = equipChaoRequest.mainChaoId;
+                }
+                SaveChaoState(conn, clientReq.userId, chaoState);
+                getChaoStatesRdr.Close();
+            }
+
+            if (equipChaoRequest.subChaoId == -1)
+            {
+                // The chao we want to equip isn't available to the player, abort
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+            while (getChaoStatesRdr.Read())
+            {
+                Chao chao = new();
+                chao.chaoID = Convert.ToString(getChaoStatesRdr["chao_id"]);
+                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
+                if (getChaoIndex == -1)
+                {
+                    // The chao we want to equip isn't available to the player, abort
+                    return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+                }
+                if (chaoState[getChaoIndex].acquired != 0 && chaoState[getChaoIndex].status != (sbyte)Chao.Status.NotOwned)
+                {
+                    playerState.subChaoID = equipChaoRequest.subChaoId;
+                }
+                SaveChaoState(conn, clientReq.userId, chaoState);
+                getChaoStatesRdr.Close();
+            }
+
+            EquipChaoResponse equipChaoResponse = new()
+            {
+                playerState = playerState
+            };
+
+            return new JsonResult(EncryptedResponse.Generate(iv, equipChaoResponse));
         }
     }
 }
