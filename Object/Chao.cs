@@ -345,11 +345,19 @@ namespace spikewall.Object
             if (chaoState[chaoIndex].status == (sbyte)Status.NotOwned)
             {
                 chaoState[chaoIndex].status = (sbyte)Status.Owned;
+                chaoState[chaoIndex].acquired = 1;
+                chaoState[chaoIndex].level = 0;
             }
             
             else if (chaoState[chaoIndex].level < 10)
             {
-                chaoState[chaoIndex].level += 1;
+                chaoState[chaoIndex].level++;
+                chaoState[chaoIndex].acquired++;
+            }
+            else if (chaoState[chaoIndex].level > 10)
+            {
+                chaoState[chaoIndex].level = 10;
+                chaoState[chaoIndex].status = (sbyte)Status.MaxLevel;
             }
             //If Chao is at Level 10, set them to Max Level
             else chaoState[chaoIndex].status = (sbyte)Status.MaxLevel;

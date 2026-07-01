@@ -375,6 +375,30 @@ namespace spikewall.Object
             return index;
         }
 
+        public static SRStatusCode IncreaseCharacterStarThroughRoulette(MySqlConnection conn, int characterId, ref Character[]characterState, out int charaIndex)
+        {
+            // We need to find the index of the provided character in the CharacterState
+            charaIndex = FindCharacterInCharacterState(characterId, characterState);
+
+            if (charaIndex == -1)
+            {
+                // The character we want to upgrade isn't available to the player, abort
+                return SRStatusCode.InternalServerError;
+            }
+
+            //We want to make sure that the character is unlocked first before we increase their star
+            if (characterState[charaIndex].status == (sbyte)Status.Locked)
+            {
+                characterState[charaIndex].status = (sbyte)Status.Unlocked;
+                characterState[charaIndex].star = 0;
+            }
+            else if (characterState[charaIndex].star < 10)
+            {
+                characterState[charaIndex].star++;
+            }
+            return SRStatusCode.Ok;
+        }
+
         public static SRStatusCode LevelUpCharacterWithExp(MySqlConnection conn, int characterId, ulong exp, ref Character[] characterState, out int charaIndex)
         {
             // We need to find the index of the provided character in the CharacterState

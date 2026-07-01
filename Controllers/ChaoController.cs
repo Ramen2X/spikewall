@@ -159,7 +159,10 @@ namespace spikewall.Controllers
                 requestCount = 1;
                 playerState.chaoEggs -= 10;
             }
-            
+            List<ChaoPrize> chaoPrizeList = new List<ChaoPrize>();
+            List<Character> characterPrizeList = new List<Character>();
+            List<Item> itemList = new List<Item>();
+
             for (int i = 0; i < requestCount; i++)
             {
                 var wonChaoIndex = chaoSpinResult.ItemWon;
@@ -171,7 +174,7 @@ namespace spikewall.Controllers
                 var prizeRdr = command.ExecuteReader();
 
                 while (prizeRdr.Read())
-                {
+                {   
                     switch (wonItemID)
                     {
                         case (ulong)Item.ItemID.RareEgg:
@@ -181,18 +184,18 @@ namespace spikewall.Controllers
 
                             if (rareChaoPrizeRdr.HasRows)
                             {
-                                Chao c = new();
-
-                                c.chaoID = Convert.ToString(rareChaoPrizeRdr["chao_id"]);
-                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(c.chaoID), chaoState);
+                                ChaoPrize chao = new();
+                                chao.chaoID = Convert.ToString(rareChaoPrizeRdr["chao_id"]);
+                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
+                                LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
                                 if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                                 {
                                     playerState.chaoEggs += 1;
                                 }
-                                else LevelUpChao(conn, Convert.ToInt32(c.chaoID), ref chaoState, out getChaoIndex);
 
-                                AddChaoToChaoState(conn, Convert.ToInt32(c.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                                AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
                                 SaveChaoState(conn, clientReq.userId, chaoState);
+                                chaoPrizeList.Add(chao);
                                 rareChaoPrizeRdr.Close();
                             }
                             
@@ -203,18 +206,18 @@ namespace spikewall.Controllers
                             var sRareChaoPrizeRdr = getSRareChaoPrizeCommand.ExecuteReader();
                             if (sRareChaoPrizeRdr.HasRows)
                             {
-                                Chao c = new();
-
-                                c.chaoID = Convert.ToString(sRareChaoPrizeRdr["chao_id"]);
-                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(c.chaoID), chaoState);
+                                ChaoPrize chao = new();
+                                chao.chaoID = Convert.ToString(sRareChaoPrizeRdr["chao_id"]);
+                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
+                                LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
                                 if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                                 {
                                     playerState.chaoEggs += 1;
                                 }
-                                else LevelUpChao(conn, Convert.ToInt32(c.chaoID), ref chaoState, out getChaoIndex);
 
-                                AddChaoToChaoState(conn, Convert.ToInt32(c.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                                AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
                                 SaveChaoState(conn, clientReq.userId, chaoState);
+                                chaoPrizeList.Add(chao);
                                 sRareChaoPrizeRdr.Close();
                             }
                             break;
@@ -224,21 +227,12 @@ namespace spikewall.Controllers
                             var characterPrizeRdr = characterPrizeCommand.ExecuteReader();
                             if (characterPrizeRdr.HasRows)
                             {
-                                Character c = new();
-
-                                c.characterId = Convert.ToInt32(characterPrizeRdr["chao_id"]);
-                                var getCharacterIndex = FindCharacterInCharacterState(c.characterId, characterState);
-                                if (characterState[getCharacterIndex].status == (sbyte)Character.Status.Locked)
+                                Character character = new();
+                                character.characterId = Convert.ToInt32(characterPrizeRdr["chao_id"]);
+                                var getCharacterIndex = FindCharacterInCharacterState(character.characterId, characterState);
+                                if (characterState[getCharacterIndex].status == (sbyte)Character.Status.Locked || characterState[getCharacterIndex].star < 10)
                                 {
-                                    characterState[getCharacterIndex].status = (sbyte)Character.Status.Unlocked;
-                                }
-                                else if (characterState[getCharacterIndex].star < 10)
-                                {
-                                    characterState[getCharacterIndex].star += 1;
-                                }
-                                else if (characterState[getCharacterIndex].status != (sbyte)Character.Status.MaxLevel)
-                                {
-                                    characterState[getCharacterIndex].status = (sbyte)Character.Status.MaxLevel;
+                                    IncreaseCharacterStarThroughRoulette(conn, character.characterId, ref characterState, out getCharacterIndex);
                                 }
                                 else
                                 {
@@ -246,15 +240,18 @@ namespace spikewall.Controllers
                                     playerState.numRings += 10_000;
                                     playerState.chaoEggs += 1;
                                 }
-                                characterPrizeRdr.Close();
-                                AddCharacterToCharacterState(conn, c.characterId, ref characterState, clientReq.userId, ref getCharacterIndex);
+                                AddCharacterToCharacterState(conn, character.characterId, ref characterState, clientReq.userId, ref getCharacterIndex);
                                 SaveCharacterState(conn, clientReq.userId, characterState);
+                                characterPrizeList.Add(character);
+                                characterPrizeRdr.Close();
                             }
                             break;
                     }
                 }
                 prizeRdr.Close();
             }
+            ChaoPrize[] chaoPrizeArray = chaoPrizeList.ToArray();
+            Character[] characterPrizeArray = characterPrizeList.ToArray();
 
             // Regenerate chao roulette and chao weights so the client's chao roulette and weights
             // doesn't become desynced from the current premium roulette rank
@@ -294,7 +291,7 @@ namespace spikewall.Controllers
 
                 chaoState = chaoState,
 
-                ChaoWheelOptions = chaoWheelOptions
+                ChaoWheelOptions = chaoWheelOptions,
             };
             return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }

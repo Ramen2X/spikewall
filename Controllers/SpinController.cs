@@ -92,42 +92,8 @@ namespace spikewall.Controllers
             var wonItemID = wheelOptions.items[wonItemIndex];
             var wonItemCount = (ulong)wheelOptions.item[wonItemIndex];
 
-            var chaostatesql = Db.GetCommand("SELECT * FROM `sw_chaostates WHERE user_id = '{0}'", clientReq.userId);
-            var chaostatecommand = new MySqlCommand(chaostatesql, conn);
-            var chaostatereader = chaostatecommand.ExecuteReader();
-
-            var itemchaosql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE on_item_roulette = '{1}'", 1);
-            var chaoCmd = new MySqlCommand(itemchaosql, conn);
-            var chaoRdr = chaoCmd.ExecuteReader();
-            List<Chao> chaoItemRoulettePrizeList;
-            if (chaoRdr.HasRows)
-            {
-                // Convert ChaoState to list so we can append to it
-                chaoItemRoulettePrizeList = new(chaoState);
-
-                // Read row
-                chaoRdr.Read();
-
-                Chao c = new()
-                {
-                    chaoID = Convert.ToString(chaoRdr["id"]),
-                };
-                chaoRdr.Close();
-
-                // Insert our chao into the Prize List
-                chaostatesql = Db.GetCommand(@"INSERT INTO `sw_chaoitemrouletteprizelist` (
-                                              chao_id
-                                          ) VALUES (
-                                              '{0}'
-                                          );", c.chaoID);
-                var insertCmd = new MySqlCommand(chaostatesql, conn);
-                insertCmd.ExecuteNonQuery();
-
-                chaoItemRoulettePrizeList.Add(c);
-
-                // Convert prizeList back to array to return it
-                chaoState = chaoItemRoulettePrizeList.ToArray();
-            }
+            WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
+            WheelOptions.AdjustChaoItemRouletteWeights(conn, ref items, ref itemWeight, ref chaoState);
 
 
             switch (wonItemID)
@@ -166,32 +132,22 @@ namespace spikewall.Controllers
                     wheelOptions.rouletteRank = 0;
                     break;
                 case (long)ItemID.NormalEgg: // normal buddy
-                    int chaoPrizeWinIndex = RandomNumberGenerator.GetInt32(0, chaoState.Length);
-                    var wonChaoPrize = chaoState[chaoPrizeWinIndex];
-                    for (int i = 0; i < chaoState.Length; i++)
+                    var getNormalChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaoitemrouletteprizelist` WHERE chao_weight >= RAND() *(SELECT MAX(chao_weight)+1 FROM `sw_chaoitemrouletteprizelist`) ORDER BY chao_weight LIMIT 1");
+                    var getNormalChaoPrizeCmd = new MySqlCommand(getNormalChaoPrizeSql, conn);
+                    var getNormalChaoPrizeRdr = getNormalChaoPrizeCmd.ExecuteReader();
+                    if (getNormalChaoPrizeRdr.HasRows)
                     {
-                        if (chaoPrizeWinIndex == i)
+                        Chao chao = new();
+                        chao.chaoID = Convert.ToString(getNormalChaoPrizeRdr["chao_id"]);
+                        var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
+                        LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
+                        if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                         {
-                            if (wonChaoPrize.status == (sbyte)Chao.Status.NotOwned)
-                            {
-                                wonChaoPrize.status = (sbyte)Chao.Status.Owned;
-                            }
-                            else if (wonChaoPrize.status == (sbyte)Chao.Status.Owned && wonChaoPrize.level < 10)
-                            {
-                                wonChaoPrize.level += 1;
-                            }
-                            else if (wonChaoPrize.level == 10)
-                            {
-                                wonChaoPrize.status = (sbyte)Chao.Status.MaxLevel;
-                            }
-                            else
-                            {
-                                playerState.chaoEggs += 1;
-                            }
+                            playerState.chaoEggs += 1;
                         }
+                        AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                        SaveChaoState(conn, clientReq.userId, chaoState);
                     }
-                    AddChaoToChaoState(conn, Convert.ToInt32(wonChaoPrize.chaoID), ref chaoState, clientReq.userId, ref chaoPrizeWinIndex);
-                    SaveChaoState(conn, clientReq.userId, chaoState);
                     wheelOptions.numRemainingRoulette++;
                     wheelOptions.rouletteRank = 0;
                     break;
@@ -207,7 +163,7 @@ namespace spikewall.Controllers
 
             // Regenerate item list so the client's item list
             // doesn't become desynced from the roulette rank
-            var getWheelOptionsStatus = WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
+            var getWheelOptionsStatus = WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out items, out itemNum, out itemWeight);
             if (getWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));

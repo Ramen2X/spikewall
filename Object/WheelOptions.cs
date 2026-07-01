@@ -155,5 +155,69 @@ namespace spikewall.Object
 
             return SRStatusCode.Ok;
         }
+
+        public static SRStatusCode AdjustChaoItemRouletteWeights(MySqlConnection conn, ref long[] items, ref short[] itemweight, ref Chao[] chaoState)
+        {
+            //Extracting the weights from the itemWeight array and calculating the overall odds of normal buddies depending on the item roulette level
+            //Overall Normal Chao Odds will stay at zero if no Normal Egg is in the Item Roulette
+            var overallNormalOdds = 0;
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] == (sbyte)Item.ItemID.NormalEgg)
+                {
+                    overallNormalOdds += itemweight[i];
+                }
+            }
+
+            List<Chao> availableChao = new List<Chao>();
+
+            var increasedNormalOdds = 0.1 * overallNormalOdds;
+
+            var normalChaoWithIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_chao` WHERE (on_item_roulette = '1' AND is_odds_increased = '1')");
+            var normalChaoIncreasedOddsCount = Convert.ToInt32(normalChaoWithIncreasedOdds);
+            var normalChaoWithoutIncreasedOdds = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_chao` WHERE (on_item_roulette = '1' AND is_odds_increased = '0')");
+            var normalChaoNonIncreasedOddsCount = Convert.ToInt32(normalChaoWithoutIncreasedOdds);
+
+            //If the product in the parenthesis becomes 0, odds would be normalized with all Normal Chao available in the corresponding Item Roulette respectively
+            var adjustedNormalizedRareOdds = (overallNormalOdds - (increasedNormalOdds * normalChaoIncreasedOddsCount)) / normalChaoNonIncreasedOddsCount;
+
+            var normalChaoWithIncreasedOddsCmd = new MySqlCommand(normalChaoWithIncreasedOdds, conn);
+            var normalChaoWithIncreasedOddsRdr = normalChaoWithIncreasedOddsCmd.ExecuteReader();
+
+            Chao chao = new();
+
+            //This while loop will not run if there are no normal chao with increased odds
+            while (normalChaoWithIncreasedOddsRdr.Read())
+            {
+                chao.chaoID = Convert.ToString(normalChaoWithIncreasedOddsRdr["id"]);
+                var increasedOddsSql = Db.GetCommand(@"INSERT INTO `sw_chaoitemrouletteprizelist` (chao_id, chao_weight) VALUES ('{0}', '{1}')", chao.chaoID, increasedNormalOdds);
+                var insertIncreasedOddsCmd = new MySqlCommand(increasedOddsSql, conn);
+                insertIncreasedOddsCmd.ExecuteNonQuery();
+                availableChao.Add(chao);
+                normalChaoWithIncreasedOddsRdr.Read();
+            }
+
+            normalChaoWithIncreasedOddsRdr.Close();
+
+            var normalChaoWithoutIncreasedOddsCmd = new MySqlCommand(normalChaoWithoutIncreasedOdds, conn);
+            var normalChaoWithoutIncreasedOddsRdr = normalChaoWithoutIncreasedOddsCmd.ExecuteReader();
+
+            //This while loop will run regardless if there are normal chao with increased odds or not
+            while (normalChaoWithIncreasedOddsRdr.Read())
+            {
+                chao.chaoID = Convert.ToString(normalChaoWithoutIncreasedOddsRdr["id"]);
+                var sql = Db.GetCommand(@"INSERT INTO `sw_chaoitemrouletteprizelist` (chao_id, chao_weight) VALUES ('{0}', '{1}')", chao.chaoID, adjustedNormalizedRareOdds);
+                var insertCmd = new MySqlCommand(sql, conn);
+                insertCmd.ExecuteNonQuery();
+                availableChao.Add(chao);
+                normalChaoWithoutIncreasedOddsRdr.Read();
+            }
+
+            normalChaoWithoutIncreasedOddsRdr.Close();
+
+            chaoState = availableChao.ToArray();
+
+            return SRStatusCode.Ok;
+        }
     }
 }
