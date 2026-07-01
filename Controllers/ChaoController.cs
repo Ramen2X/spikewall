@@ -295,5 +295,24 @@ namespace spikewall.Controllers
             };
             return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }
+
+        [HttpPost]
+        [Route("equipChao")]
+        [Produces("text/json")]
+        public JsonResult EquipChao([FromForm] string param, [FromForm] string secure, [FromForm] string key = "")
+        {
+            var iv = (string)Config.Get("encryption_iv");
+
+            using var conn = Db.Get();
+            conn.Open();
+
+            var clientReq = new ClientRequest<RedstarExchangeListRequest>(conn, param, secure, key);
+            if (clientReq.error != SRStatusCode.Ok)
+            {
+                return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));
+            }
+
+            return new JsonResult(EncryptedResponse.Generate(iv, new EquipChaoResponse()));
+        }
     }
 }
