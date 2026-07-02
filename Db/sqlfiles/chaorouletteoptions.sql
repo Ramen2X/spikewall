@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `sw_chaoroulette`;
 
-DROP TABLE IF EXISTS `sw_chaorouletteprizelist`
+DROP TABLE IF EXISTS `sw_chaorouletteprizelist`;
 
 CREATE TABLE
   `sw_chaoroulette` (
@@ -31,7 +31,7 @@ VALUES
 
 CREATE TABLE 
     `sw_chaorouletteprizelist`  (
-    chao_id INT MEDIUMINT UNSIGNED NOT NULL,
+    chao_id MEDIUMINT UNSIGNED NOT NULL,
     rarity INT UNSIGNED NOT NULL,
     chao_weight SMALLINT NOT NULL
 );

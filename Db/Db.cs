@@ -199,7 +199,7 @@ namespace spikewall
             // Drop and recreate itemownership
             if (itemOwnership)
             {
-                QuickRun(conn, "itemownership.sql;");
+                QuickRun(conn, "itemownership.sql");
             }
 
             if (information)

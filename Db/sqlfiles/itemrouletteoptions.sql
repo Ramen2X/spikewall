@@ -40,6 +40,6 @@ VALUES
 
 CREATE TABLE 
     `sw_chaoitemrouletteprizelist` (
-        chao_id INT MEDIUMINT UNSIGNED NOT NULL,
+        chao_id MEDIUMINT UNSIGNED NOT NULL,
         chao_weight SMALLINT NOT NULL
     );
