@@ -178,36 +178,14 @@ namespace spikewall.Controllers
                     switch (wonItemID)
                     {
                         case (ulong)Item.ItemID.RareEgg:
-                            var getRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", (ulong)Item.ItemID.RareEgg);
-                            var getRareChaoPrizeCommand = new MySqlCommand(getRareChaoPrizeSql, conn);
-                            var rareChaoPrizeRdr = command.ExecuteReader();
-
-                            if (rareChaoPrizeRdr.HasRows)
-                            {
-                                ChaoPrize chao = new();
-                                chao.chaoID = Convert.ToString(rareChaoPrizeRdr["chao_id"]);
-                                var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
-                                LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
-                                if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
-                                {
-                                    playerState.chaoEggs += 1;
-                                }
-
-                                AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
-                                SaveChaoState(conn, clientReq.userId, chaoState);
-                                chaoPrizeList.Add(chao);
-                                rareChaoPrizeRdr.Close();
-                            }
-                            
-                            break;
                         case (ulong)Item.ItemID.SuperRareEgg:
-                            var getSRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", (ulong)Item.ItemID.SuperRareEgg);
-                            var getSRareChaoPrizeCommand = new MySqlCommand(getSRareChaoPrizeSql, conn);
-                            var sRareChaoPrizeRdr = getSRareChaoPrizeCommand.ExecuteReader();
-                            if (sRareChaoPrizeRdr.HasRows)
+                            var getChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", wonItemID);
+                            var getChaoPrizeCommand = new MySqlCommand(getChaoPrizeSql, conn);
+                            var chaoPrizeRdr = getChaoPrizeCommand.ExecuteReader();
+                            if (chaoPrizeRdr.HasRows)
                             {
                                 ChaoPrize chao = new();
-                                chao.chaoID = Convert.ToString(sRareChaoPrizeRdr["chao_id"]);
+                                chao.chaoID = Convert.ToString(chaoPrizeRdr["chao_id"]);
                                 var getChaoIndex = FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
                                 LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
                                 if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
@@ -218,7 +196,7 @@ namespace spikewall.Controllers
                                 AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
                                 SaveChaoState(conn, clientReq.userId, chaoState);
                                 chaoPrizeList.Add(chao);
-                                sRareChaoPrizeRdr.Close();
+                                chaoPrizeRdr.Close();
                             }
                             break;
                         case (ulong)Item.ItemID.CharacterEgg:
