@@ -6,6 +6,7 @@ using spikewall.Response;
 using System.Text;
 using static spikewall.Object.Character;
 using static spikewall.Object.Item;
+using static spikewall.Object.Chao;
 
 namespace spikewall.Controllers
 {
@@ -448,6 +449,7 @@ namespace spikewall.Controllers
                 playerState.totalDistance += request.distance;
 
                 PopulateCharacterState(conn, clientReq.userId, out var characterState);
+                PopulateChaoState(conn, clientReq.userId, out var chaoState);
 
                 var subCharacterPresent = false;
 
@@ -795,8 +797,11 @@ namespace spikewall.Controllers
             }
             
             WheelOptions wheelOptions = new();
-            
-            var populateWheelStatus = wheelOptions.Populate(conn, clientReq.userId);
+            ChaoWheelOptions chaoWheelOptions = new();
+
+            PopulateChaoState(conn, clientReq.userId, out Chao[] chaoState);
+
+            var populateWheelStatus = wheelOptions.Populate(conn, clientReq.userId, ref chaoState);
             if (populateWheelStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, populateWheelStatus));
