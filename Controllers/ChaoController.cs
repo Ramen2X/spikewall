@@ -49,7 +49,7 @@ namespace spikewall.Controllers
             }
 
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
 
             ChaoWheelOptionsResponse chaoWheelOptionsResponse = new()
             {
@@ -130,13 +130,10 @@ namespace spikewall.Controllers
             }
 
             ChaoWheelOptions chaoWheelOptions = new();
-            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId);
+            chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
             chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
             ChaoSpinResult chaoSpinResult = new();
-
-            ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
-            ChaoWheelOptions.AdjustChaoWeights(conn, ref chaoRarity, ref chaoWeight, ref chaoState, ref characterState);
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
             var requestCount = commitChaoWheelSpinRequest.count;
@@ -232,7 +229,7 @@ namespace spikewall.Controllers
 
             // Regenerate chao roulette and chao weights so the client's chao roulette and weights
             // doesn't become desynced from the current premium roulette rank
-            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out chaoRarity, out chaoWeight);
+            var getChaoWheelOptionsStatus = ChaoWheelOptions.GetChaoWheelOptions(conn, chaoWheelOptions.chaoRouletteType, out long[] chaoRarity, out short[] chaoWeight);
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));

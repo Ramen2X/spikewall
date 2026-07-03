@@ -45,7 +45,7 @@ namespace spikewall.Controllers
             }
 
             WheelOptions wheelOptions = new();
-            wheelOptions.Populate(conn, clientReq.userId);
+            wheelOptions.Populate(conn, clientReq.userId, ref chaoState);
 
             WheelOptionsResponse wheelOptionsResponse = new()
             {
@@ -86,15 +86,11 @@ namespace spikewall.Controllers
             }
 
             WheelOptions wheelOptions = new();
-            wheelOptions.Populate(conn, clientReq.userId);
+            wheelOptions.Populate(conn, clientReq.userId, ref chaoState);
 
             var wonItemIndex = wheelOptions.itemWon;
             var wonItemID = wheelOptions.items[wonItemIndex];
             var wonItemCount = (ulong)wheelOptions.item[wonItemIndex];
-
-            WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
-            WheelOptions.AdjustChaoItemRouletteWeights(conn, ref items, ref itemWeight, ref chaoState);
-
 
             switch (wonItemID)
             {
@@ -163,7 +159,7 @@ namespace spikewall.Controllers
 
             // Regenerate item list so the client's item list
             // doesn't become desynced from the roulette rank
-            var getWheelOptionsStatus = WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out items, out itemNum, out itemWeight);
+            var getWheelOptionsStatus = WheelOptions.GetItemWheelOptions(conn, wheelOptions.rouletteRank, out long[] items, out long[] itemNum, out short[] itemWeight);
             if (getWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return new JsonResult(EncryptedResponse.Generate(iv, clientReq.error));

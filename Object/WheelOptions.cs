@@ -29,7 +29,7 @@ namespace spikewall.Object
             Super
         }
 
-        public SRStatusCode Populate(MySqlConnection conn, string uid)
+        public SRStatusCode Populate(MySqlConnection conn, string uid, ref Chao[] chaoState)
         {
             PlayerState playerState = new();
 
@@ -83,6 +83,12 @@ namespace spikewall.Object
             if (getWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return getWheelOptionsStatus;
+            }
+
+            var getAdjustedNormalChaoStatus = AdjustChaoItemRouletteWeights(conn, ref items, ref itemWeight, ref chaoState);
+            if (getAdjustedNormalChaoStatus != SRStatusCode.Ok)
+            {
+                return getAdjustedNormalChaoStatus;
             }
 
             this.items = items;

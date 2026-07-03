@@ -406,7 +406,7 @@ namespace spikewall.Object
             Special
         }
 
-        public SRStatusCode PopulateChaoWheel(MySqlConnection conn, string uid)
+        public SRStatusCode PopulateChaoWheel(MySqlConnection conn, string uid, ref Chao[] chaoState, ref Character[] characterState)
         {
             PlayerState playerState = new();
             var populateStatus = playerState.Populate(conn, uid);
@@ -453,6 +453,12 @@ namespace spikewall.Object
             if (getChaoWheelOptionsStatus != SRStatusCode.Ok)
             {
                 return getChaoWheelOptionsStatus;
+            }
+
+            var adjustChaoWeightsStatus = AdjustChaoWeights(conn, ref chaoRarity, ref chaoWeight, ref chaoState, ref characterState);
+            if (adjustChaoWeightsStatus != SRStatusCode.Ok)
+            {
+                return adjustChaoWeightsStatus;
             }
 
             return SRStatusCode.Ok;
