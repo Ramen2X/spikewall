@@ -178,7 +178,7 @@ namespace spikewall.Controllers
                     switch (wonItemID)
                     {
                         case (ulong)Item.ItemID.RareEgg:
-                            var getRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' AND chao_weight >= RAND() * (SELECT MAX(chao_weight)+1 FROM `sw_chaorouletteprizelist`) ORDER BY chao_weight LIMIT 1", (ulong)Item.ItemID.RareEgg);
+                            var getRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", (ulong)Item.ItemID.RareEgg);
                             var getRareChaoPrizeCommand = new MySqlCommand(getRareChaoPrizeSql, conn);
                             var rareChaoPrizeRdr = command.ExecuteReader();
 
@@ -201,7 +201,7 @@ namespace spikewall.Controllers
                             
                             break;
                         case (ulong)Item.ItemID.SuperRareEgg:
-                            var getSRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' AND chao_weight >= RAND() * (SELECT MAX(chao_weight)+1 FROM `sw_chaorouletteprizelist`) ORDER BY chao_weight LIMIT 1", (ulong)Item.ItemID.SuperRareEgg);
+                            var getSRareChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", (ulong)Item.ItemID.SuperRareEgg);
                             var getSRareChaoPrizeCommand = new MySqlCommand(getSRareChaoPrizeSql, conn);
                             var sRareChaoPrizeRdr = getSRareChaoPrizeCommand.ExecuteReader();
                             if (sRareChaoPrizeRdr.HasRows)
@@ -222,7 +222,7 @@ namespace spikewall.Controllers
                             }
                             break;
                         case (ulong)Item.ItemID.CharacterEgg:
-                            var characterPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' AND chao_weight >= RAND() * (SELECT MAX(chao_weight)+1 FROM `sw_chaorouletteprizelist`) ORDER BY chao_weight LIMIT 1", (ulong)Item.ItemID.CharacterEgg);
+                            var characterPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist` WHERE rarity = '{0}' ORDER BY (RAND() * chao_weight) DESC LIMIT 1", (ulong)Item.ItemID.CharacterEgg);
                             var characterPrizeCommand = new MySqlCommand(characterPrizeSql, conn);
                             var characterPrizeRdr = characterPrizeCommand.ExecuteReader();
                             if (characterPrizeRdr.HasRows)

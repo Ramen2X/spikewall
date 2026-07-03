@@ -132,7 +132,7 @@ namespace spikewall.Controllers
                     wheelOptions.rouletteRank = 0;
                     break;
                 case (long)ItemID.NormalEgg: // normal buddy
-                    var getNormalChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaoitemrouletteprizelist` WHERE chao_weight >= RAND() *(SELECT MAX(chao_weight)+1 FROM `sw_chaoitemrouletteprizelist`) ORDER BY chao_weight LIMIT 1");
+                    var getNormalChaoPrizeSql = Db.GetCommand(@"SELECT * FROM `sw_chaoitemrouletteprizelist` ORDER BY (RAND() * chao_weight) DESC LIMIT 1");
                     var getNormalChaoPrizeCmd = new MySqlCommand(getNormalChaoPrizeSql, conn);
                     var getNormalChaoPrizeRdr = getNormalChaoPrizeCmd.ExecuteReader();
                     if (getNormalChaoPrizeRdr.HasRows)
