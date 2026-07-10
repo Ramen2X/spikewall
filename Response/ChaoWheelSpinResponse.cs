@@ -8,6 +8,6 @@ namespace spikewall.Response
         public Character[] characterState { get; set; }
         public Chao[] chaoState { get; set; }
         public ChaoWheelOptions ChaoWheelOptions { get; set; }
-        public ChaoSpinResult ChaoSpinResults { get; set; }
+        public ChaoSpinResult ChaoSpinResult { get; set; }
     }
 }

@@ -281,7 +281,7 @@ namespace spikewall.Controllers
 
                 ChaoWheelOptions = chaoWheelOptions,
 
-                ChaoSpinResults = chaoSpinResult
+                ChaoSpinResult = chaoSpinResult
             };
             return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }
