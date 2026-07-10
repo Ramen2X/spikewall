@@ -3,6 +3,7 @@ using spikewall.Response;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Security.Cryptography;
 using static spikewall.Object.ChaoBase;
+using static spikewall.Object.Character;
 
 namespace spikewall.Object
 {
@@ -372,7 +373,51 @@ namespace spikewall.Object
 
     public class ChaoSpinPrize : Chao
     {
+        public static ChaoSpinPrize ChaoToChaoSpinPrize(Chao chao)
+        {
+            var chaoID = chao.chaoID;
+            var level = chao.level;
+            var rarity = chao.rarity;
+            if (rarity == (long)Item.ItemID.RareEgg)
+            {
+                rarity = (long)Item.ItemID.RareEgg;
+            }
+            else if (rarity == (long)Item.ItemID.SuperRareEgg)
+            {
+                rarity = (long)Item.ItemID.SuperRareEgg;
+            }
+            ChaoSpinPrize spinPrize = new(chaoID, Convert.ToSByte(level), Convert.ToInt64(rarity))
+            {
+                chaoID = chaoID,
+                level = level,
+                rarity = rarity
+            };
 
+            return spinPrize;
+        }
+
+        public static ChaoSpinPrize CharacterToChaoSpinPrize(Character character)
+        {
+            var characterID = character.characterId;
+            var star = character.star;
+            var rarity = (long)Item.ItemID.CharacterEgg;
+
+            ChaoSpinPrize spinPrize = new(Convert.ToString(characterID), star, rarity)
+            {
+                chaoID = Convert.ToString(characterID),
+                level = star,
+                rarity = rarity
+            };
+
+            return spinPrize;
+        }
+
+        public ChaoSpinPrize(string id, sbyte Level, long Rarity)
+        {
+            chaoID = id;
+            level = Level;
+            rarity = Rarity;
+        }
     }
 
     public class ChaoSpinResult
