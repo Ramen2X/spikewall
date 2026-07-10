@@ -156,6 +156,7 @@ namespace spikewall.Controllers
                 chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
                 requestCount = 1;
                 playerState.chaoEggs -= 10;
+                chaoWheelOptions.numSpecialEgg -= 10;
             }
 
             for (int i = 0; i < requestCount; i++)
