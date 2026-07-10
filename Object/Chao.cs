@@ -366,11 +366,6 @@ namespace spikewall.Object
         }
     }
 
-    public class ChaoPrize : ChaoBase
-    {
-
-    }
-
     public class ChaoSpinPrize : Chao
     {
         public static ChaoSpinPrize ChaoToChaoSpinPrize(Chao chao)
