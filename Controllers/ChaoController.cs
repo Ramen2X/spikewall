@@ -189,8 +189,7 @@ namespace spikewall.Controllers
                                     var chaoPrize = ChaoSpinPrize.ChaoToChaoSpinPrize(chao);
                                     chaoSpinPrize.Add(chaoPrize);
                                 }
-                                    
-                                if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
+                                else if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                                 {
                                     playerState.chaoEggs += 1;
                                     chaoWheelOptions.numSpecialEgg += 1;
