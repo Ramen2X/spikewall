@@ -354,14 +354,13 @@ namespace spikewall.Object
             {
                 chaoState[chaoIndex].level++;
                 chaoState[chaoIndex].acquired++;
+
+                //If Chao is at Level 10, set them to Max Level
+                if (chaoState[chaoIndex].level == 10)
+                {
+                    chaoState[chaoIndex].status = (sbyte)Status.MaxLevel;
+                }
             }
-            else if (chaoState[chaoIndex].level > 10)
-            {
-                chaoState[chaoIndex].level = 10;
-                chaoState[chaoIndex].status = (sbyte)Status.MaxLevel;
-            }
-            //If Chao is at Level 10, set them to Max Level
-            else chaoState[chaoIndex].status = (sbyte)Status.MaxLevel;
             return SRStatusCode.Ok;
         }
     }

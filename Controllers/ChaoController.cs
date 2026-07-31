@@ -163,7 +163,7 @@ namespace spikewall.Controllers
                 var wonChaoIndex = chaoSpinResult.ItemWon;
                 var wonRarityID = (ulong)chaoWheelOptions.rarity[wonChaoIndex];
 
-                List<ChaoSpinPrize> chaoSpinPrize = new List<ChaoSpinPrize>();
+                List<ChaoSpinPrize> chaoSpinPrizeList = new List<ChaoSpinPrize>();
                 List<Item> itemList = new List<Item>();
 
                 var sql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist`");
@@ -189,8 +189,9 @@ namespace spikewall.Controllers
                                 {
                                     LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
                                     var chaoPrize = ChaoSpinPrize.ChaoToChaoSpinPrize(chao);
-                                    chaoSpinPrize.Add(chaoPrize);
-                                    
+                                    chaoSpinPrizeList.Add(chaoPrize);
+                                    AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
+                                    SaveChaoState(conn, clientReq.userId, chaoState);
                                 }
                                 else if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                                 {
@@ -198,9 +199,6 @@ namespace spikewall.Controllers
                                     chaoWheelOptions.numSpecialEgg += 1;
                                     itemList.Add(new Item((long)Item.ItemID.SpecialEgg, 1));
                                 }
-
-                                AddChaoToChaoState(conn, Convert.ToInt32(chao.chaoID), ref chaoState, clientReq.userId, ref getChaoIndex);
-                                SaveChaoState(conn, clientReq.userId, chaoState);
                                 chaoPrizeRdr.Close();
                             }
                             break;
@@ -217,7 +215,9 @@ namespace spikewall.Controllers
                                 {
                                     IncreaseCharacterStarThroughRoulette(conn, character.characterId, ref characterState, out getCharacterIndex);
                                     var characterPrize = ChaoSpinPrize.CharacterToChaoSpinPrize(character);
-                                    chaoSpinPrize.Add(characterPrize);
+                                    chaoSpinPrizeList.Add(characterPrize);
+                                    AddCharacterToCharacterState(conn, character.characterId, ref characterState, clientReq.userId, ref getCharacterIndex);
+                                    SaveCharacterState(conn, clientReq.userId, characterState);
                                 }
                                 else
                                 {
@@ -231,17 +231,16 @@ namespace spikewall.Controllers
                                     itemList.Add(new Item((long)Item.ItemID.Ring, 10_000));
                                     itemList.Add(new Item((long)Item.ItemID.RedStarRing, 50));
                                 }
-                                AddCharacterToCharacterState(conn, character.characterId, ref characterState, clientReq.userId, ref getCharacterIndex);
-                                SaveCharacterState(conn, clientReq.userId, characterState);
                                 characterPrizeRdr.Close();
                             }
                             break;
                     }
-                    chaoSpinResult.ItemList = itemList.ToArray();
-                    chaoSpinResult.PrizeWon = chaoSpinPrize.ToArray();
-                    chaoSpinResultList.Add(chaoSpinResult);
                 }
                 prizeRdr.Close();
+
+                chaoSpinResult.ItemList = itemList.ToArray();
+                chaoSpinResult.PrizeWon = chaoSpinPrizeList.ToArray();
+                chaoSpinResultList.Add(chaoSpinResult);
             }
 
             ChaoSpinResult[] chaoSpinResultArray = chaoSpinResultList.ToArray();
