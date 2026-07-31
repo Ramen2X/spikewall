@@ -136,6 +136,7 @@ namespace spikewall.Controllers
             ChaoSpinResult chaoSpinResult = new();
             List<ChaoSpinPrize> chaoSpinPrize = new List<ChaoSpinPrize>();
             List<Item> itemList = new List<Item>();
+            List<ChaoSpinResult> chaoSpinResultList = new List<ChaoSpinResult>();
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
             var requestCount = commitChaoWheelSpinRequest.count;
@@ -188,6 +189,7 @@ namespace spikewall.Controllers
                                     LevelUpChao(conn, Convert.ToInt32(chao.chaoID), ref chaoState, out getChaoIndex);
                                     var chaoPrize = ChaoSpinPrize.ChaoToChaoSpinPrize(chao);
                                     chaoSpinPrize.Add(chaoPrize);
+                                    
                                 }
                                 else if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.MaxLevel)
                                 {
@@ -234,12 +236,14 @@ namespace spikewall.Controllers
                             }
                             break;
                     }
+                    chaoSpinResult.ItemList = itemList.ToArray();
+                    chaoSpinResult.PrizeWon = chaoSpinPrize.ToArray();
+                    chaoSpinResultList.Add(chaoSpinResult);
                 }
                 prizeRdr.Close();
             }
 
-            chaoSpinResult.ItemList = itemList.ToArray();
-            chaoSpinResult.PrizeWon = chaoSpinPrize.ToArray();
+            ChaoSpinResult[] chaoSpinResultArray = chaoSpinResultList.ToArray();
 
             // Regenerate chao roulette and chao weights so the client's chao roulette and weights
             // doesn't become desynced from the current premium roulette rank
@@ -281,7 +285,7 @@ namespace spikewall.Controllers
 
                 ChaoWheelOptions = chaoWheelOptions,
 
-                ChaoSpinResult = chaoSpinResult
+                ChaoSpinResult = chaoSpinResultArray
             };
             return new JsonResult(EncryptedResponse.Generate(iv, chaoWheelSpinResponse));
         }
