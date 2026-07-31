@@ -134,8 +134,6 @@ namespace spikewall.Controllers
             chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
             ChaoSpinResult chaoSpinResult = new();
-            List<ChaoSpinPrize> chaoSpinPrize = new List<ChaoSpinPrize>();
-            List<Item> itemList = new List<Item>();
             List<ChaoSpinResult> chaoSpinResultList = new List<ChaoSpinResult>();
 
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
@@ -164,6 +162,9 @@ namespace spikewall.Controllers
             {
                 var wonChaoIndex = chaoSpinResult.ItemWon;
                 var wonRarityID = (ulong)chaoWheelOptions.rarity[wonChaoIndex];
+
+                List<ChaoSpinPrize> chaoSpinPrize = new List<ChaoSpinPrize>();
+                List<Item> itemList = new List<Item>();
 
                 var sql = Db.GetCommand(@"SELECT * FROM `sw_chaorouletteprizelist`");
                 var command = new MySqlCommand(sql, conn);
