@@ -1,4 +1,4 @@
-﻿namespace spikewall.Enums
+﻿namespace spikewall.Languages
 {
     /// <summary>
     /// This enum contains all the languages that are available in the game.

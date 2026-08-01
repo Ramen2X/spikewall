@@ -3,9 +3,7 @@ using MySqlConnector;
 using spikewall.Object;
 using spikewall.Request;
 using spikewall.Response;
-using System.Security.Cryptography;
 using static spikewall.Object.Chao;
-using static spikewall.Object.ChaoBase;
 using static spikewall.Object.Character;
 
 namespace spikewall.Controllers
