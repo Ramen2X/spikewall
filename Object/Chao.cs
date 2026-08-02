@@ -237,7 +237,7 @@ namespace spikewall.Object
         {
             for (int i = 0; i < chaoState.Length; i++)
             {
-                var sql = Db.GetCommand(
+                var chaoStateSql = Db.GetCommand(
                   @"UPDATE `sw_chaostates` SET
                     status = '{0}',
                     level = '{1}',
@@ -247,9 +247,9 @@ namespace spikewall.Object
                         chaoState[i].level,
                         chaoState[i].setStatus,
                         chaoState[i].acquired);
-                var command = new MySqlCommand(sql, conn);
+                var chaoStateCommand = new MySqlCommand(chaoStateSql, conn);
 
-                int rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = chaoStateCommand.ExecuteNonQuery();
 
                 if (rowsAffected == 0)
                 {
@@ -264,8 +264,8 @@ namespace spikewall.Object
         public static SRStatusCode AddChaoToChaoState(MySqlConnection conn, int chaoId, ref Chao[] chaoState, string uid, ref int chaoIndex)
         {
             // Get info about provided chao
-            var sql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}';", chaoId);
-            var chaoCmd = new MySqlCommand(sql, conn);
+            var chaoSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}';", chaoId);
+            var chaoCmd = new MySqlCommand(chaoSql, conn);
             var chaoRdr = chaoCmd.ExecuteReader();
 
             if (chaoRdr.HasRows)
@@ -294,12 +294,12 @@ namespace spikewall.Object
                 chaoRdr.Close();
 
                 // Insert our newly crafted chao into the ChaoState
-                sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (
+                chaoSql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (
                                               user_id, chao_id, status, level, set_status, acquired
                                           ) VALUES (
                                               '{0}', '{1}', '{2}', '{3}'
                                           );", uid, c.chaoID, c.status, c.level, c.setStatus, c.acquired);
-                var insertCmd = new MySqlCommand(sql, conn);
+                var insertCmd = new MySqlCommand(chaoSql, conn);
                 insertCmd.ExecuteNonQuery();
 
                 chaoStateList.Add(c);
