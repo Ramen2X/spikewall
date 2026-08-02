@@ -180,56 +180,56 @@ namespace spikewall.Object
 
         public static SRStatusCode PopulateChaoState(MySqlConnection conn, string uid, out Chao[] chaoState)
         {
-            List<Chao> chao = new();
+            List<Chao> chaoList = new();
 
             // Get list of all visible chao
-            var command = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
+            var chaoCommand = new MySqlCommand("SELECT * FROM `sw_chao`;", conn);
 
-            using (var chaoRdr = command.ExecuteReader())
+            using (var chaoRdr = chaoCommand.ExecuteReader())
             {
                 while (chaoRdr.Read()) {
-                    Chao c = new();
+                    Chao chao = new();
 
-                    c.chaoID = Convert.ToString(chaoRdr["id"]);
-                    c.rarity = Convert.ToInt64(chaoRdr["rarity"]);
-                    c.hidden = Convert.ToInt64(chaoRdr["hidden"]);
+                    chao.chaoID = Convert.ToString(chaoRdr["id"]);
+                    chao.rarity = Convert.ToInt64(chaoRdr["rarity"]);
+                    chao.hidden = Convert.ToInt64(chaoRdr["hidden"]);
 
-                    chao.Add(c);
+                    chaoList.Add(chao);
                 }
 
                 chaoRdr.Close();
             }
 
-            for (int i = 0; i < chao.Count; i++) {
-                Chao c = chao[i];
+            for (int i = 0; i < chaoList.Count; i++) {
+                Chao chao = chaoList[i];
 
-                var sql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", uid, c.chaoID);
-                var stateCmd = new MySqlCommand(sql, conn);
-                var stateRdr = stateCmd.ExecuteReader();
+                var chaoStateSql = Db.GetCommand("SELECT * FROM `sw_chaostates` WHERE user_id = '{0}' AND chao_id = '{1}';", uid, chao.chaoID);
+                var chaoStateCmd = new MySqlCommand(chaoStateSql, conn);
+                var chaoStateRdr = chaoStateCmd.ExecuteReader();
 
-                if (stateRdr.HasRows) {
+                if (chaoStateRdr.HasRows) {
                     // Read row
-                    stateRdr.Read();
+                    chaoStateRdr.Read();
 
-                    c.status = Convert.ToSByte(stateRdr["status"]);
-                    c.level = Convert.ToSByte(stateRdr["level"]);
-                    c.setStatus = Convert.ToInt64(stateRdr["set_status"]);
-                    c.acquired = Convert.ToInt64(stateRdr["acquired"]);
+                    chao.status = Convert.ToSByte(chaoStateRdr["status"]);
+                    chao.level = Convert.ToSByte(chaoStateRdr["level"]);
+                    chao.setStatus = Convert.ToInt64(chaoStateRdr["set_status"]);
+                    chao.acquired = Convert.ToInt64(chaoStateRdr["acquired"]);
 
-                    stateRdr.Close();
+                    chaoStateRdr.Close();
                 } else {
-                    stateRdr.Close();
+                    chaoStateRdr.Close();
 
                     // Insert a default chaostate
-                    sql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", c.chaoID, uid);
-                    var insertCmd = new MySqlCommand(sql, conn);
+                    chaoStateSql = Db.GetCommand(@"INSERT INTO `sw_chaostates` (chao_id, user_id) VALUES ('{0}', '{1}');", chao.chaoID, uid);
+                    var insertCmd = new MySqlCommand(chaoStateSql, conn);
                     insertCmd.ExecuteNonQuery();
                 }
             }
 
             conn.Close();
 
-            chaoState = chao.ToArray();
+            chaoState = chaoList.ToArray();
 
             return SRStatusCode.Ok;
         }
