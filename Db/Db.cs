@@ -120,9 +120,14 @@ namespace spikewall
             return dbList.ToString();
         }
 
+        /// <summary>
+        /// This function is going to take a MySqlConnection and use the file name to get the query and to create the database.
+        /// </summary>
+        /// <param name="conn">The connection provided by the MySqlConnection object</param>
+        /// <param name="fileName">The name of the sql file to read a given query from</param>
         private static void QuickRun(MySqlConnection conn, string fileName)
         {
-
+            //The base path provides the location of the sqlfile and is applied to the SQL command to read the query from the file name.
             var basePath = @"spikewall\Db\sqlfiles";
             var command = new MySqlCommand(File.ReadAllText($@"..\{basePath}\{fileName}"), conn);
             command.ExecuteNonQuery();
