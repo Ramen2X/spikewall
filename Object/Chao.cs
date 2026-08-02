@@ -276,7 +276,7 @@ namespace spikewall.Object
                 // Read row
                 chaoRdr.Read();
 
-                Chao c = new()
+                Chao chao = new()
                 {
                     chaoID = Convert.ToString(chaoId),
 
@@ -285,10 +285,10 @@ namespace spikewall.Object
                     setStatus = Convert.ToInt64(chaoRdr["setStatus"]),
                     acquired = Convert.ToInt64(chaoRdr["acquired"]),
                 };
-                c.status = (sbyte)((c.status == (sbyte)Status.NotOwned) ? 0 : 1);
-                if (c.level == 10)
+                chao.status = (sbyte)((chao.status == (sbyte)Status.NotOwned) ? 0 : 1);
+                if (chao.level == 10)
                 {
-                    c.status = (sbyte)Status.MaxLevel;
+                    chao.status = (sbyte)Status.MaxLevel;
                 }
 
                 chaoRdr.Close();
@@ -298,11 +298,11 @@ namespace spikewall.Object
                                               user_id, chao_id, status, level, set_status, acquired
                                           ) VALUES (
                                               '{0}', '{1}', '{2}', '{3}'
-                                          );", uid, c.chaoID, c.status, c.level, c.setStatus, c.acquired);
+                                          );", uid, chao.chaoID, chao.status, chao.level, chao.setStatus, chao.acquired);
                 var insertCmd = new MySqlCommand(chaoSql, conn);
                 insertCmd.ExecuteNonQuery();
 
-                chaoStateList.Add(c);
+                chaoStateList.Add(chao);
 
                 // Convert ChaoState back to array to return it
                 chaoState = chaoStateList.ToArray();
