@@ -8,5 +8,6 @@ CREATE TABLE
     chao_roulette_ticket BIGINT DEFAULT 0,
     chao_roulette_cost BIGINT NOT NULL DEFAULT 50,
     chao_won INTEGER NOT NULL,
+    num_chao_roulette TINYINT NOT NULL DEFAULT 0,
     chao_roulette_rank TINYINT NOT NULL DEFAULT 0
   );

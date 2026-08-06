@@ -137,7 +137,17 @@ namespace spikewall.Controllers
             CommitChaoWheelSpinRequest commitChaoWheelSpinRequest = new();
             var requestCount = commitChaoWheelSpinRequest.count;
 
-            if (playerState.chaoEggs < 10)
+            //If this condition is true, the Premium Roulette is free for first two spins
+            if (chaoWheelOptions.numChaoRoulette == 0)
+            {
+                requestCount = 1;
+                playerState.chaoEggs += 10;
+                chaoWheelOptions.numSpecialEgg += 10;
+                chaoWheelOptions.numChaoRoulette++;
+            }
+
+            //This code block will always run since numChaoRoulette value is always 1 after the first two Premium Roulette Spins
+            else if (playerState.chaoEggs < 10)
             {
                 if (playerState.numChaoRouletteTicket > 0)
                 {
@@ -145,17 +155,24 @@ namespace spikewall.Controllers
                 }
                 else
                 {
-                    playerState.numRedRings -= 50 * (ulong)requestCount;
+                    playerState.numRedRings -= (ulong)chaoWheelOptions.spinCost * (ulong)requestCount;
                 }
             }
             else
             {
-                chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
-                requestCount = 1;
-                playerState.chaoEggs -= 10;
-                chaoWheelOptions.numSpecialEgg -= 10;
+                while (playerState.chaoEggs >= 10)
+                {
+                    if (playerState.chaoEggs >= 99)
+                    {
+                        playerState.chaoEggs = 99;
+                    }
+                    chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
+                    requestCount = 1;
+                    playerState.chaoEggs -= 10;
+                    chaoWheelOptions.numSpecialEgg -= 10;
+                }
             }
-
+            
             for (int i = 0; i < requestCount; i++)
             {
                 var wonChaoIndex = chaoSpinResult.ItemWon;

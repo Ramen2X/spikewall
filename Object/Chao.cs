@@ -450,9 +450,9 @@ namespace spikewall.Object
                 return populateStatus;
             }
 
-            var sql = Db.GetCommand("SELECT * FROM `sw_chaowheeloptions WHERE user_id = '{0}'", uid);
-            var command = new MySqlCommand(sql, conn);
-            var reader = command.ExecuteReader();
+            var chaoWheelSql = Db.GetCommand("SELECT * FROM `sw_chaowheeloptions WHERE user_id = '{0}'", uid);
+            var chaoWheelCommand = new MySqlCommand(chaoWheelSql, conn);
+            var reader = chaoWheelCommand.ExecuteReader();
 
             DateTimeOffset nextDayStart = new DateTime(
                 DateTime.Now.Year,
@@ -466,6 +466,7 @@ namespace spikewall.Object
                 this.spinCost = reader.GetInt64("chao_roulette_cost");
                 this.numSpecialEgg = reader.GetInt64("num_special_egg");
                 this.numChaoRouletteToken = reader.GetInt64("chao_roulette_ticket");
+                this.numChaoRoulette = reader.GetByte("num_chao_roulette");
                 this.startTime = nextDayStart.ToUnixTimeSeconds();
                 this.endTime = nextDayStart.ToUnixTimeSeconds();
                 reader.Close();
@@ -475,12 +476,12 @@ namespace spikewall.Object
                 // No ChaoWheelOptions for this player, create one
                 reader.Close();
 
-                sql = Db.GetCommand(@"INSERT INTO `sw_chaowheeloptions` (
-                                            user_id, num_special_egg, chao_roulette_ticket, chao_roulette_cost, chao_roulette_rank
+                chaoWheelSql = Db.GetCommand(@"INSERT INTO `sw_chaowheeloptions` (
+                                            user_id, num_special_egg, chao_roulette_ticket, chao_roulette_cost, num_chao_roulette, chao_roulette_rank
                                         ) VALUES (
-                                            '{0}', '{1}', '{2}', '{3}', '{4}'
+                                            '{0}', '{1}', '{2}', '{3}', '{4}', '{5}'
                                         );", uid, 0, 0, 50, 0);
-                var insertCmd = new MySqlCommand(sql, conn);
+                var insertCmd = new MySqlCommand(chaoWheelSql, conn);
                 insertCmd.ExecuteNonQuery();
             }
 
