@@ -463,12 +463,20 @@ namespace spikewall.Object
             if (reader.Read())
             {
                 this.chaoRouletteType = reader.GetInt64("chao_roulette_rank");
-                this.spinCost = reader.GetInt64("chao_roulette_cost");
+                var spinCost = reader.GetInt64("chao_roulette_cost");
                 this.numSpecialEgg = reader.GetInt64("num_special_egg");
                 this.numChaoRouletteToken = reader.GetInt64("chao_roulette_ticket");
                 this.numChaoRoulette = reader.GetByte("num_chao_roulette");
                 this.startTime = nextDayStart.ToUnixTimeSeconds();
                 this.endTime = nextDayStart.ToUnixTimeSeconds();
+
+                if (this.numChaoRoulette != 0)
+                {
+                    spinCost = 50;
+                }
+
+                this.spinCost = spinCost;
+
                 reader.Close();
             }
             else
@@ -480,7 +488,7 @@ namespace spikewall.Object
                                             user_id, num_special_egg, chao_roulette_ticket, chao_roulette_cost, num_chao_roulette, chao_roulette_rank
                                         ) VALUES (
                                             '{0}', '{1}', '{2}', '{3}', '{4}', '{5}'
-                                        );", uid, 0, 0, 50, 0);
+                                        );", uid, 0, 0, 0, 0);
                 var insertCmd = new MySqlCommand(chaoWheelSql, conn);
                 insertCmd.ExecuteNonQuery();
             }

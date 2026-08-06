@@ -131,6 +131,8 @@ namespace spikewall.Controllers
             chaoWheelOptions.PopulateChaoWheel(conn, clientReq.userId, ref chaoState, ref characterState);
             chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Normal;
 
+            MileageMapState mileageMapState = new();
+
             ChaoSpinResult chaoSpinResult = new();
             List<ChaoSpinResult> chaoSpinResultList = new List<ChaoSpinResult>();
 
@@ -138,7 +140,7 @@ namespace spikewall.Controllers
             var requestCount = commitChaoWheelSpinRequest.count;
 
             //If this condition is true, the Premium Roulette is free for first two spins
-            if (chaoWheelOptions.numChaoRoulette == 0)
+            if (mileageMapState.episode <= 5 && chaoWheelOptions.numChaoRoulette == 0)
             {
                 requestCount = 1;
                 playerState.chaoEggs += 10;
