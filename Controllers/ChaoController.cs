@@ -162,17 +162,15 @@ namespace spikewall.Controllers
             }
             else
             {
-                while (playerState.chaoEggs >= 10)
+                if (playerState.chaoEggs >= 99)
                 {
-                    if (playerState.chaoEggs >= 99)
-                    {
-                        playerState.chaoEggs = 99;
-                    }
-                    chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
-                    requestCount = 1;
-                    playerState.chaoEggs -= 10;
-                    chaoWheelOptions.numSpecialEgg -= 10;
+                    playerState.chaoEggs = 99;
+                    chaoWheelOptions.numSpecialEgg = 99;
                 }
+                chaoWheelOptions.chaoRouletteType = (long)ChaoWheelOptions.ChaoRouletteType.Special;
+                requestCount = 1;
+                playerState.chaoEggs -= 10;
+                chaoWheelOptions.numSpecialEgg -= 10;
             }
             
             for (int i = 0; i < requestCount; i++)
