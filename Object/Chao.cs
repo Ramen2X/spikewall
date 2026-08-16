@@ -790,7 +790,7 @@ namespace spikewall.Object
         {
             public ChaoWheelOptions? ChaoWheelOptions { get; set; }
             public string[]? WheelChao { get; set; }
-            public RouletteInfo ChaoRouletteInfo { get; set; }
+            public RouletteInfo? ChaoRouletteInfo { get; set; }
         }
     }
 }
