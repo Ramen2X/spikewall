@@ -785,12 +785,11 @@ namespace spikewall.Object
         //    startTime = 0;
         //    endTime = 0;
         //}
-
-        public class ChaoRouletteGroup
-        {
-            public ChaoWheelOptions? ChaoWheelOptions { get; set; }
-            public string[]? WheelChao { get; set; }
-            public RouletteInfo? ChaoRouletteInfo { get; set; }
-        }
+    }
+    public class ChaoRouletteGroup
+    {
+        public ChaoWheelOptions? ChaoWheelOptions { get; set; }
+        public string[]? WheelChao { get; set; }
+        public RouletteInfo? ChaoRouletteInfo { get; set; }
     }
 }
