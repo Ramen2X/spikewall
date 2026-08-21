@@ -270,7 +270,7 @@ namespace spikewall.Object
 
             if (chaoRdr.HasRows)
             {
-                // Convert CharacterState to list so we can append to it
+                // Convert ChaoState to list so we can append to it
                 List<Chao> chaoStateList = new(chaoState);
 
                 // Read row
@@ -454,6 +454,12 @@ namespace spikewall.Object
             var chaoWheelCommand = new MySqlCommand(chaoWheelSql, conn);
             var reader = chaoWheelCommand.ExecuteReader();
 
+            DateTimeOffset dayStart = new DateTime(
+                DateTime.Now.Year,
+                DateTime.Now.Month,
+                DateTime.Now.Day,
+                0, 0, 0, 0);
+
             DateTimeOffset nextDayStart = new DateTime(
                 DateTime.Now.Year,
                 DateTime.Now.Month,
@@ -467,7 +473,7 @@ namespace spikewall.Object
                 this.numSpecialEgg = reader.GetInt64("num_special_egg");
                 this.numChaoRouletteToken = reader.GetInt64("chao_roulette_ticket");
                 this.numChaoRoulette = reader.GetByte("num_chao_roulette");
-                this.startTime = nextDayStart.ToUnixTimeSeconds();
+                this.startTime = dayStart.ToUnixTimeSeconds();
                 this.endTime = nextDayStart.ToUnixTimeSeconds();
 
                 if (this.numChaoRoulette != 0)
