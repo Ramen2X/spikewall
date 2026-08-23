@@ -223,12 +223,12 @@ namespace spikewall
 
             if (chaoWheelOptions)
             {
-                QuickRun(conn, "chaoWheelOptions.sql");
+                QuickRun(conn, "chaowheeloptions.sql");
             }
 
             if (chaoRouletteOptions)
             {
-                QuickRun(conn, "chaoRouletteOptions.sql");
+                QuickRun(conn, "chaorouletteoptions.sql");
             }
 
             conn.Close();
