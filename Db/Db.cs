@@ -128,8 +128,8 @@ namespace spikewall
         private static void QuickRun(MySqlConnection conn, string fileName)
         {
             //The base path provides the location of the sqlfile and is applied to the SQL command to read the query from the file name.
-            var basePath = @"spikewall\Db\sqlfiles";
-            var command = new MySqlCommand(File.ReadAllText($@"..\{basePath}\{fileName}"), conn);
+            var filePath = Path.Combine("Db", "sqlfiles", fileName);
+            var command = new MySqlCommand(File.ReadAllText(filePath), conn);
             command.ExecuteNonQuery();
         }
 
