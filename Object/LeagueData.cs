@@ -772,7 +772,7 @@ namespace spikewall.Object
                 return generateQuickLeagueStatus;
             }
 
-            var updateGroupLeagueIdSql = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_players WHERE quick_ranking_league = '{0}' AND quick_ranking_league_group = '{1}'", playerState.rankingLeague, playerState.rankingLeagueGroup);
+            var updateGroupLeagueIdSql = Db.GetCommand(@"SELECT COUNT(id) FROM `sw_players WHERE quick_ranking_league = '{0}' AND quick_ranking_league_group = '{1}'", playerState.quickRankingLeague, playerState.quickRankingLeagueGroup);
             var countLeaguePlayersInGroup = Convert.ToInt64(updateGroupLeagueIdSql);
 
             if (countLeaguePlayersInGroup == currentQuickLeague.numGroupMember)
