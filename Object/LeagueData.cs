@@ -559,15 +559,16 @@ namespace spikewall.Object
             if (DateTime.Now >= leagueReset)
             {
                 LeagueData endlessLeague = new();
-                var playerSql = Db.GetCommand(@"SELECT * FROM `sw_player` WHERE id='{0}' ORDER BY ranking_league_group, ranking_league_group_id, story_total_score DESC", uid);
+                var playerSql = Db.GetCommand(@"SELECT *, rank() OVER (PARTITION BY ranking_league ORDER BY ranking_league_group ASC, league_high_score DESC) AS league_rank FROM `sw_players` WHERE id='{0}' AND ranking_league='{1}' AND ranking_league_group = '{2}'", uid, endlessLeague.leagueId, endlessLeague.groupId);
                 var playerCommand = new MySqlCommand(playerSql, conn);
                 var playerReader = playerCommand.ExecuteReader();
 
-                if (playerReader.HasRows)
+                while (playerReader.Read())
                 {
                     playerState.rankingLeagueGroup = Convert.ToInt64(playerReader["ranking_league_group"]);
                     playerState.rankingLeague = Convert.ToInt64(playerReader["ranking_league"]);
-                    if (playerState.rankingLeagueGroup <= endlessLeague.numUp)
+                    var rank = Convert.ToInt64(playerReader["league_rank"]);
+                    if (rank <= endlessLeague.numUp)
                     {
                         endlessLeague.leagueId += 1;
 
@@ -613,7 +614,7 @@ namespace spikewall.Object
                             var itemPrize = new Item((long)Item.ItemID.SpecialEgg, 1);
                         }
                     }
-                    else if (endlessLeague.leagueId >= 9 && playerState.rankingLeagueGroup > (endlessLeague.numGroupMember - endlessLeague.numDown))
+                    else if (endlessLeague.leagueId >= 9 && rank > (endlessLeague.numGroupMember - endlessLeague.numDown))
                     {
                         endlessLeague.leagueId -= 1;
                     }
@@ -674,7 +675,7 @@ namespace spikewall.Object
             if (DateTime.Now >= leagueReset)
             {
                 LeagueData quickLeague = new();
-                var playerSql = Db.GetCommand(@"SELECT * FROM `sw_player` WHERE id='{0}' ORDER BY quick_ranking_league_group, quick_ranking_league_group_id, quick_total_score DESC", uid);
+                var playerSql = Db.GetCommand(@"SELECT *, rank() OVER (PARTITION BY quick_league_rank ORDER BY quick_ranking_league_group, quick_league_high_score DESC) AS quick_league_rank FROM `sw_players` WHERE id='{0}' AND quick_ranking_league='{1}' AND quick_ranking_league_group = '{2}'", uid, quickLeague.leagueId, quickLeague.groupId);
                 var playerCommand = new MySqlCommand(playerSql, conn);
                 var playerReader = playerCommand.ExecuteReader();
 
@@ -682,7 +683,8 @@ namespace spikewall.Object
                 {
                     playerState.quickRankingLeagueGroup = Convert.ToInt64(playerReader["quick_ranking_league_group"]);
                     playerState.quickRankingLeague = Convert.ToInt64(playerReader["quick_ranking_league"]);
-                    if (playerState.quickRankingLeagueGroup <= quickLeague.numUp)
+                    var quickLeagueRank = Convert.ToInt64(playerReader["quick_league_rank"]);
+                    if (quickLeagueRank <= quickLeague.numUp)
                     {
                         quickLeague.leagueId += 1;
                         switch (quickLeague.leagueId)
@@ -727,7 +729,7 @@ namespace spikewall.Object
                             var itemPrize = new Item((long)Item.ItemID.SpecialEgg, 1);
                         }
                     }
-                    else if (quickLeague.leagueId >= 9 && playerState.quickRankingLeagueGroup > (quickLeague.numGroupMember - quickLeague.numDown))
+                    else if (quickLeague.leagueId >= 9 && quickLeagueRank > (quickLeague.numGroupMember - quickLeague.numDown))
                     {
                         quickLeague.leagueId -= 1;
                     }
