@@ -582,9 +582,15 @@ namespace spikewall.Object
                             case 18:
                             case 19:
                             case 20:
-                                var populateChaoStateStatus = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
+                                var getShahraSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}'", Chao.ChaoID.Shahra);
+                                var getShahraCommand = new MySqlCommand(getShahraSql, conn);
+                                var getShahraReader = getShahraCommand.ExecuteReader();
+
+                                getShahraReader.Read();
                                 Chao chao = new();
-                                chao.chaoID = Convert.ToString(Chao.ChaoID.Shahra);
+                                chao.chaoID = Convert.ToString(getShahraReader["id"]);
+
+                                var populateChaoStateStatus = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
                                 var getChaoIndex = Chao.FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
                                 if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.NotOwned || chaoState[getChaoIndex].level < 10)
                                 {
@@ -594,6 +600,7 @@ namespace spikewall.Object
                                 {
                                     var itemPrize = new Item((long)Item.ItemID.SpecialEgg, 1);
                                 }
+                                getShahraReader.Close();
                                 break;
                             default:
                                 break;
@@ -601,9 +608,15 @@ namespace spikewall.Object
                     }
                     else if (endlessLeague.leagueId == 20)
                     {
-                        var populateChaoStateStatus = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
+                        var getShahraSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}'", Chao.ChaoID.Shahra);
+                        var getShahraCommand = new MySqlCommand(getShahraSql, conn);
+                        var getShahraReader = getShahraCommand.ExecuteReader();
+
+                        getShahraReader.Read();
                         Chao chao = new();
-                        chao.chaoID = Convert.ToString(Chao.ChaoID.Shahra);
+                        chao.chaoID = Convert.ToString(getShahraReader["id"]);
+
+                        var populateChaoStateStatus = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
                         var getChaoIndex = Chao.FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
                         if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.NotOwned || chaoState[getChaoIndex].level < 10)
                         {
@@ -697,9 +710,15 @@ namespace spikewall.Object
                             case 18:
                             case 19:
                             case 20:
-                                var populateChaoState = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
+                                var getDarkQueenSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}'", Chao.ChaoID.DarkQueen);
+                                var getDarkQueenCommand = new MySqlCommand(getDarkQueenSql, conn);
+                                var getDarkQueenReader = getDarkQueenCommand.ExecuteReader();
+
+                                getDarkQueenReader.Read();
                                 Chao chao = new();
-                                chao.chaoID = Convert.ToString(Chao.ChaoID.DarkQueen);
+                                chao.chaoID = Convert.ToString(getDarkQueenReader["id"]);
+
+                                var populateChaoState = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
                                 var getChaoIndex = Chao.FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
                                 if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.NotOwned || chaoState[getChaoIndex].level < 10)
                                 {
@@ -709,6 +728,7 @@ namespace spikewall.Object
                                 {
                                     var itemPrize = new Item((long)Item.ItemID.SpecialEgg, 1);
                                 }
+                                getDarkQueenReader.Close();
                                 break;
                             default:
                                 break;
@@ -716,8 +736,15 @@ namespace spikewall.Object
                     }
                     else if (quickLeague.leagueId == 20)
                     {
-                        var populateChaoState = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
+                        var getDarkQueenSql = Db.GetCommand("SELECT * FROM `sw_chao` WHERE id = '{0}'", Chao.ChaoID.DarkQueen);
+                        var getDarkQueenCommand = new MySqlCommand(getDarkQueenSql, conn);
+                        var getDarkQueenReader = getDarkQueenCommand.ExecuteReader();
+
+                        getDarkQueenReader.Read();
                         Chao chao = new();
+                        chao.chaoID = Convert.ToString(getDarkQueenReader["id"]);
+
+                        var populateChaoState = Chao.PopulateChaoState(conn, uid, out Chao[] chaoState);
                         chao.chaoID = Convert.ToString(Chao.ChaoID.DarkQueen);
                         var getChaoIndex = Chao.FindChaoInChaoState(Convert.ToInt32(chao.chaoID), chaoState);
                         if (chaoState[getChaoIndex].status == (sbyte)Chao.Status.NotOwned || chaoState[getChaoIndex].level < 10)
