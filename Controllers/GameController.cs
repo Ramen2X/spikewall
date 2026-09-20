@@ -438,15 +438,40 @@ namespace spikewall.Controllers
 
                 request.CheckCheatResult(clientReq.userId);
 
-                if (playerState.quickTotalHighScore < request.score)
+                var quickLeagueResetTimeStatus = LeagueData.GetStartAndEndTimesForQuickLeague(conn, (long)playerState.quickRankingLeague, (long)playerState.quickRankingLeagueGroup, out long quickStartTime, out long quickResetTime);
+
+                if (quickLeagueResetTimeStatus != SRStatusCode.Ok)
                 {
-                    playerState.quickTotalHighScore = request.score;
+                    return new JsonResult(EncryptedResponse.Generate(iv, quickLeagueResetTimeStatus));
                 }
 
-                playerState.numAnimals += request.numAnimals;
-                playerState.numRings += request.numRings;
-                playerState.numRedRings += request.numRedStarRings;
-                playerState.totalDistance += request.distance;
+                DateTimeOffset currentTime = new DateTime(
+                    DateTime.Now.Year,
+                    DateTime.Now.Month,
+                    DateTime.Now.Day);
+
+                if (currentTime.ToUnixTimeSeconds() >= quickStartTime && currentTime.ToUnixTimeSeconds() < quickResetTime)
+                {
+                    if (playerState.quickLeagueHighScore < request.score)
+                    {
+                        playerState.quickLeagueHighScore = request.score;
+                    }
+                    if (playerState.quickTotalHighScore < playerState.quickLeagueHighScore)
+                    {
+                        playerState.quickTotalHighScore = playerState.quickLeagueHighScore;
+                    }
+
+                    playerState.quickTotalScore += request.score;
+                    if (playerState.quickHighTotalScore < playerState.quickTotalScore)
+                    {
+                        playerState.quickHighTotalScore = playerState.quickTotalScore;
+                    }
+
+                    playerState.numAnimals += request.numAnimals;
+                    playerState.numRings += request.numRings;
+                    playerState.numRedRings += request.numRedStarRings;
+                    playerState.totalDistance += request.distance;
+                }
 
                 PopulateCharacterState(conn, clientReq.userId, out var characterState);
                 PopulateChaoState(conn, clientReq.userId, out var chaoState);
@@ -589,15 +614,40 @@ namespace spikewall.Controllers
 
                 request.CheckCheatResult(clientReq.userId);
 
-                if (playerState.totalHighScore < request.score)
+                var leagueResetTimeStatus = LeagueData.GetStartAndEndTimesForEndlessLeague(conn, (long)playerState.rankingLeague, (long)playerState.rankingLeagueGroup, out long endlessStartTime, out long endlessResetTime);
+
+                if (leagueResetTimeStatus != SRStatusCode.Ok)
                 {
-                    playerState.totalHighScore = request.score;
+                    return new JsonResult(EncryptedResponse.Generate(iv, leagueResetTimeStatus));
                 }
 
-                playerState.numAnimals += request.numAnimals;
-                playerState.numRings += request.numRings;
-                playerState.numRedRings += request.numRedStarRings;
-                playerState.totalDistance += request.distance;
+                DateTimeOffset currentTime = new DateTime(
+                    DateTime.Now.Year,
+                    DateTime.Now.Month,
+                    DateTime.Now.Day);
+
+                if (currentTime.ToUnixTimeSeconds() >= endlessStartTime && currentTime.ToUnixTimeSeconds() < endlessResetTime)
+                {
+                    if (playerState.leagueHighScore < request.score)
+                    {
+                        playerState.leagueHighScore = request.score;
+                    }
+                    if (playerState.totalHighScore < playerState.leagueHighScore)
+                    {
+                        playerState.totalHighScore = playerState.leagueHighScore;
+                    }
+
+                    playerState.totalScore += request.score;
+                    if (playerState.highTotalScore < playerState.totalScore)
+                    {
+                        playerState.highTotalScore = playerState.totalScore;
+                    }
+
+                    playerState.numAnimals += request.numAnimals;
+                    playerState.numRings += request.numRings;
+                    playerState.numRedRings += request.numRedStarRings;
+                    playerState.totalDistance += request.distance;
+                }
 
                 PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
 
