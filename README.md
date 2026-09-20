@@ -22,6 +22,7 @@ It is designed to be as accurate as possible to the original server with little 
 - Jackpot System
 - Leaderboards
 - Runners League
+- High Score and Total Score Saving
 
 ## In Progress
 - Daily Challenge
@@ -30,11 +31,8 @@ It is designed to be as accurate as possible to the original server with little 
 - Daily Battles
 
 ## To Do
-- High Score saving\*
 - Support for older clients
 - Web interface for configuration
-
- <sup>\*Works, but Leaderboard support is required for the client to retrieve saved High Scores</sup>
 
 ## Building and Setup
 
