@@ -450,6 +450,15 @@ namespace spikewall.Controllers
                     DateTime.Now.Month,
                     DateTime.Now.Day);
 
+                if (playerState.quickTotalHighScore < request.score)
+                {
+                    playerState.quickTotalHighScore = request.score;
+                    playerState.numAnimals += request.numAnimals;
+                    playerState.numRings += request.numRings;
+                    playerState.numRedRings += request.numRedStarRings;
+                    playerState.totalDistance += request.distance;
+                }
+
                 if (currentTime.ToUnixTimeSeconds() >= quickStartTime && currentTime.ToUnixTimeSeconds() < quickResetTime)
                 {
                     if (playerState.quickLeagueHighScore < request.score)
@@ -466,11 +475,6 @@ namespace spikewall.Controllers
                     {
                         playerState.quickHighTotalScore = playerState.quickTotalScore;
                     }
-
-                    playerState.numAnimals += request.numAnimals;
-                    playerState.numRings += request.numRings;
-                    playerState.numRedRings += request.numRedStarRings;
-                    playerState.totalDistance += request.distance;
                 }
 
                 PopulateCharacterState(conn, clientReq.userId, out var characterState);
@@ -626,6 +630,15 @@ namespace spikewall.Controllers
                     DateTime.Now.Month,
                     DateTime.Now.Day);
 
+                if (playerState.totalHighScore < request.score)
+                {
+                    playerState.totalHighScore = request.score;
+                    playerState.numAnimals += request.numAnimals;
+                    playerState.numRings += request.numRings;
+                    playerState.numRedRings += request.numRedStarRings;
+                    playerState.totalDistance += request.distance;
+                }
+
                 if (currentTime.ToUnixTimeSeconds() >= endlessStartTime && currentTime.ToUnixTimeSeconds() < endlessResetTime)
                 {
                     if (playerState.leagueHighScore < request.score)
@@ -642,11 +655,6 @@ namespace spikewall.Controllers
                     {
                         playerState.highTotalScore = playerState.totalScore;
                     }
-
-                    playerState.numAnimals += request.numAnimals;
-                    playerState.numRings += request.numRings;
-                    playerState.numRedRings += request.numRedStarRings;
-                    playerState.totalDistance += request.distance;
                 }
 
                 PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
