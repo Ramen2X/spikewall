@@ -438,6 +438,8 @@ namespace spikewall.Controllers
 
                 request.CheckCheatResult(clientReq.userId);
 
+                WheelOptions wheelOptions = new();
+
                 var quickLeagueResetTimeStatus = LeagueData.GetStartAndEndTimesForQuickLeague(conn, (long)playerState.quickRankingLeague, (long)playerState.quickRankingLeagueGroup, out long quickStartTime, out long quickResetTime);
 
                 if (quickLeagueResetTimeStatus != SRStatusCode.Ok)
@@ -503,6 +505,12 @@ namespace spikewall.Controllers
                 //The total final score divided by a number will add to the current Jackpot value
                 var addJackpotRing = request.score / 25000;
 
+                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions);
+                if (increaseJackpotStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, increaseJackpotStatus));
+                }
+
                 sbyte charactersInRun = 1;
 
                 var subCharaIndex = -1;
@@ -552,9 +560,6 @@ namespace spikewall.Controllers
 
                 quickPostGameResultsResponse.playerState = playerState;
                 quickPostGameResultsResponse.playCharacterState = playCharacterState;
-
-                WheelOptions wheelOptions = new();
-                wheelOptions.numJackpotRing += (long)addJackpotRing;
             }
 
             // FIXME: Actually implement this normally lmao
@@ -686,7 +691,12 @@ namespace spikewall.Controllers
 
                 //The total final score divided by a number will add to the current Jackpot value
                 var addJackpotRing = request.score / 25000;
-                wheelOptions.numJackpotRing += (long)addJackpotRing;
+
+                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions);
+                if (increaseJackpotStatus != SRStatusCode.Ok)
+                {
+                    return new JsonResult(EncryptedResponse.Generate(iv, increaseJackpotStatus));
+                }
 
                 sbyte charactersInRun = 1;
 
