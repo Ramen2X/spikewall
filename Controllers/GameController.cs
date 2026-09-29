@@ -505,11 +505,13 @@ namespace spikewall.Controllers
                 //The total final score divided by a number will add to the current Jackpot value
                 var addJackpotRing = request.score / 25000;
 
-                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions);
+                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions, out long currentJackpotValue);
                 if (increaseJackpotStatus != SRStatusCode.Ok)
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, increaseJackpotStatus));
                 }
+                wheelOptions.numJackpotRing = currentJackpotValue;
+                wheelOptions.Save(conn, clientReq.userId);
 
                 sbyte charactersInRun = 1;
 
@@ -692,11 +694,13 @@ namespace spikewall.Controllers
                 //The total final score divided by a number will add to the current Jackpot value
                 var addJackpotRing = request.score / 25000;
 
-                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions);
+                var increaseJackpotStatus = WheelOptions.IncreaseJackpot(conn, (long)addJackpotRing, ref wheelOptions, out long currentJackpotValue);
                 if (increaseJackpotStatus != SRStatusCode.Ok)
                 {
                     return new JsonResult(EncryptedResponse.Generate(iv, increaseJackpotStatus));
                 }
+                wheelOptions.numJackpotRing = currentJackpotValue;
+                wheelOptions.Save(conn, clientReq.userId);
 
                 sbyte charactersInRun = 1;
 

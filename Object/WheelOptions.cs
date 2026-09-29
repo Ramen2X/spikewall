@@ -163,14 +163,16 @@ namespace spikewall.Object
             return SRStatusCode.Ok;
         }
 
-        public static SRStatusCode IncreaseJackpot(MySqlConnection conn, long jackpotIncrease, ref WheelOptions wheelOptions)
+        public static SRStatusCode IncreaseJackpot(MySqlConnection conn, long jackpotIncrease, ref WheelOptions wheelOptions, out long currentJackpotValue)
         {
             wheelOptions.numJackpotRing += jackpotIncrease;
             if (wheelOptions.numJackpotRing >= 99_999)
             {
                 wheelOptions.numJackpotRing = 99_999;
             }
-            
+
+            currentJackpotValue = wheelOptions.numJackpotRing;
+
             return SRStatusCode.Ok;
         }
 
