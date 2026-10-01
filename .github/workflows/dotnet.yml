@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 9.0.x
-    - name: Install dependencies
-      run: dotnet add package MySqlConnector && dotnet add package Swashbuckle.AspNetCore
+        dotnet-version: 10.0.x
+    - name: Restore dependencies
+      run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
     - name: Test
