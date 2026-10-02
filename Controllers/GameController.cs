@@ -463,10 +463,7 @@ namespace spikewall.Controllers
                     }
                 }
 
-                // Character experience is based on how many rings were collected in the entire run
-                //var exp = request.numRings + request.numFailureRings;
-
-                // In the original game, character experience is based on 
+                // Verified via old gameplay that this is the EXP formula
                 var exp = request.score / 5000;
 
                 sbyte charactersInRun = 1;
@@ -589,6 +586,39 @@ namespace spikewall.Controllers
                 playerState.numRedRings += request.numRedStarRings;
                 playerState.totalDistance += request.distance;
 
+                // Verified via old gameplay that this is the EXP formula
+                var exp = request.score / 5000;
+
+                var previousPoint = mileageMapState.point;
+                var previousChapter = mileageMapState.chapter;
+                var previousEpisode = mileageMapState.episode;
+
+                mileageMapState.stageTotalScore += request.score;
+
+                // Despite its misleading name, this is set to 1 whether a chapter OR an episode is cleared.
+                if (request.chapterClear == 1)
+                {
+                    // Chapter or episode cleared, go to the next one
+                    mileageMapState.Advance();
+
+                    // Prevent player rank from going over 999
+                    if (playerState.numRank < 998)
+                    {
+                        playerState.numRank++;
+                    }
+
+                    // Chapters and episodes don't necessarily have to end
+                    // with a boss fight, so another check is necessary here
+                    // to make sure we're rewarding EXP for a boss fight
+                    if (request.bossDestroyed > 0)
+                    {
+                        exp = 2000;
+                    }
+                }
+                else mileageMapState.point = request.reachPoint;
+
+                sbyte charactersInRun = 1;
+
                 PopulateCharacterState(conn, clientReq.userId, out Character[] characterState);
 
                 var subCharacterPresent = false;
@@ -604,19 +634,6 @@ namespace spikewall.Controllers
                         break;
                     }
                 }
-
-                // Character experience is based on how many rings were collected in the entire run
-                //var exp = request.numRings + request.numFailureRings;
-
-                // In the original game, character experience is based on total final score / 5000;
-                // Character experience in boss showdowns is All-Or-Nothing (2000 for successful EXP, 0 for Failure)
-                var exp = request.score / 5000;
-                if (request.bossDestroyed != 0)
-                {
-                    exp = 2000;
-                }
-
-                sbyte charactersInRun = 1;
 
                 var subCharaIndex = -1;
 
@@ -646,26 +663,6 @@ namespace spikewall.Controllers
                 {
                     playCharacterState[1] = characterState[subCharaIndex];
                 }
-
-                var previousPoint = mileageMapState.point;
-                var previousChapter = mileageMapState.chapter;
-                var previousEpisode = mileageMapState.episode;
-
-                mileageMapState.stageTotalScore += request.score;
-
-                // Despite its misleading name, this is set to 1 whether a chapter OR an episode is cleared.
-                if (request.chapterClear == 1)
-                {
-                    // Chapter or episode cleared, go to the next one
-                    mileageMapState.Advance();
-
-                    // Prevent player rank from going over 999
-                    if (playerState.numRank < 998)
-                    {
-                        playerState.numRank++;
-                    }
-                }
-                else mileageMapState.point = request.reachPoint;
 
                 conn.Open();
 
