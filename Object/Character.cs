@@ -71,43 +71,6 @@ namespace spikewall.Object
         public ulong[]? abilityLevelupExp { get; set; }
 
         /// <summary>
-        /// Enum that contains the names 
-        /// and IDs of all characters.
-        /// </summary>
-        public enum CharacterId
-        {
-            Sonic = 300000,
-            Tails,
-            Knuckles,
-            Amy,
-            Shadow,
-            Blaze,
-            Rouge,
-            Omega,
-            Big,
-            Cream,
-            Espio,
-            Charmy,
-            Vector,
-            Silver,
-            MetalSonic,
-            ClassicSonic,
-            Werehog,
-            Sticks,
-            Tikal,
-            Mephiles,
-            PSISilver,
-            AmitieAmy = 301000,
-            GothicAmy,
-            HalloweenShadow,
-            HalloweenRouge,
-            HalloweenOmega,
-            ChristmasSonic,
-            ChristmasTails,
-            ChristmasKnuckles
-        }
-
-        /// <summary>
         /// Enum that contains all of the
         /// possible states of a character.
         /// </summary>
