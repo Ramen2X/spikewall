@@ -35,6 +35,7 @@
 
         public enum CollectEventType
         {
+            None,
             GetAnimals,
             GetRing,
             RunDistance
@@ -47,8 +48,9 @@
             Shop
         }
 
-        public enum EventID
+        public enum EventType
         {
+            None,
             SpecialStage,
             RaidBoss,
             CollectObject,
