@@ -14,6 +14,7 @@ CREATE TABLE
         data_version VARCHAR(2) NOT NULL DEFAULT '15',
         info_version VARCHAR(3) NOT NULL DEFAULT '017',
         revive_rsr_cost BIGINT UNSIGNED NOT NULL DEFAULT 5,
+        chao_roulette_cost BIGINT UNSIGNED NOT NULL DEFAULT 50,
         enable_limited_time_incentives TINYINT NOT NULL DEFAULT 1
     );
 

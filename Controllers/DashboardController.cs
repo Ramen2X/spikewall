@@ -33,7 +33,7 @@ namespace spikewall.Controllers
                 Db.ResetDatabase(chao, players, characters, mileageMapStates, config, tickers, dailyChallenge, costs, itemOwnership, information, incentives, wheelOptions, itemRouletteOptions, chaoWheelOptions, chaoRouletteOptions);
                 return StatusCode(200, "Database reset successfully");
             }
-            catch (MySqlException e)
+            catch (Exception e) when (e is MySqlException or IOException)
             {
                 return StatusCode(500, e.ToString());
             }

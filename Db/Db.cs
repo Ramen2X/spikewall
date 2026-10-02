@@ -128,7 +128,7 @@ namespace spikewall
         private static void QuickRun(MySqlConnection conn, string fileName)
         {
             //The base path provides the location of the sqlfile and is applied to the SQL command to read the query from the file name.
-            var filePath = Path.Combine("Db", "sqlfiles", fileName);
+            var filePath = Path.Combine(AppContext.BaseDirectory, "Db", "sqlfiles", fileName);
             var command = new MySqlCommand(File.ReadAllText(filePath), conn);
             command.ExecuteNonQuery();
         }
@@ -199,7 +199,7 @@ namespace spikewall
             // Drop and recreate itemownership
             if (itemOwnership)
             {
-                QuickRun(conn, "itemownership.sql;");
+                QuickRun(conn, "itemownership.sql");
             }
 
             if (information)
@@ -224,12 +224,12 @@ namespace spikewall
 
             if (chaoWheelOptions)
             {
-                QuickRun(conn, "chaoWheelOptions.sql");
+                QuickRun(conn, "chaowheeloptions.sql");
             }
 
             if (chaoRouletteOptions)
             {
-                QuickRun(conn, "chaoRouletteOptions.sql");
+                QuickRun(conn, "chaorouletteoptions.sql");
             }
 
             conn.Close();
