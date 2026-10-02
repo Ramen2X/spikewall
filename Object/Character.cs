@@ -137,7 +137,7 @@ namespace spikewall.Object
         public enum UpgradeAbility
         {
             Invincible,
-            Barrier,
+            Barrier, //this is unused
             Magnet,
             Trampoline,
             Combo,
