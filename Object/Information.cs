@@ -67,4 +67,22 @@ namespace spikewall.Object
         // The message that this operator information contains.
         public string content { get; set; }
     }
+
+    /// <summary>
+    /// This enum contains all the languages that are available in the game.
+    /// </summary>
+    public enum Language
+    {
+        Japanese,
+        English,
+        ChineseZHJ,
+        ChineseZH,
+        Korean,
+        French,
+        German,
+        Spanish,
+        Portuguese,
+        Italian,
+        Russian
+    }
 }

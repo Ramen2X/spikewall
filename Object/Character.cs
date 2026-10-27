@@ -93,6 +93,25 @@ namespace spikewall.Object
             UnlockedByRoulette
         }
 
+        /// <summary>
+        /// Enum containing possible upgrades 
+        /// for each character level up
+        /// </summary>
+        public enum UpgradeAbility
+        {
+            Invincible,
+            Barrier, //this is unused
+            Magnet,
+            Trampoline,
+            Combo,
+            Laser,
+            Drill,
+            Asteroid,
+            RingBonus,
+            DistanceBonus,
+            AnimalBonus
+        }
+
         public static ulong GenerateTotalCost(MySqlConnection conn, int characterId, sbyte level)
         {
             ulong cost = 0;
